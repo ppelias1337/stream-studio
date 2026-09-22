@@ -6,7 +6,7 @@ const { execFileSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
-const run = (cmd, args, opt) => execFileSync(cmd, args, { encoding: 'utf8', shell: cmd === 'npx', ...opt });
+const run = (cmd, args, opt) => execFileSync(cmd, args, { encoding: 'utf8', ...opt });
 const fail = msg => { console.error('release: ' + msg); process.exit(1); };
 const { version } = require('./package.json');
 const tag = 'v' + version;
@@ -15,7 +15,7 @@ if (run('git', ['status', '--porcelain']).trim()) fail('commit your changes firs
 try { run('gh', ['release', 'view', tag], { stdio: 'ignore' }); fail(tag + ' is already released. Bump the version in package.json'); } catch (e) {}
 run('git', ['push', '-q'], { stdio: 'inherit' });   // the tag goes on main as pushed, so push what was built
 
-run('npx', ['electron-builder', '--win', '--publish', 'never'], { stdio: 'inherit' });
+execFileSync('npx electron-builder --win --publish never', { stdio: 'inherit', shell: true });   // npx is a .cmd on Windows
 
 // The updater looks for the names latest.yml gives, with dashes where the local files have spaces.
 const out = path.join('dist', 'release');
