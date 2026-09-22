@@ -57,7 +57,7 @@ npm run server                     # dev: server only, data/ (port from data/con
 npm start                          # the Electron app (uses %APPDATA% data, port 8787)
 node server/test-comp-sync.js      # relay + lock check
 npm run dist                       # installer into dist/, no upload
-npm run release                    # bump package.json version first; needs GH_TOKEN; publishes a GitHub release
+npm run release                    # bump + commit package.json version first; needs gh logged in; builds, pushes, publishes one GitHub release (release.js)
 ```
 
 Clients check GitHub Releases on start and hourly, download in the background, and install when
