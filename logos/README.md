@@ -1,6 +1,6 @@
 # Sponsor logos
 
-Drop sponsor logo files in this folder. The sheet's `logo_file` setting holds **just the
+Drop new sponsor logos in **`%APPDATA%\Stream Studio\data\logos`** (`data/logos` with `npm run server`), which updates never touch. This folder holds the logos that ship with the app; a file of the same name in the data folder wins. The sheet's `logo_file` setting holds **just the
 filename** — no path, no URL. The page loads it from `/logos/<filename>` and fits it to the
 **760 × 114** logo box under the competition title. There is no "sponsored by" caption any
 more — the logo is the whole plate, so it carries the sponsor on its own.

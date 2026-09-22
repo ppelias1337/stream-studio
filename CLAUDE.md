@@ -37,7 +37,7 @@ format asks first. **Wheel Studio** is `/control` in the second iframe.
   XHR *before* the page script reads localStorage (the bootstrap above `let state`), then unions its
   own history back in. `DISPLAY_ONLY` still never writes.
 - **Runtime data lives in `STUDIO_DATA`**: `%APPDATA%\Stream Studio\data` in the app, `data/` when
-  run with `npm run server`. It holds `config.json` (sheet link + results token), `cache/`, and `comp-state.json`.
+  run with `npm run server`. It holds `config.json` (sheet link + results token), `cache/`, `comp-state.json`, and `logos/` (new sponsor logos; the bundled `logos/` is the fallback).
   Never in the install folder, because updates replace that folder. First start imports the old Wheel Studio's
   `server\config.json` + cache (`importOldWheel()`).
 - **Public repo, no secrets.** `config.json` is never committed or bundled. `apps-script/Code.gs`

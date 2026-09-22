@@ -11,7 +11,7 @@ public/slots.js  the slot table: what each file replaces, and where
 public/room.js   where the camera stands — how deep the room is, in two numbers
 public/sounds/ the tick, the win, the stinger and the music bed — drop a file in, same as art
 tools/         restart.js — what the .bat runs: frees the port, starts the server
-logos/         sponsor logos, filename only in the sheet
+logos/         sponsor logos that ship with the app; add new ones to <data>/logos (see logos/README.md)
 apps-script/   the Google Sheet feed and validation
 cache/         last feed pull + draws waiting to reach the sheet (written at runtime)
 ```

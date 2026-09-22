@@ -32,6 +32,10 @@ const FEED_CACHE = path.join(CACHE_DIR, 'feed.json');
 const RESULTS_QUEUE = path.join(CACHE_DIR, 'pending-results.jsonl');
 const CONFIG_FILE = path.join(DATA_DIR, 'config.json');
 const comp = require('./comp-sync')(DATA_DIR);
+// New sponsor logos go here, where an update can't delete them; the bundled logos/ is the fallback.
+const USER_LOGOS = path.join(DATA_DIR, 'logos');
+fs.mkdirSync(USER_LOGOS, { recursive: true });
+const logoPath = name => [USER_LOGOS, LOGOS_DIR].map(d => path.join(d, name)).find(p => fs.existsSync(p));
 
 // Both the server and the page work from these, so they cannot drift apart.
 // Tuned here and only here.
@@ -687,10 +691,10 @@ function applyFeed(feed, source) {
   // The one check Apps Script cannot do: it can't see this machine's logos folder.
   // A missing logo is cosmetic, so it is reported loudly but never drops a wheel.
   state.wheels.forEach(w => {
-    if (w.logoFile && !fs.existsSync(path.join(LOGOS_DIR, w.logoFile))) {
+    if (w.logoFile && !logoPath(w.logoFile)) {
       state.problems.push({
         level: 'warn',
-        text: w.tab + ' — logo "' + w.logoFile + '" is not in the logos folder; the plate will show the sponsor name instead.'
+        text: w.tab + ' — logo "' + w.logoFile + '" is not in ' + USER_LOGOS + '; the plate will show the sponsor name instead.'
       });
     }
   });
@@ -930,11 +934,11 @@ function serveStatic(url, req, res) {
   else if (pathname.endsWith('/')) file = path.join(PUBLIC_DIR, decodeURIComponent(pathname.slice(1)), 'index.html');
   else if (pathname === '/control') file = path.join(PUBLIC_DIR, 'control.html');
   else if (pathname === '/stream') file = path.join(PUBLIC_DIR, 'stream.html');
-  else if (pathname.startsWith('/logos/')) file = path.join(LOGOS_DIR, decodeURIComponent(pathname.slice(7)));
+  else if (pathname.startsWith('/logos/')) { const n = decodeURIComponent(pathname.slice(7)); file = logoPath(n) || path.join(USER_LOGOS, n); }
   else file = path.join(PUBLIC_DIR, decodeURIComponent(pathname.slice(1)));
 
   const resolved = path.resolve(file);
-  if (!resolved.startsWith(PUBLIC_DIR) && !resolved.startsWith(LOGOS_DIR)) {
+  if (!resolved.startsWith(PUBLIC_DIR) && !resolved.startsWith(LOGOS_DIR) && !resolved.startsWith(USER_LOGOS)) {
     res.writeHead(403); return res.end('forbidden');
   }
   const type = MIME[path.extname(resolved).toLowerCase()] || 'application/octet-stream';
