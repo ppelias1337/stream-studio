@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Money Train 5 Bingo</title>
+<style>
+:root{
+  --cond:"Bahnschrift Condensed","Bahnschrift SemiCondensed","Roboto Condensed","Arial Narrow",sans-serif;
+  --sans:Bahnschrift,"Segoe UI",system-ui,sans-serif;
+  --gold:#f7c948; --gold-ink:#2b1c00; --neon:#ff8a3d; --green:#4be08f; --red:#ff5a6e;
+  --ground:#0f1319; --slab:#1a2029; --slab2:#232b37; --slab3:#2e3846; --line:#343f4e; --text:#eef2f7; --muted:#9aa6b8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--ground);color:var(--text);font:15px/1.45 var(--sans)}
+button,input,textarea,select{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* ---------- desk: stream box top-left at real size, controls beside it ---------- */
+.desk{display:grid;grid-template-columns:600px minmax(0,900px);gap:24px;padding:20px;align-items:start}
+.monitor{position:sticky;top:20px}
+.monitor-label{margin-top:10px;color:var(--muted);font-size:13px}
+.monitor-label b{color:var(--red);text-transform:uppercase;letter-spacing:.08em}
+@media (max-width:1300px){ .desk{grid-template-columns:600px} .monitor{position:static} }
+
+/* ---------- the stream box (600×600) ---------- */
+.box{position:relative;width:600px;height:600px;overflow:hidden;border-radius:10px;
+  font-family:var(--cond);font-weight:700;text-transform:uppercase;color:#fff;
+  background:linear-gradient(180deg,rgba(10,8,6,.05) 0%,rgba(10,8,6,.2) 45%,rgba(10,8,6,.6) 100%),url(assets/bg.jpg) center 20%/cover #1b222c;
+  box-shadow:inset 0 0 0 2px #15191f,inset 0 0 0 4px #5b6470}
+
+.steel-t{background:linear-gradient(180deg,#fdfeff 0%,#d5dbe3 42%,#7c8796 50%,#b9c2cd 72%,#f1f4f7 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 #11151b)}
+.gold-t{background:linear-gradient(180deg,#fff6c4 0%,#ffd75e 35%,#d18f1c 55%,#ffcf4d 78%,#fff0a0 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 #3b2600)}
+
+.hd{position:absolute;left:20px;right:22px;top:18px;height:80px;display:flex;align-items:center;justify-content:space-between}
+.logo{width:404px;height:auto;filter:drop-shadow(0 4px 6px rgba(0,0,0,.6))}
+.bingo{font-size:52px;letter-spacing:.05em;color:#fff1e0;text-shadow:0 0 6px var(--neon),0 0 16px var(--neon),0 0 32px #ff3d0a}
+
+.frame{position:absolute;left:18px;right:18px;background:rgba(14,11,8,.62);border-radius:6px;
+  box-shadow:inset 0 0 0 2px #06080c,0 0 0 3px #59636f,0 0 0 5px #1b2027}
+.frame::before,.frame::after{content:"";position:absolute;top:50%;width:6px;height:80px;margin-top:-40px;border-radius:3px;
+  background:#ffd9b8;box-shadow:0 0 8px var(--neon),0 0 18px #ff3d0a}
+.frame::before{left:-13px} .frame::after{right:-13px}
+
+.board{top:112px;height:410px;padding:10px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:8px;height:100%}
+.tile{position:relative;display:flex;align-items:center;justify-content:center;text-align:center;padding:8px 10px;border-radius:4px;min-width:0;
+  line-height:1.04;letter-spacing:.01em;overflow-wrap:anywhere;text-shadow:0 2px 0 #06090f;
+  background:linear-gradient(180deg,#3d4756 0%,#262e3a 55%,#1c222c 100%);
+  box-shadow:inset 0 0 0 2px #0a0e15,inset 0 3px 0 rgba(255,255,255,.14),inset 0 -4px 0 rgba(0,0,0,.35)}
+.tile.done{color:var(--gold-ink);text-shadow:0 1px 0 rgba(255,255,255,.35);
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 12.5l5 5L20 6.5' fill='none' stroke='%23a06a10' stroke-opacity='.4' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/64% auto no-repeat,
+    linear-gradient(180deg,#fff0a8 0%,#f7c948 38%,#d99a22 72%,#b8781a 100%);
+  box-shadow:inset 0 0 0 2px #6b4508,inset 0 3px 0 rgba(255,255,255,.5),0 0 14px rgba(247,201,72,.35)}
+.beams{position:absolute;left:10px;top:10px;width:calc(100% - 20px);height:calc(100% - 20px);overflow:visible;pointer-events:none;
+  filter:drop-shadow(0 0 5px var(--neon)) drop-shadow(0 0 12px #ff3d0a)}
+/* loops run off --ph (the shared clock, set on every rebuild) so a rebuild mid-loop is invisible */
+.tile.hot{color:#ffe6d0}
+.tile.hot::after{content:"";position:absolute;inset:0;border-radius:4px;pointer-events:none;
+  box-shadow:inset 0 0 0 2px #ffb27a,inset 0 0 26px rgba(255,110,30,.5),0 0 18px rgba(255,90,31,.7);
+  animation:hot 1.2s ease-in-out var(--ph) infinite}
+@keyframes hot{50%{opacity:.15}}
+.tile.stamp{z-index:1;animation:stamp .6s ease-out both}
+@keyframes stamp{0%{transform:scale(1.45) rotate(-6deg);opacity:0;filter:brightness(2.4)}
+  45%{transform:scale(.92);opacity:1}70%{transform:scale(1.04);filter:brightness(1.35)}100%{transform:none;filter:none}}
+.tile.stamp::after{content:"";position:absolute;inset:0;border-radius:4px;pointer-events:none;animation:ring .6s ease-out both;animation-delay:inherit}
+@keyframes ring{0%,40%{box-shadow:0 0 0 0 rgba(255,236,150,.95)}100%{box-shadow:0 0 0 20px rgba(255,236,150,0)}}
+/* free centre: the game's square wild, whole, in a gold-framed tile */
+.tile.wild{padding:0;overflow:hidden;background:radial-gradient(closest-side,#5a2e12,#2a160b 80%,#1d1109);
+  box-shadow:inset 0 0 0 2px #6b4508,inset 0 0 0 4px #d99a22,0 0 16px rgba(247,201,72,.45)}
+.tile.wild img{position:absolute;top:4px;left:50%;height:calc(100% - 8px);transform:translateX(-50%);filter:drop-shadow(0 0 8px rgba(0,0,0,.6))}
+.tno,.tgs{position:absolute;top:5px;height:22px;padding:0 6px;border-radius:3px;display:grid;place-items:center;font-size:17px;font-style:normal;line-height:1;text-shadow:none;background:rgba(6,9,15,.72)}
+.tno{left:5px;color:var(--gold)}
+.tgs{right:5px;color:#ffd9b8}
+.beams line{stroke:#ff5a1f;stroke-width:7;stroke-linecap:round;opacity:.8}
+.ft{position:absolute;left:18px;right:18px;bottom:18px;height:50px;display:flex;align-items:center;gap:12px;padding:0 4px}
+.ft .lab{font-size:24px;letter-spacing:.06em;color:#e6ebf2;text-shadow:0 2px 0 #11151b}
+.pips{display:flex;gap:6px}
+.pip{width:32px;height:24px;border-radius:3px;background:#161b23;box-shadow:inset 0 0 0 2px #0a0d12}
+.pip.on{background:var(--neon);box-shadow:inset 0 0 0 2px #ffd9b8,0 0 10px var(--neon)}
+.pip.full{width:auto;padding:0 10px;display:grid;place-items:center;font-size:18px;font-style:normal;color:#6d7684}
+.pip.full.on{color:var(--gold-ink);background:linear-gradient(#ffe17a,#e0a126);box-shadow:inset 0 0 0 2px #fff3c0,0 0 12px rgba(247,201,72,.7)}
+.ft .count{margin-left:auto;font-size:40px;line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 3px 0 #11151b}
+.ft .count small{font-size:24px;color:#b9c2cd}
+.ft.cta{justify-content:center;gap:0;border-radius:5px;background:#1c0d05;letter-spacing:.04em;color:#fff1e0;
+  box-shadow:inset 0 0 0 2px var(--neon),0 0 16px rgba(255,138,61,.55)}
+.ft.cta b{margin:0 .3em;color:var(--gold)}
+.ft.swap{animation:swap 12s linear var(--ph) infinite}   /* the guess CTA covers the pips 4s in every 12 */
+@keyframes swap{0%,64%{opacity:0;transform:translateY(8px)}68%,96%{opacity:1;transform:none}100%{opacity:0}}
+.ft.result{animation:result 6s linear both}
+@keyframes result{0%{opacity:0;transform:translateY(8px)}5%,92%{opacity:1;transform:none}100%{opacity:0}}
+
+/* raffle on stream */
+.rv{top:112px;bottom:18px;display:flex;flex-direction:column;text-align:center;background:rgba(14,11,8,.88)}
+.rv .band{padding:9px 12px 7px;font-size:32px;letter-spacing:.06em;border-radius:6px 6px 0 0;
+  background:linear-gradient(180deg,#f0632f,#a8300f);text-shadow:0 2px 0 #4a1405}
+.rv .band.slim{padding:5px 12px 3px;font-size:20px;letter-spacing:.14em}   /* with a prize, the prize is the headline */
+.rv-prize{padding:4px 12px 8px;line-height:1.1;color:var(--gold);background:#141a24;text-shadow:0 3px 0 #3b2600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cta-big{display:flex;flex-direction:column;align-items:center;padding:16px 12px 0;font-size:30px;line-height:1.05;color:#dfe5ee}
+.cta-big b{max-width:100%;line-height:1.05;overflow-wrap:anywhere;padding:2px 0}
+.cta-big .closed{padding:24px 0;font-size:40px;color:#9aa6b8}
+.rule{display:flex;align-items:center;gap:12px;margin:12px 22px 4px;font-size:22px;letter-spacing:.1em;white-space:nowrap;font-variant-numeric:tabular-nums}
+.rule::before,.rule::after{content:"";flex:1;height:2px;background:#343f4e}
+.names{list-style:none;flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;flex-wrap:wrap;align-content:flex-start}   /* a name that doesn't fit wraps to a hidden 2nd column instead of showing half */
+.names li{width:100%}
+.names li,.reel div,.wname{display:flex;align-items:center;justify-content:center;gap:12px;white-space:nowrap;text-transform:none}
+.names li span,.reel div span,.wname span{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.names li{height:48px;font-size:30px}
+.names li:first-child{color:var(--gold)}
+.reelwrap{position:relative;flex:1}
+.reel{position:absolute;inset:0;overflow:hidden;-webkit-mask-image:linear-gradient(transparent,#000 25%,#000 75%,transparent);mask-image:linear-gradient(transparent,#000 25%,#000 75%,transparent)}
+.reel div{position:absolute;left:14px;right:14px;top:0;height:76px;font-size:46px;will-change:transform}
+.reel div.win{color:var(--gold)}
+.marks{position:absolute;left:0;right:0;top:calc(50% - 41px);height:82px;pointer-events:none;
+  border-top:3px solid var(--gold);border-bottom:3px solid var(--gold);box-shadow:0 0 14px rgba(247,201,72,.45),inset 0 0 14px rgba(247,201,72,.25)}
+.rv.dim .reelwrap,.rv.dim .cta-big,.rv.dim .rule,.rv.dim .names{opacity:.3}
+.win{position:absolute;left:22px;right:22px;top:56%;z-index:3;transform:translateY(-50%);overflow:hidden;border-radius:6px;background:#0e1219;
+  box-shadow:0 0 0 3px var(--gold),0 0 34px rgba(247,201,72,.45),0 24px 60px rgba(0,0,0,.8)}
+.win.pop{animation:pop .5s cubic-bezier(.16,1,.3,1)}
+@keyframes pop{from{transform:translateY(-50%) scale(.6);opacity:0}}
+.win small{display:block;padding:8px;font-size:26px;letter-spacing:.14em;color:var(--gold-ink);background:linear-gradient(#ffe17a,#e0a126)}
+.wname{padding:18px 12px 10px;color:#fff}
+.win p{display:flex;flex-direction:column;align-items:center;gap:6px;padding:0 12px 18px;font-size:24px;letter-spacing:.05em;color:#b7c1d0}
+.win p b{color:var(--gold);font-size:72px;line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 3px 0 #3b2600}
+.win p.ok{font-size:30px;color:var(--green)}
+
+.pf{position:relative;top:-.075em;display:inline-grid;place-items:center;flex:none;width:.9em;height:.9em;border-radius:.18em;font-style:normal}   /* centred on the capitals, not the line box */
+.pf svg{width:62%;height:62%}
+.pf-twitch{background:#9146ff;fill:#fff}
+.pf-kick{background:#53fc18;fill:#000}
+
+/* line / full board takeover: a train-car wipe across the square */
+.tk{position:absolute;inset:0;z-index:20;display:none;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;padding:0 0 0 32px;overflow:hidden;
+  background:repeating-linear-gradient(-45deg,rgba(0,0,0,.12) 0 26px,transparent 26px 52px),linear-gradient(180deg,#f2692f 0%,#c43d14 55%,#6e1c07 100%)}
+.tk .char{position:absolute;left:446px;translate:-50% 0;bottom:26px;height:540px;   /* centred between the text (ends ~292px) and the right edge */z-index:-1;filter:drop-shadow(-10px 0 24px rgba(0,0,0,.55));animation:charIn .6s .3s cubic-bezier(.16,1,.3,1) both}
+@keyframes charIn{from{transform:translateX(90px);opacity:0}}
+.tk .text{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:4px;max-width:340px}
+.tk.full{align-items:center;padding:0}
+.tk.full .text{align-items:center;max-width:none}
+.tk .crew{width:460px;margin:-30px 0 -84px;   /* the art has ~8% transparent above and ~22% below; the margins eat it */filter:drop-shadow(0 8px 16px rgba(80,40,0,.45));animation:charIn .6s .3s cubic-bezier(.16,1,.3,1) both}
+.tk.full{background:repeating-linear-gradient(-45deg,rgba(90,50,0,.14) 0 26px,transparent 26px 52px),linear-gradient(180deg,#fff0a0 0%,#f5bd3c 45%,#b9761a 100%)}
+.tk.on{display:flex;animation:tk 5s linear both}
+@keyframes tk{
+  0%{transform:translateX(-102%);animation-timing-function:cubic-bezier(.2,.9,.25,1)}
+  9%{transform:none}
+  92%{transform:none;animation-timing-function:cubic-bezier(.6,0,.9,.4)}
+  100%{transform:translateX(102%)}}
+.tk .rail{position:absolute;left:0;right:0;top:0;height:26px;background:repeating-linear-gradient(90deg,#2b3038 0 40px,#161a20 40px 44px)}
+.tk .rail.b{top:auto;bottom:0}
+.tk .big{font-size:130px;line-height:.95}
+.tk .big.sm{font-size:88px}
+.tk.full .big{font-size:110px;background:none;color:var(--gold-ink);filter:drop-shadow(0 4px 0 rgba(255,255,255,.55))}
+.tk .sub{font-size:44px;letter-spacing:.06em;text-shadow:0 3px 0 rgba(0,0,0,.4)}
+.tk.full .sub{font-size:36px;color:var(--gold-ink);text-shadow:none}
+.tk .prize{margin-top:12px;padding:6px 22px;border-radius:5px;background:rgba(12,8,6,.8);color:var(--gold);font-size:48px;line-height:1.1;text-shadow:0 3px 0 #3b2600;overflow-wrap:anywhere}
+.tk.full .prize{margin-top:6px}
+
+/* OBS window: only the box, scaled to fill any square source */
+body.display{background:transparent;overflow:hidden}
+body.display .panel,body.display .monitor-label{display:none}
+body.display .box{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(var(--fit,1))}
+
+/* ---------- control panel ---------- */
+.top{display:flex;align-items:baseline;gap:12px;margin-bottom:16px}
+.top h1{font:700 30px/1 var(--cond);text-transform:uppercase;letter-spacing:.03em}
+.top h1 em{font-style:normal;color:var(--neon)}
+.ver{color:var(--muted);font-size:13px}
+.card{background:var(--slab);border:1px solid var(--line);border-radius:6px;padding:16px;margin-bottom:16px}
+.card-h{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.card-h h2{font:700 22px/1 var(--cond);text-transform:uppercase;letter-spacing:.06em;margin-right:auto}
+.hint{color:var(--muted);font-size:14px}
+.hint b{color:var(--text)}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.grow{flex:1}
+.lab{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.in{height:42px;padding:0 10px;border-radius:4px;border:1px solid var(--line);background:var(--ground);font-size:16px;text-transform:none;letter-spacing:0;color:var(--text)}
+.in:focus{border-color:var(--gold);outline:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 16px;border-radius:4px;border:1px solid var(--line);background:var(--slab2);cursor:pointer;font-weight:600}
+.btn:hover{background:var(--slab3)}
+.btn svg{width:18px;height:18px}
+.btn.primary{height:52px;padding:0 26px;border-color:var(--gold);background:var(--gold);color:var(--gold-ink);font:700 22px/1 var(--cond);text-transform:uppercase;letter-spacing:.04em}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger:hover{background:#4a1a24;border-color:var(--red)}
+.btn.on{box-shadow:inset 0 0 0 2px var(--neon);color:#ffd9b8}
+.btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
+.seg{display:flex;gap:6px}
+
+.cells{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+.cell{display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:5px;background:var(--slab2);border:1px solid var(--line)}
+.cell.done{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+/* textareas can't centre vertically, so the box is a label and the textarea grows to its text inside it */
+.cell .ta{display:flex;align-items:center;height:76px;padding:6px 10px;border-radius:4px;border:1px solid var(--line);background:var(--ground);cursor:text}
+.cell .ta:focus-within{border-color:var(--gold)}
+.cell textarea{width:100%;max-height:100%;field-sizing:content;resize:none;border:0;padding:0;background:none;outline:none;text-align:center;font:600 16px/1.25 var(--sans)}
+.cell .btn{height:46px;border-color:#4b586b;background:linear-gradient(180deg,#3d4859,#2a3341);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 2px 0 rgba(0,0,0,.4);font:700 19px/1 var(--cond);text-transform:uppercase;letter-spacing:.05em}
+.cell .btn:hover{border-color:var(--gold);color:var(--gold);background:linear-gradient(180deg,#465264,#303a4a)}
+.cell .btn:active{transform:translateY(1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.14)}
+.cell.done .btn{background:linear-gradient(180deg,#ffe07a,#f0b63a);border-color:var(--gold);color:var(--gold-ink);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 0 12px rgba(247,201,72,.35)}
+.cell.done .btn:hover{color:var(--gold-ink);filter:brightness(1.06)}
+.cell.wild{align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:14px}
+.cell.wild img{height:92px}
+
+.stages{display:grid;gap:6px}
+.stage{display:grid;grid-template-columns:100px minmax(0,1fr) minmax(0,1.3fr);gap:12px;align-items:center;padding:6px 6px 6px 12px;border-radius:4px;background:var(--slab2)}
+.sname{font:700 18px/1 var(--cond);text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+.stage.done .sname{color:var(--neon)}
+.sstat{color:var(--muted);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stage.done .sstat{color:var(--text)}
+.stage.won .sstat b{color:var(--gold)}
+
+.kwv{font:700 26px/1 var(--cond);color:var(--gold)}
+.drawrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;padding:10px 12px;border-radius:5px;background:var(--slab2);font-size:18px}
+.drawrow.ok{box-shadow:inset 0 0 0 2px var(--green)}
+.drawrow .pf{width:24px;height:24px}
+.secs{font:700 26px/1 var(--cond);color:var(--gold);font-variant-numeric:tabular-nums;margin-right:auto}
+.secs::after{content:"s"}   /* the stream shows the bare number */
+.tag{padding:3px 8px;border-radius:3px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.tag.ok{background:var(--green);color:#03281a}
+.count{display:flex;align-items:baseline;gap:8px;color:var(--muted);margin-bottom:8px}
+.count b{font:700 34px/1 var(--cond);color:var(--text)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;max-height:130px;overflow-y:auto}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px 3px 4px;border-radius:4px;background:var(--slab3);font-size:14px;font-weight:600;white-space:nowrap}
+.chip .pf{width:20px;height:20px}
+.chip .tix{color:var(--gold)}
+.range{width:180px;accent-color:var(--gold)}
+.status{display:flex;gap:16px;font-size:14px;color:var(--muted)}
+.status span{display:inline-flex;align-items:center;gap:6px}
+.status i{width:9px;height:9px;border-radius:50%;background:#5b6573}
+.status i.ok{background:var(--green)}
+.status i.wait{background:var(--gold)}
+
+.toast{position:fixed;left:50%;bottom:24px;z-index:50;transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:.25s;
+  padding:12px 20px;border-radius:5px;background:var(--slab3);border:1px solid var(--line);font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+<div class="desk">
+  <div class="monitor">
+    <div class="box" id="box"><div id="boxInner"></div><div class="tk" id="tk"></div></div>
+    <p class="monitor-label"><b>On stream</b> · OBS Browser Source: this page with <code>#display</code> on the end, any square size (600×600 is 1:1)</p>
+  </div>
+  <main class="panel">
+    <header class="top"><h1>Money Train 5 <em>Bingo</em></h1><span class="ver" id="ver"></span></header>
+
+    <section class="card">
+      <div class="card-h"><h2>Board</h2><span class="hint" id="lineCount"></span><button class="btn danger" id="resetBoard">Reset board</button></div>
+      <div class="cells" id="cells"></div>
+      <p class="hint">Edit a challenge any time and the stream updates as you type. Lines and the full board are detected automatically.</p>
+    </section>
+
+    <section class="card">
+      <div class="card-h"><h2>Keyword raffle</h2><div class="status" id="chatStatus"></div></div>
+      <div id="raffle"></div>
+      <div id="entries"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-h"><h2>Prize stages</h2></div>
+      <div class="stages" id="stages"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-h"><h2>Guess the next tile</h2></div>
+      <div id="guess"></div>
+    </section>
+
+    <section class="card">
+      <div class="card-h"><h2>Sound</h2><div class="seg"><button class="btn" data-sound="1">On</button><button class="btn" data-sound="0">Off</button></div></div>
+      <div class="row">
+        <label class="lab">Volume <input type="range" class="range" id="vol" min="0" max="100"></label>
+        <span class="grow"></span>
+        <button class="btn" data-sfx="tick">Reel tick</button><button class="btn" data-sfx="whistle">Line</button><button class="btn" data-sfx="horn">Bingo</button><button class="btn" data-sfx="coin">Claim</button>
+      </div>
+      <p class="hint">Plays from this window, so it reaches stream through desktop audio. The browser keeps sound locked until you <b>click anywhere on the page once</b> after loading it.</p>
+    </section>
+
+    <section class="card">
+      <div class="card-h"><h2>Chat channels</h2></div>
+      <div class="row">
+        <label class="lab">Twitch channel <input class="in" id="twitch" spellcheck="false" style="width:180px"></label>
+        <label class="lab">Kick chatroom ID <input class="in" id="kick" spellcheck="false" style="width:130px"></label>
+      </div>
+      <p class="hint">Kick needs the chatroom ID, not the channel name: open <b>kick.com/api/v2/channels/NAME</b> in a browser and copy <b>chatroom.id</b>. Kick chat is read through kick.com's own (unofficial) socket.</p>
+    </section>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const VERSION="1.4.0";
+/* /bingo/ = control panel (owns and writes state). /bingo/#display = OBS
+   source: renders only the box, mirrors the server (sync), never writes. */
+const DISPLAY=location.hash.replace(/^#/,"")==="display";
+const KEY="mt5_bingo_v1";   // don't rename mid-show: a running board lives under it
+const LINES={r0:[0,1,2],r1:[3,4,5],r2:[6,7,8],c0:[0,3,6],c1:[1,4,7],c2:[2,5,8],d0:[0,4,8],d1:[2,4,6]};
+const LINE_NAME={r0:"Top row",r1:"Middle row",r2:"Bottom row",c0:"Left column",c1:"Middle column",c2:"Right column",d0:"Diagonal ↘",d1:"Diagonal ↙"};
+const BEAM={r0:[18,49,282,49],r1:[18,150,282,150],r2:[18,251,282,251],c0:[49,18,49,282],c1:[150,18,150,282],c2:[251,18,251,282],d0:[26,26,274,274],d1:[274,26,26,274]};
+const FX_MS=5000, REVEAL_MS=3000, ROW=76, STAMP_MS=600, RESULT_MS=6000;
+const WILD=4;   // the centre is free: always marked, shown as the wild symbol
+const DEFAULT_CELLS=["Basegame Bonus","10000x win","Reach Station 20",
+  "Bonus ends with every position filled","Wild","100x win from Base",
+  "Reach Station 10 from base","1000x win","Arms Dealer converts 4 bonus symbols"];
+const PF={twitch:"M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z",
+  kick:"M1.333 0h8v5.333H12V2.667h2.667V0h8v8H20v2.667h-2.667v2.666H20V16h2.667v8h-8v-2.667H12v-2.666H9.333V24h-8Z"};
+
+const rfFresh=(keyword="MT5",claimSecs=60,stage=0)=>({on:false,open:false,keyword,claimSecs,stage,entries:[],spin:null,won:null});
+const fresh=()=>({cells:DEFAULT_CELLS.map(t=>({t,d:false})), lines:[], prizes:[...Array(8).fill("€50"),"€100"], winners:{}, winnerLog:[], fx:null,
+  view:"board", chat:{twitch:"casinodaddy",kickRoom:"4534770"}, rf:rfFresh(),
+  guess:{on:false, picks:{}, bonus:{}, last:null},   // picks: eid→cell this round; bonus: eid→extra raffle tickets
+  sound:{on:true, vol:70}});
+function load(raw){
+  let s=fresh();
+  try{ const v=JSON.parse(raw===undefined?localStorage.getItem(KEY):raw); if(v&&Array.isArray(v.cells)) s=Object.assign(s,v); }catch(e){}
+  s.cells[WILD].d=true;
+  return s;
+}
+/* Stream Studio holds the board (/bingo/sync, the competitions relay). A panel
+   loads it before load() reads localStorage, and only one panel drives: two would
+   both read chat and overwrite each other. Same lock as the competitions page. */
+const CTL_ID=(()=>{ try{ let v=sessionStorage.getItem("studio_ctl"); if(!v){ v=Math.random().toString(36).slice(2); sessionStorage.setItem("studio_ctl",v); } return v; }catch(e){ return Math.random().toString(36).slice(2); } })();
+if(!DISPLAY){
+  let j=null;
+  try{
+    let take=false; try{ take=sessionStorage.getItem("bingo_take")==="1"; sessionStorage.removeItem("bingo_take"); }catch(e){}
+    const x=new XMLHttpRequest();   // synchronous on purpose: load() below reads localStorage
+    x.open("GET",`sync?hb=${CTL_ID}&pull=1${take?"&take=1":""}`,false); x.send();
+    if(x.status===200) j=JSON.parse(x.responseText);
+  }catch(e){}
+  if(j && j.owner===false){
+    document.body.innerHTML=`<div style="min-height:100vh;display:grid;place-items:center;text-align:center;padding:24px"><div>
+      <h2 style="margin:0 0 8px">Open on another screen</h2>
+      <p style="margin:0 0 20px;opacity:.75">Only one control panel runs the bingo at a time.</p>
+      <button class="btn" onclick="try{sessionStorage.setItem('bingo_take','1')}catch(e){};location.reload()">Use it here</button></div></div>`;
+    throw new Error("standby");   // stops the rest of this script
+  }
+  if(j && j.keys && j.keys[KEY]) try{ localStorage.setItem(KEY,j.keys[KEY]); }catch(e){}
+}
+let S=load();
+const bc=(()=>{ try{ return new BroadcastChannel("mt5_bingo"); }catch(e){ return null; } })();
+let pushing=false, pushAgain=false;   // one POST at a time, so an older board never lands last
+function push(){
+  if(pushing){ pushAgain=true; return; }
+  pushing=true;
+  fetch("sync",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keys:{[KEY]:JSON.stringify(S)},ctl:CTL_ID})})
+    .then(r=>{ if(r.status===409) location.reload(); }).catch(()=>{})
+    .finally(()=>{ pushing=false; if(pushAgain){ pushAgain=false; push(); } });
+}
+function save(){ if(DISPLAY) return; try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} if(bc) bc.postMessage(1); push(); }
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>';
+const allDone=()=>S.cells.every(c=>c.d);
+const lineDone=id=>LINES[id].every(i=>S.cells[i].d);
+const stageName=n=>n==9?"Full board":n?"Line "+n:"Raffle";
+const stageDone=n=>n==9?allDone():n>=1&&n<=S.lines.length;
+const raffleTitle=n=>n?stageName(n)+" raffle":"Keyword raffle";
+const tileSize=t=>{ const n=t.length; return n<=16?30:n<=30?24:n<=50?21:18; };   // never below 18px on stream
+const nameSize=t=>{ const n=t.length; return n<=10?60:n<=14?50:n<=18?42:36; };
+const logo=p=>PF[p]?`<i class="pf pf-${p}"><svg viewBox="0 0 24 24"><path d="${PF[p]}"/></svg></i>`:"";
+const nameHtml=e=>logo(e.platform)+`<span>${esc(e.name)}</span>`;
+const pfName=p=>p==="kick"?"Kick":"Twitch";
+const eid=e=>e.platform+":"+e.user;
+const secs=until=>Math.max(0,Math.ceil((until-Date.now())/1000));
+const spinEnd=sp=>sp.startedAt+sp.duration;
+const claimEnd=sp=>spinEnd(sp)+sp.claimMs;
+const poolOf=()=>S.rf.entries.filter(e=>!e.st);   // not won, not missed
+const tickets=e=>1+(S.guess.bonus[eid(e)]||0);
+const winnerOf=sp=>S.rf.entries.find(e=>eid(e)===sp.winner);
+const spinPool=sp=>S.rf.entries.slice(0,sp.count).filter(e=>!e.st||eid(e)===sp.winner);
+const mod=(a,n)=>((a%n)+n)%n;
+/** "MT5", "MT5!" and "mt5 pls" enter; "MT55" and "i want MT5" do not. */
+function matches(text,kw){
+  const t=String(text||"").trim().toLowerCase(), k=String(kw||"").trim().toLowerCase();
+  return !!k && t.startsWith(k) && !/^[\p{L}\p{N}_]/u.test(t.slice(k.length));
+}
+
+/* ================= board ================= */
+function toggleCell(i){
+  if(i===WILD) return;
+  const now=Date.now(), c=S.cells[i], G=S.guess;
+  c.d=!c.d;
+  if(c.d){
+    c.at=now;
+    // marking a tile settles the guess round: whoever picked it gets a ticket, then guessing starts over
+    const who=Object.keys(G.picks);
+    if(who.length){
+      const got=who.filter(k=>G.picks[k]===i);
+      got.forEach(k=>G.bonus[k]=(G.bonus[k]||0)+1);
+      G.last={cell:i, at:now, n:who.length, got, picks:G.picks}; G.picks={};
+    }
+  }else if(G.last&&G.last.cell===i){   // un-marking a misclick hands the round back
+    G.last.got.forEach(k=>{ if(!--G.bonus[k]) delete G.bonus[k]; });
+    G.picks=G.last.picks; G.last=null;
+  }
+  S.lines=S.lines.filter(lineDone);   // un-marking a cell drops the lines it broke
+  const added=Object.keys(LINES).filter(id=>lineDone(id)&&!S.lines.includes(id));
+  S.lines.push(...added);
+  if(added.length){
+    S.fx={id:now, at:now, from:S.lines.length-added.length+1, to:S.lines.length, full:allDone()};
+    if(!S.rf.spin&&!S.rf.won) S.rf.stage=nextStage();   // entries stay open all game, so the running raffle moves on to the new line
+  }
+  save(); renderAll();
+}
+const nextStage=()=>{ for(let n=1;n<=9;n++) if(stageDone(n)&&!S.winners[n]) return n; return 0; };
+
+/* ================= stream box ================= */
+const header=()=>`<div class="hd"><img class="logo" src="assets/logo.webp" alt="Money Train 5"><div class="bingo">Bingo</div></div>`;
+// one per line, in completion order; full board gets the logo with the crew
+const CHARS=["collector","necromancer","sniper","payer","arms-dealer","bomber","pyro","ticketmaster"];
+[...CHARS,"logo","logo-crew"].forEach(n=>{ new Image().src=`assets/${n}.webp`; });   // warm the cache so a takeover never pops in late
+// one tile short of a line: the tile chat should be rooting for
+const hot=i=>!S.cells[i].d&&Object.values(LINES).some(l=>l.includes(i)&&l.every(j=>j===i||S.cells[j].d));
+function boardView(){
+  const now=Date.now(), G=S.guess, picks=Array(9).fill(0);
+  Object.values(G.picks).forEach(i=>picks[i]++);
+  const tiles=S.cells.map((c,i)=>{
+    if(i===WILD) return `<div class="tile wild"><img src="assets/wild.png" alt="Wild"></div>`;
+    const age=now-(c.at||0), stamp=c.d&&age<STAMP_MS;   // the stamp plays from its timestamp, so a rebuild mid-stamp carries on
+    const badges=G.on&&!c.d?`<i class="tno">${i+1}</i>`+(picks[i]?`<i class="tgs">${picks[i]} ${picks[i]===1?"pick":"picks"}</i>`:""):"";
+    return `<div class="tile${c.d?" done":""}${stamp?" stamp":""}${hot(i)?" hot":""}" style="font-size:${tileSize(c.t)}px${stamp?`;animation-delay:-${age}ms`:""}">${badges}${esc(c.t)}</div>`;
+  }).join("");
+  const beams=S.lines.map(id=>{ const [a,b,x,y]=BEAM[id]; return `<line x1="${a}" y1="${b}" x2="${x}" y2="${y}" vector-effect="non-scaling-stroke"/>`; }).join("");
+  return `<div class="frame board"><div class="grid">${tiles}</div><svg class="beams" viewBox="0 0 300 300" preserveAspectRatio="none">${beams}</svg></div>`;
+}
+function footer(){
+  const R=S.rf;
+  if(R.on&&R.open) return `<div class="ft cta" style="font-size:${R.keyword.length<=8?28:22}px">Type<b>${esc(R.keyword)}</b>in chat to enter</div>`;
+  const n=S.lines.length;
+  const pips=Array.from({length:8},(_,i)=>`<i class="pip${i<n?" on":""}"></i>`).join("");
+  return `<div class="ft"><span class="lab">Lines</span><div class="pips">${pips}<i class="pip full${allDone()?" on":""}">Full</i></div><span class="count">${n}<small>/8</small></span></div>`+guessFooter();
+}
+function guessFooter(){
+  const G=S.guess, L=G.last;
+  if(!G.on) return "";
+  let h=allDone()?"":`<div class="ft cta swap" style="font-size:24px">Type<b>!1–9</b>to guess the next tile</div>`;
+  if(L){
+    // the result waits out the takeover that same click started
+    const wait=S.fx&&S.fx.id===L.at?(S.fx.full?2:1)*FX_MS:0, age=Date.now()-L.at-wait;
+    if(age<RESULT_MS) h+=`<div class="ft cta result" style="font-size:24px;animation-delay:${-age}ms">`
+      +(L.got.length?`<b>${L.got.length}</b>guessed tile ${L.cell+1} · +1 raffle ticket`:`Nobody guessed tile<b>${L.cell+1}</b>`)+`</div>`;
+  }
+  return h;
+}
+let winSig="";
+function winCard(){
+  const R=S.rf, sp=R.spin;
+  let e, foot, sig;
+  if(sp&&Date.now()>=spinEnd(sp)){
+    e=winnerOf(sp); if(!e) return "";
+    sig=sp.winner+sp.startedAt;
+    foot=sp.claimed?`<p class="ok">Claimed</p>`:`<p>Type in ${pfName(e.platform)} chat to claim<b data-until="${claimEnd(sp)}">${secs(claimEnd(sp))}</b></p>`;
+  }else if(!sp&&R.won){
+    e=R.won; sig=winSig||"won";   // the claimed card carries straight on, no second pop
+    foot=`<p class="ok">${esc(stageName(R.won.stage))} winner</p>`;
+  }else{ winSig=""; return ""; }
+  const pop=sig!==winSig; winSig=sig;
+  return `<div class="win${pop?" pop":""}"><small>Winner</small><div class="wname" style="font-size:${nameSize(e.name)}px">${nameHtml(e)}</div>${foot}</div>`;
+}
+function raffleView(){
+  const R=S.rf, pool=poolOf(), prize=R.stage?S.prizes[R.stage-1]:"";
+  const kwSize=R.keyword.length<=5?96:R.keyword.length<=9?72:R.keyword.length<=14?52:40;
+  const body=R.spin
+    ? `<div class="reelwrap"><div class="reel" id="reel"></div><div class="marks"></div></div>`
+    : `<div class="cta-big">${R.open?`<span>Type</span><b class="gold-t" style="font-size:${kwSize}px">${esc(R.keyword)}</b><span>in chat to enter</span>`:`<span class="closed">Entries closed</span>`}</div>
+       <div class="rule"><span>${pool.length} ${pool.length===1?"entry":"entries"}</span></div>
+       <ul class="names">${pool.slice(-3).reverse().map(e=>`<li>${nameHtml(e)}</li>`).join("")}</ul>`;
+  const w=winCard();
+  const prizeSize=prize.length<=16?52:prize.length<=24?38:28;
+  return `<div class="frame rv${w?" dim":""}"><div class="band${prize?" slim":""}">${raffleTitle(R.stage)}</div>${prize?`<div class="rv-prize" style="font-size:${prizeSize}px">${esc(prize)}</div>`:""}${body}${w}</div>`;
+}
+function renderBox(){
+  const raffle=S.rf.on&&S.view==="raffle";
+  $("#boxInner").style.setProperty("--ph",-(Date.now()%12000)+"ms");   // loop periods divide 12s
+  $("#boxInner").innerHTML=header()+(raffle?raffleView():boardView()+footer());
+  checkFx();
+}
+
+/* The takeover is derived from S.fx, so the OBS window plays it from state alone
+   and joins late (negative delay) if it was a second behind. */
+/* The last box always completes at least one line as well as the board, so a
+   full-board fx plays the lines wipe first and the BINGO wipe right after it. */
+let fxShown=0, tkTimer=0, tkNext=0;
+function checkFx(){
+  const f=S.fx;
+  if(!f||f.id===fxShown) return;
+  fxShown=f.id;
+  clearTimeout(tkNext);
+  const age=Date.now()-f.at;
+  if(age<FX_MS-300) playTk(f,false,age);
+  if(f.full && age<2*FX_MS-300) tkNext=setTimeout(()=>playTk(f,true,Math.max(0,age-FX_MS)), Math.max(0,FX_MS-age));
+}
+function playTk(f, full, age){
+  const n=f.to-f.from+1, tk=$("#tk");
+  const prizes=(full?[S.prizes[8]]:S.prizes.slice(f.from-1,f.to)).filter(Boolean);
+  const big=full?"Bingo!":n>1?n+" lines!":"Line!";
+  const sub=full?"Full board":n>1?`Lines ${f.from}–${f.to} of 8`:`Line ${f.from} of 8`;
+  tk.className="tk"+(full?" full":"");
+  const art=full?`<img class="crew" src="assets/logo-crew.webp" alt="">`:"";
+  tk.innerHTML=`<div class="rail"></div>`+(full?"":`<img class="char" src="assets/${CHARS[(f.to-1)%8]}.webp" alt="">`)
+    +`<div class="text">${art}<div class="big steel-t${n>1&&!full?" sm":""}">${big}</div><div class="sub">${sub}</div>`
+    +(prizes.length?`<div class="prize">${[...new Set(prizes)].map(p=>{ const k=prizes.filter(x=>x===p).length; return (k>1?k+"× ":"")+esc(p); }).join(" + ")}</div>`:"")+`</div><div class="rail b"></div>`;
+  if(age<500) sfx(full?"horn":"whistle");   // not on a reload that joins late
+  tk.style.animationDelay=-age+"ms";
+  void tk.offsetWidth;
+  tk.classList.add("on");
+  clearTimeout(tkTimer); tkTimer=setTimeout(()=>tk.classList.remove("on"),FX_MS-age);
+}
+
+/* The reel, both windows, straight from S.rf.spin: rows scroll down and ease out
+   so the winner stops between the gold lines. A reload mid-spin lands the same. */
+let plan=null;
+function frame(){
+  requestAnimationFrame(frame);
+  const reel=document.getElementById("reel"), sp=S.rf.spin;
+  if(!reel||!sp) return;
+  if(!plan||plan.at!==sp.startedAt){
+    const pool=spinPool(sp), N=pool.length, wi=pool.findIndex(e=>eid(e)===sp.winner);
+    if(wi<0) return;
+    plan={at:sp.startedAt, pool, N, steps:40+mod(wi-40,N)};   // at least 40 rows, ending on the winner
+  }
+  const p=Math.min(1,(Date.now()-sp.startedAt)/sp.duration), off=plan.steps*(1-Math.pow(1-p,4));
+  const mid=reel.clientHeight/2, base=Math.floor(off);
+  if(base!==plan.base){ plan.base=base; if(p<1) sfx("tick"); }
+  while(reel.children.length<6) reel.appendChild(document.createElement("div"));
+  for(let j=0;j<6;j++){
+    const i=base-2+j, el=reel.children[j], e=plan.pool[mod(i,plan.N)];
+    if(el.dataset.k!==eid(e)){ el.dataset.k=eid(e); el.innerHTML=nameHtml(e); }
+    el.style.transform=`translateY(${mid+(off-i)*ROW-ROW/2}px)`;
+    el.classList.toggle("win", p>=1&&i===plan.steps);
+  }
+}
+requestAnimationFrame(frame);
+
+/* ================= control panel ================= */
+function renderAll(){ renderBox(); if(!DISPLAY) renderPanel(); }
+/* Rebuild a section only when its markup changed, and never under the cursor:
+   a rebuild between mousedown and mouseup eats the click. */
+function patch(sel,html,wire){
+  const el=$(sel), a=document.activeElement;
+  if(el._html===html || (el.contains(a)&&a.matches("input,select,textarea"))) return;
+  el._html=html; el.innerHTML=html; if(wire) wire(el);
+}
+function buildCells(){
+  $("#cells").innerHTML=S.cells.map((c,i)=>i===WILD?`<div class="cell wild"><img src="assets/wild.png" alt="">Free square, always marked</div>`
+    :`<div class="cell" id="cell${i}"><label class="ta"><textarea maxlength="80" spellcheck="false" aria-label="Challenge ${i+1}"></textarea></label><button class="btn"></button></div>`).join("");
+  S.cells.forEach((c,i)=>{
+    if(i===WILD) return;
+    const el=$("#cell"+i), ta=el.querySelector("textarea");
+    ta.oninput=()=>{ S.cells[i].t=ta.value; save(); renderBox(); };
+    el.querySelector("button").onclick=()=>toggleCell(i);
+  });
+}
+function renderPanel(){
+  S.cells.forEach((c,i)=>{
+    if(i===WILD) return;
+    const el=$("#cell"+i), ta=el.querySelector("textarea"), b=el.querySelector("button");
+    el.classList.toggle("done",c.d);
+    const label=c.d?CHECK+"Done":"Mark done";
+    if(b.innerHTML!==label) b.innerHTML=label;
+    if(ta!==document.activeElement&&ta.value!==c.t) ta.value=c.t;
+  });
+  $("#lineCount").textContent=`${S.lines.length}/8 lines${allDone()?" + full board":""}`;
+  patch("#raffle",raffleHtml(),wireRaffle);
+  patch("#entries",entriesHtml());
+  patch("#guess",guessHtml(),el=>el.querySelectorAll("[data-guess]").forEach(b=>b.onclick=()=>{
+    S.guess.on=b.dataset.guess==="1"; if(!S.guess.on) S.guess.picks={}; save(); renderAll();
+  }));
+  document.querySelectorAll("[data-sound]").forEach(b=>b.classList.toggle("on",(b.dataset.sound==="1")===S.sound.on));
+  patch("#stages",stagesHtml(),el=>el.querySelectorAll("[data-prize]").forEach(inp=>{
+    inp.oninput=()=>{ S.prizes[+inp.dataset.prize]=inp.value; save(); renderBox(); };
+  }));
+  const dot=s=>`<i class="${s==="connected"?"ok":s==="off"?"":"wait"}"></i>`;
+  $("#chatStatus").innerHTML=`<span>${dot(chat.twitch)}Twitch ${chat.twitch}</span><span>${dot(chat.kick)}Kick ${chat.kick}</span>`;
+}
+function stagesHtml(){
+  return Array.from({length:9},(_,k)=>{
+    const n=k+1, done=stageDone(n), w=S.winners[n];
+    const stat=w?`Won by <b>${esc(w.name)}</b>`:done?(n==9?"Complete":LINE_NAME[S.lines[k]]):"Not yet";
+    return `<div class="stage${done?" done":""}${w?" won":""}"><span class="sname">${stageName(n)}</span><span class="sstat">${stat}</span><input class="in" data-prize="${k}" maxlength="60" placeholder="Prize (optional, shown on stream)" value="${esc(S.prizes[k])}"></div>`;
+  }).join("");
+}
+function raffleHtml(){
+  const R=S.rf;
+  if(!R.on){
+    const opts=[0,1,2,3,4,5,6,7,8,9].filter(n=>!n||stageDone(n))
+      .map(n=>`<option value="${n}"${n==R.stage?" selected":""}>${n?stageName(n):"No stage"}${S.winners[n]?" (has a winner)":""}</option>`).join("");
+    return `<div class="row">
+        <label class="lab">Keyword <input class="in" id="kw" maxlength="30" spellcheck="false" style="width:140px" value="${esc(R.keyword)}"></label>
+        <label class="lab">Raffle for <select class="in" id="stage">${opts}</select></label>
+        <label class="lab">Claim time <input class="in" id="claim" type="number" min="5" max="600" step="5" style="width:84px" value="${R.claimSecs}"> s</label>
+      </div>
+      <div class="row"><button class="btn primary" id="openBtn">Open entries</button></div>
+      <p class="hint">Chat types the keyword on Twitch or Kick. <b>Draw a winner</b> spins the entries on stream; the winner has the claim time to type anything in chat. A claim is saved against the stage. Open entries at the start of the bingo: <b>Back to board</b> keeps everyone in for the next line, minus the winner. ${S.winnerLog.length?`<b>${S.winnerLog.length} past ${S.winnerLog.length===1?"winner":"winners"}</b> can't enter again.`:"Past winners can't enter again."}</p>`;
+  }
+  const sp=R.spin;
+  let draw="";
+  if(sp){
+    const e=winnerOf(sp)||{name:"?",platform:""};
+    draw=Date.now()<spinEnd(sp) ? `<div class="drawrow">Drawing…</div>`
+      : `<div class="drawrow${sp.claimed?" ok":""}">${logo(e.platform)}<b>${esc(e.name)}</b>`
+        +(sp.claimed?`<span class="tag ok">Claimed</span>`
+          :`<span class="hint">claim time</span><span class="secs" data-until="${claimEnd(sp)}">${secs(claimEnd(sp))}</span><button class="btn" id="claimBtn">${CHECK}Mark claimed</button><button class="btn danger" id="missBtn">Didn't claim</button>`)
+        +`</div>`;
+  }else if(R.won){
+    draw=`<div class="drawrow ok">${logo(R.won.platform)}<b>${esc(R.won.name)}</b><span class="tag ok">Won ${esc(stageName(R.won.stage))}</span></div>`;
+  }
+  return `<div class="row"><span class="lab">${raffleTitle(R.stage)} · keyword</span><b class="kwv">${esc(R.keyword)}</b><span class="grow"></span>
+      <div class="seg"><button class="btn${S.view!=="raffle"?" on":""}" data-view="board">Stream: board</button><button class="btn${S.view==="raffle"?" on":""}" data-view="raffle">Stream: raffle</button></div></div>
+    ${draw}
+    <div class="row">
+      <button class="btn primary" id="drawBtn"${sp||!poolOf().length?" disabled":""}>Draw a winner</button>
+      <button class="btn" id="toggleBtn">${R.open?"Close entries":"Reopen entries"}</button>
+      <button class="btn" id="nextBtn">Back to board</button>
+      <button class="btn danger" id="finishBtn">End raffle</button>
+    </div>`;
+}
+function entriesHtml(){
+  if(!S.rf.on) return "";
+  const pool=poolOf();
+  return `<div class="count"><b>${pool.length}</b>in the draw</div>`
+    +(pool.length?`<div class="chips">${pool.slice(-80).reverse().map(e=>`<span class="chip">${nameHtml(e)}${tickets(e)>1?`<b class="tix">×${tickets(e)}</b>`:""}</span>`).join("")}</div>`
+      :`<p class="hint">${S.rf.open?"Waiting for chat to type the keyword.":"Nobody left to draw."}</p>`);
+}
+function guessHtml(){
+  const G=S.guess, n=Object.keys(G.picks).length, holders=Object.keys(G.bonus).length, L=G.last;
+  return `<div class="row"><div class="seg"><button class="btn${G.on?" on":""}" data-guess="1">On</button><button class="btn${G.on?"":" on"}" data-guess="0">Off</button></div>`
+    +(G.on?`<span class="hint"><b>${n}</b> ${n===1?"guess":"guesses"} this round</span>`:"")
+    +(L?`<span class="hint">Tile ${L.cell+1}: <b>${L.got.length}</b> of ${L.n} guessed right</span>`:"")
+    +(holders?`<span class="hint"><b>${holders}</b> ${holders===1?"viewer has":"viewers have"} bonus tickets</span>`:"")+`</div>
+    <p class="hint">Chat types <b>!1</b> to <b>!9</b> to guess which tile gets marked next (numbers show on the tiles). When you mark a tile, everyone who picked it gets <b>+1 ticket in every raffle</b> for the rest of the board, and a new round starts. Un-marking a misclick gives the round back. Tickets clear with Reset board. Tickets already won still count if you turn this off.</p>`;
+}
+function wireRaffle(el){
+  const R=S.rf, on=(id,fn)=>{ const b=el.querySelector(id); if(b) b.onclick=fn; };
+  const kw=el.querySelector("#kw"), st=el.querySelector("#stage"), cl=el.querySelector("#claim");
+  if(kw) kw.onchange=()=>{ const v=kw.value.trim(); if(v) R.keyword=v; kw.value=R.keyword; save(); renderAll(); };
+  if(st) st.onchange=()=>{ R.stage=+st.value; save(); renderAll(); };
+  if(cl) cl.onchange=()=>{ const v=Math.round(+cl.value); if(v>=5&&v<=600) R.claimSecs=v; cl.value=R.claimSecs; save(); };
+  on("#openBtn",()=>{ S.rf={...rfFresh(R.keyword,R.claimSecs,R.stage), on:true, open:true}; S.view="raffle"; save(); renderAll(); });
+  on("#drawBtn",draw);
+  on("#claimBtn",()=>{ const sp=S.rf.spin; if(sp&&!sp.claimed){ sp.claimed=true; sp.claimedAt=Date.now(); save(); renderAll(); } });
+  on("#missBtn",()=>commit(false));
+  on("#toggleBtn",()=>{ R.open=!R.open; save(); renderAll(); });
+  on("#nextBtn",()=>{   // entries carry over to the next line; the winner leaves, a no-show gets another go
+    if(R.spin) return toast("Finish the draw first");
+    R.entries=R.entries.filter(e=>e.st!=="won").map(({st,...e})=>e); R.won=null; R.stage=nextStage(); S.view="board"; save(); renderAll();
+  });
+  on("#finishBtn",()=>{
+    if(R.spin) return toast("Finish the draw first");
+    if(!confirm("End the raffle? The entry list is cleared and the stream goes back to the board.")) return;
+    S.rf=rfFresh(R.keyword,R.claimSecs); S.rf.stage=nextStage(); S.view="board"; save(); renderAll();
+  });
+  el.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>{ S.view=b.dataset.view; save(); renderAll(); });
+}
+function draw(){
+  const R=S.rf, pool=poolOf();
+  if(R.spin) return;
+  if(!pool.length) return toast("Nobody left to draw");
+  const r=crypto.getRandomValues(new Uint32Array(2));
+  let x=r[0]%pool.reduce((n,e)=>n+tickets(e),0);   // weighted by guess tickets
+  R.won=null;
+  R.spin={startedAt:Date.now(), duration:9000+r[1]%2000, winner:eid(pool.find(e=>(x-=tickets(e))<0)), count:R.entries.length, claimed:false, claimMs:R.claimSecs*1000};
+  S.view="raffle"; save(); renderAll();
+}
+/* The claim resolves: a claim wins the stage, a miss leaves the draw for a redraw. */
+function commit(claimed){
+  const R=S.rf, sp=R.spin;
+  if(!sp) return;
+  const e=winnerOf(sp);
+  R.spin=null;
+  if(e){
+    e.st=claimed?"won":"missed";
+    if(claimed){
+      R.won={name:e.name, platform:e.platform, stage:R.stage};
+      S.winnerLog.push({name:e.name, platform:e.platform, user:e.user, stage:R.stage});
+      if(R.stage) S.winners[R.stage]={name:e.name, platform:e.platform};
+    }
+    toast(claimed?`${e.name} won ${raffleTitle(R.stage).toLowerCase()}`:`${e.name} didn't claim. Draw again.`);
+  }
+  save(); renderAll();
+}
+let toastT=0;
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("on"),3500); }
+
+/* ================= chat (control panel only) =================
+   Ported from Stream Competitions: Twitch anonymous IRC (official, no login) and
+   Kick's own Pusher socket (unofficial; if Kick entries stop, that is the part to fix). */
+const chat={twitch:"off", kick:"off", ws:{}, restart:{}};
+let dirty=false, panelDirty=false;
+function chatMsg(platform,user,name,text){
+  const R=S.rf, sp=R.spin;
+  // anything the winner says counts as claiming, on the platform they entered from
+  if(sp&&!sp.claimed&&sp.winner===platform+":"+user&&Date.now()>=spinEnd(sp)){ sp.claimed=true; sp.claimedAt=Date.now(); dirty=true; return; }
+  const g=S.guess.on&&/^!([1-9])(?![\p{L}\p{N}_])/u.exec(String(text||"").trim());
+  if(g){   // "!4" or "!4 come on"; a new guess replaces the old one
+    const i=g[1]-1, k=platform+":"+user;
+    if(!S.cells[i].d&&S.guess.picks[k]!==i){ S.guess.picks[k]=i; dirty=true; }
+    return;
+  }
+  if(!R.on) return;
+  if(!R.open||R.entries.some(x=>x.platform===platform&&x.user===user)||pastWinner(platform,user,name)) return;
+  if(matches(text,R.keyword)){ R.entries.push({platform,user,name}); dirty=true; }
+}
+/* Anyone who has claimed a prize this event can't enter again. Same name on the
+   other platform counts too, so one person can't win once on Twitch and once on Kick. */
+const pastWinner=(platform,user,name)=>S.winnerLog.some(w=>(w.platform===platform&&w.user===user)||w.name.toLowerCase()===String(name).toLowerCase());
+
+/* One socket that stays up: reconnects on close, replaces one gone quiet. */
+function sock(pf,url,hello,onFrame,keepalive){
+  let seen=0;
+  const open=()=>{
+    const u=url();
+    if(!u){ chat[pf]="off"; panelDirty=true; return; }
+    chat[pf]="connecting"; panelDirty=true;
+    const s=chat.ws[pf]=new WebSocket(u); seen=Date.now();
+    s.onopen=()=>hello(s);
+    s.onmessage=ev=>{ seen=Date.now(); onFrame(String(ev.data),s); };
+    s.onclose=()=>{ if(chat.ws[pf]!==s) return; chat.ws[pf]=null; chat[pf]="reconnecting"; panelDirty=true; setTimeout(open,3000); };
+  };
+  chat.restart[pf]=()=>{ const d=chat.ws[pf]; chat.ws[pf]=null; try{ if(d) d.close(); }catch(e){} open(); };
+  setInterval(()=>{
+    const s=chat.ws[pf];
+    if(!s) return;
+    if(Date.now()-seen>90000) return chat.restart[pf]();
+    if(s.readyState===WebSocket.OPEN) s.send(keepalive);
+  },30000);
+  open();
+}
+function startChat(){
+  sock("twitch", ()=>S.chat.twitch?"wss://irc-ws.chat.twitch.tv:443":null, ws=>{
+    ws.send("CAP REQ :twitch.tv/tags");
+    ws.send("NICK justinfan"+(10000+Math.floor(Math.random()*80000)));
+    ws.send("JOIN #"+S.chat.twitch);
+  }, (frame,ws)=>frame.split("\r\n").forEach(line=>{
+    if(line.startsWith("PING")) return ws.send("PONG"+line.slice(4));
+    if(/^:\S+ 366 /.test(line)){ chat.twitch="connected"; panelDirty=true; return; }
+    const m=/^(?:@(\S+) )?:(\w+)!\S+ PRIVMSG #\w+ :(.*)$/.exec(line);
+    if(!m) return;
+    const dn=/(?:^|;)display-name=([^;]*)/.exec(m[1]||""), user=m[2].toLowerCase();
+    chatMsg("twitch", user, dn&&dn[1].toLowerCase()===user?dn[1]:m[2], m[3]);
+  }), "PING :bingo");
+  sock("kick", ()=>/^\d+$/.test(S.chat.kickRoom)?"wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=8.4.0&flash=false":null,
+    ws=>ws.send(JSON.stringify({event:"pusher:subscribe", data:{auth:"", channel:"chatrooms."+S.chat.kickRoom+".v2"}})),
+    (frame,ws)=>{
+      if(frame.includes('"pusher:ping"')) return ws.send('{"event":"pusher:pong","data":{}}');
+      if(frame.includes("subscription_succeeded")){ chat.kick="connected"; panelDirty=true; return; }
+      try{
+        const m=JSON.parse(frame);
+        if(!/ChatMessageEvent$/.test(m.event||"")) return;
+        const d=JSON.parse(m.data);
+        if(d&&d.sender&&typeof d.content==="string")
+          chatMsg("kick", String(d.sender.slug||d.sender.username).toLowerCase(), d.sender.username, d.content);
+      }catch(e){}
+    }, '{"event":"pusher:ping","data":{}}');
+}
+
+/* ================= sound (control panel only) =================
+   Synthesized, no files. Plays from this window; the stream PC picks it up as
+   desktop audio. Chrome starts audio only after a click on the page. */
+let ac=null, master=null, noise=null;
+const audio=()=>!DISPLAY&&ac&&S.sound.on&&ac.state==="running"?(master.gain.value=S.sound.vol/100,ac):null;
+function unlockAudio(){
+  if(!ac){ try{ ac=new AudioContext(); master=ac.createGain(); master.connect(ac.destination); }catch(e){ return; } }
+  if(ac.state==="suspended") ac.resume();
+}
+function play(src,out,t0,{dur,vol,atk=.005,hold=false,rel=.12}){
+  const g=ac.createGain();
+  g.gain.setValueAtTime(0,t0); g.gain.linearRampToValueAtTime(vol,t0+atk);
+  if(hold){ g.gain.setValueAtTime(vol,t0+dur); g.gain.linearRampToValueAtTime(0,t0+dur+rel); }
+  else g.gain.setTargetAtTime(0,t0+atk,dur/4);
+  out.connect(g); g.connect(master); src.start(t0); src.stop(t0+dur+rel+.05);
+}
+function voice({type,f,from=f,glide=.08,t=0,lp=0,...env}){
+  const t0=ac.currentTime+t, o=ac.createOscillator();
+  o.type=type; o.frequency.setValueAtTime(from,t0); o.frequency.exponentialRampToValueAtTime(f,t0+glide);
+  let out=o; if(lp){ out=ac.createBiquadFilter(); out.frequency.value=lp; o.connect(out); }
+  play(o,out,t0,env);
+}
+function hiss({t=0,bp,...env}){
+  if(!noise){ noise=ac.createBuffer(1,ac.sampleRate,ac.sampleRate); const d=noise.getChannelData(0); for(let i=0;i<d.length;i++) d[i]=Math.random()*2-1; }
+  const s=ac.createBufferSource(), f=ac.createBiquadFilter();
+  s.buffer=noise; s.loop=true; f.type="bandpass"; f.frequency.value=bp; f.Q.value=1.5; s.connect(f);
+  play(s,f,ac.currentTime+t,env);
+}
+const SFX={
+  tick:()=>{ voice({type:"square",from:2600,f:1300,glide:.02,dur:.03,vol:.07,lp:4000}); voice({type:"triangle",from:220,f:110,glide:.04,dur:.05,vol:.25}); },
+  // steam whistle: short toot, long toot, a minor chord with breath
+  whistle:()=>[[0,.26],[.38,1.05]].forEach(([t,dur])=>{
+    [523,622,784].forEach(f=>voice({type:"triangle",f,from:f*.9,glide:.1,t,dur,vol:.12,atk:.05,hold:true}));
+    hiss({t,dur,vol:.06,bp:2600,atk:.05,hold:true});
+  }),
+  horn:()=>[[0,.42],[.55,1.4]].forEach(([t,dur])=>[277,349,415].forEach(f=>voice({type:"sawtooth",f,from:f*.96,glide:.06,t,dur,vol:.1,atk:.03,hold:true,lp:1500}))),
+  coin:()=>{ voice({type:"square",f:988,dur:.09,vol:.15,hold:true,rel:.01,lp:6000}); voice({type:"square",f:1319,t:.09,dur:.6,vol:.15,lp:6000}); },
+};
+const sfx=name=>{ if(audio()) SFX[name](); };
+
+/* ================= boot ================= */
+let phase="";
+setInterval(()=>{
+  const sp=S.rf.spin, now=Date.now();
+  if(!DISPLAY&&sp&&(sp.claimed ? now>=Math.max(spinEnd(sp)+REVEAL_MS, sp.claimedAt+2500) : now>=claimEnd(sp))) commit(!!sp.claimed);
+  if(!DISPLAY&&dirty){ dirty=false; save(); renderAll(); }   // ponytail: batches chat floods to four writes a second
+  else if(!DISPLAY&&panelDirty){ panelDirty=false; renderPanel(); }
+  // the winner card appears at spin end without any state changing, so watch for it
+  const s=S.rf.spin, ph=!s?"":now<spinEnd(s)?"spin":s.claimed?"claimed":"claim";
+  if(ph!==phase){ if(ph==="claimed"&&phase==="claim") sfx("coin"); phase=ph; renderAll(); }
+  document.querySelectorAll("[data-until]").forEach(el=>el.textContent=secs(+el.dataset.until));
+},250);
+
+if(DISPLAY){
+  document.body.classList.add("display");
+  document.title="Money Train 5 Bingo · Display";
+  const fit=()=>document.body.style.setProperty("--fit",Math.min(innerWidth,innerHeight)/600);
+  fit(); addEventListener("resize",fit);
+  // OBS is its own browser, so the board comes from the server, not localStorage
+  let seq=-1;
+  (async()=>{ for(;;){
+    try{
+      const j=await (await fetch(`sync?seq=${seq}`,{cache:"no-store"})).json();
+      if(j.seq!==seq){ seq=j.seq; S=load(j.keys&&j.keys[KEY]); renderBox(); }
+    }catch(e){}
+    await new Promise(r=>setTimeout(r,300));
+  } })();
+}else{
+  $("#ver").textContent="v"+VERSION;
+  buildCells();
+  const tw=$("#twitch"), kk=$("#kick");
+  tw.value=S.chat.twitch; kk.value=S.chat.kickRoom;
+  tw.onchange=()=>{ S.chat.twitch=tw.value.trim().toLowerCase().replace(/^#/,""); tw.value=S.chat.twitch; save(); chat.restart.twitch(); };
+  kk.onchange=()=>{ S.chat.kickRoom=kk.value.trim(); save(); chat.restart.kick(); };
+  $("#resetBoard").onclick=()=>{
+    if(!confirm("Reset the board? All marks, lines and winners are cleared (so past winners can enter again). Challenge texts and prizes stay.")) return;
+    S.cells.forEach((c,i)=>c.d=i===WILD); S.lines=[]; S.winners={}; S.winnerLog=[]; S.fx=null; if(!S.rf.on) S.rf.stage=0;
+    Object.assign(S.guess,{picks:{}, bonus:{}, last:null});
+    save(); renderAll();
+  };
+  addEventListener("pointerdown",unlockAudio,true);
+  const vol=$("#vol");
+  vol.value=S.sound.vol;
+  vol.oninput=()=>{ S.sound.vol=+vol.value; save(); };
+  document.querySelectorAll("[data-sound]").forEach(b=>b.onclick=()=>{ S.sound.on=b.dataset.sound==="1"; save(); renderPanel(); });
+  document.querySelectorAll("[data-sfx]").forEach(b=>b.onclick=()=>sfx(b.dataset.sfx));
+  S.lines.push(...Object.keys(LINES).filter(id=>lineDone(id)&&!S.lines.includes(id)));   // a board saved before the free centre
+  save();
+  startChat();
+  renderAll();
+  // keep the lock; losing it ("Use it here" elsewhere) drops this panel to standby
+  setInterval(()=>fetch(`sync?hb=${CTL_ID}`,{cache:"no-store"}).then(r=>r.json()).then(j=>{ if(j.owner===false) location.reload(); }).catch(()=>{}),3000);
+}
+</script>
+</body>
+</html>

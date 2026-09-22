@@ -32,6 +32,7 @@ const FEED_CACHE = path.join(CACHE_DIR, 'feed.json');
 const RESULTS_QUEUE = path.join(CACHE_DIR, 'pending-results.jsonl');
 const CONFIG_FILE = path.join(DATA_DIR, 'config.json');
 const comp = require('./comp-sync')(DATA_DIR);
+const bingo = require('./comp-sync')(DATA_DIR, 'bingo-state.json');
 // New sponsor logos go here, where an update can't delete them; the bundled logos/ is the fallback.
 const USER_LOGOS = path.join(DATA_DIR, 'logos');
 fs.mkdirSync(USER_LOGOS, { recursive: true });
@@ -1002,13 +1003,14 @@ const server = http.createServer(async (req, res) => {
   const pathname = url.pathname;
 
   if (pathname === '/events') return openStream(url, req, res);
-  if (pathname === '/comp') { res.writeHead(301, { Location: '/comp/' }); return res.end(); }
+  if (pathname === '/comp' || pathname === '/bingo') { res.writeHead(301, { Location: pathname + '/' }); return res.end(); }
 
-  if (pathname === '/comp/sync') {
-    if (req.method !== 'POST') return sendJson(res, comp.get(url.searchParams));
+  if (pathname === '/comp/sync' || pathname === '/bingo/sync') {
+    const relay = pathname === '/comp/sync' ? comp : bingo;
+    if (req.method !== 'POST') return sendJson(res, relay.get(url.searchParams));
     let body;
     try { body = JSON.parse(await readBody(req)); } catch (e) { return sendJson(res, { error: 'bad payload' }, 400); }
-    const out = comp.post(body || {});
+    const out = relay.post(body || {});
     return sendJson(res, out, out.ok ? 200 : 409);
   }
 

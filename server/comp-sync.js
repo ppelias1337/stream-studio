@@ -15,7 +15,7 @@
  * doesn't hold it is refused. &pull=1 on a heartbeat returns all keys, which
  * is how a panel loads the live show on open instead of pushing its own.
  *
- * State survives a restart in <data>/comp-state.json.
+ * State survives a restart in <data>/comp-state.json (bingo: bingo-state.json).
  */
 const fs = require('fs');
 const path = require('path');
@@ -23,8 +23,9 @@ const path = require('path');
 const MAX_FX = 30;
 const LEASE_MS = 10000;
 
-module.exports = function compSync(dataDir) {
-  const FILE = path.join(dataDir, 'comp-state.json');
+// bingo runs its own instance (own file, own lock) at /bingo/sync
+module.exports = function compSync(dataDir, file = 'comp-state.json') {
+  const FILE = path.join(dataDir, file);
   let st = { keys: {}, seq: 0, fx: [], fxSeq: 0 };
   try { Object.assign(st, JSON.parse(fs.readFileSync(FILE, 'utf8'))); } catch (e) {}
   // fx aren't kept; starting the counter at the clock keeps it ahead of any

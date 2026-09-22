@@ -726,6 +726,8 @@
   }
 
   /* ---------- OBS display mode (#display): only the box, scaled to fill the source ---------- */
+  .display.bingo .display-content{padding:0}
+  .bingo-frame{flex:1;width:100%;border:0;background:transparent}
   body.display-only{background:transparent;overflow:hidden}
   body.display-only .monitor-label, body.display-only .control, body.display-only .toast,
   body.display-only .help-overlay, body.display-only .confirm-overlay{display:none !important}
@@ -1155,7 +1157,7 @@ if(!DISPLAY_ONLY){
 let state = load() || fresh();
 let appMode = loadMode();
 
-function loadMode(){ try{ const m=JSON.parse(localStorage.getItem(MODE_KEY)); return (m==="LMS"||m==="H2H"||m==="BRACKET"||m==="LEAGUE"||m==="WHEEL"||m==="TADA"||m==="PRAG"||m==="KEYWORD")?m:null; }catch(e){ return null; } }
+function loadMode(){ try{ const m=JSON.parse(localStorage.getItem(MODE_KEY)); return (m==="LMS"||m==="H2H"||m==="BRACKET"||m==="LEAGUE"||m==="WHEEL"||m==="TADA"||m==="PRAG"||m==="KEYWORD"||m==="BINGO")?m:null; }catch(e){ return null; } }
 function saveMode(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(MODE_KEY, JSON.stringify(appMode)); }catch(e){} bcast({type:"state"}); }
 
 function fresh(){
@@ -1768,8 +1770,8 @@ function rotateFromId(list,id){
 
 /* ================= SHARED VIEW PIECES ================= */
 const ic=(n,cls)=>`<svg class="ic${cls?" "+cls:""}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
-const MODE_ICON={LMS:"lms", H2H:"h2h", BRACKET:"bracket", LEAGUE:"league", WHEEL:"reel", TADA:"gift", PRAG:"gift", KEYWORD:"bolt"};
-const MODE_NAME={LMS:"Last Man Standing", H2H:"Showdown", BRACKET:"Bracket Tournament", LEAGUE:"Points League", WHEEL:"Slot Wheel", TADA:"TaDa Gaming Giveaway", PRAG:"Prag-Wheel", KEYWORD:"Keyword Giveaway"};
+const MODE_ICON={LMS:"lms", H2H:"h2h", BRACKET:"bracket", LEAGUE:"league", WHEEL:"reel", TADA:"gift", PRAG:"gift", KEYWORD:"bolt", BINGO:"gift"};
+const MODE_NAME={LMS:"Last Man Standing", H2H:"Showdown", BRACKET:"Bracket Tournament", LEAGUE:"Points League", WHEEL:"Slot Wheel", TADA:"TaDa Gaming Giveaway", PRAG:"Prag-Wheel", KEYWORD:"Keyword Giveaway", BINGO:"Relax Bingo"};
 
 /* header bug on the stream box */
 function bugHtml(icon, title, phase, tone){
@@ -1894,7 +1896,7 @@ function focusNextWin(inp, sel){
 }
 function dispatchDisplay(){
   if(!appMode){ const mc=$("#displayContent"); if(!lbTakeover(mc)) mc.innerHTML=menuDisplayView(); return; }
-  ({LMS:renderDisplay, H2H:h2hRenderDisplay, BRACKET:bkRenderDisplay, LEAGUE:lgRenderDisplay, WHEEL:whRenderDisplay, TADA:tdRenderDisplay, PRAG:pwRenderDisplay, KEYWORD:kwRenderDisplay})[appMode]();
+  ({LMS:renderDisplay, H2H:h2hRenderDisplay, BRACKET:bkRenderDisplay, LEAGUE:lgRenderDisplay, WHEEL:whRenderDisplay, TADA:tdRenderDisplay, PRAG:pwRenderDisplay, KEYWORD:kwRenderDisplay, BINGO:bgRenderDisplay})[appMode]();
 }
 let pageTick=Math.floor(Date.now()/PAGE_MS);
 setInterval(()=>{
@@ -4736,7 +4738,7 @@ function kwRenderControl(){
    wheel). There is one stream box, so a tab switch is the Home button with a
    filter: the stream follows the panel, Home lists only that tab's formats, and
    coming back to a tab reopens the format it was on. Leaving a live format asks. */
-const SECTION={LMS:"comp", H2H:"comp", BRACKET:"comp", LEAGUE:"comp", WHEEL:"comp", TADA:"special", PRAG:"special", KEYWORD:"keyword"};
+const SECTION={LMS:"comp", H2H:"comp", BRACKET:"comp", LEAGUE:"comp", WHEEL:"comp", TADA:"special", PRAG:"special", KEYWORD:"keyword", BINGO:"special"};
 let homeSection=null;   // null in a plain browser tab: everything
 const lastIn={};        // tab -> the format it was last on
 window.addEventListener("message", e=>{
@@ -4760,8 +4762,8 @@ let homeTab="formats";
 function renderApp(){
   if(!DISPLAY_ONLY){
     $("#menuBtn").style.display = appMode ? "" : "none";
-    $("#undoBtn").style.display = appMode ? "" : "none";
-    $("#resetBtn").style.display = appMode ? "" : "none";
+    $("#undoBtn").style.display = appMode && appMode!=="BINGO" ? "" : "none";
+    $("#resetBtn").style.display = appMode && appMode!=="BINGO" ? "" : "none";
     $("#ctitleText").textContent = appMode ? MODE_NAME[appMode] : homeSection==="special" ? "Special Giveaways" : "Stream Competitions";
     const lbb=$("#lbBtn");
     lbb.classList.toggle("on", lb.show);
@@ -4769,6 +4771,7 @@ function renderApp(){
   }
   $("#display").classList.toggle("tada", appMode==="TADA");
   $("#display").classList.toggle("prag", appMode==="PRAG");
+  $("#display").classList.toggle("bingo", appMode==="BINGO");
   tellShell();
   if(!appMode){
     const mc=$("#displayContent");
@@ -4787,7 +4790,22 @@ function renderApp(){
   if(appMode==="TADA") return tdRender();
   if(appMode==="PRAG") return pwRender();
   if(appMode==="KEYWORD") return kwRender();
+  if(appMode==="BINGO") return bgRender();
 }
+/* Relax Bingo is its own page (/bingo/, own relay and lock). As a format here it only
+   puts that page's board in this stream box, so OBS keeps the one competitions source. */
+function bgRenderDisplay(){
+  const c=$("#displayContent");
+  if(lbTakeover(c)) return;
+  if(!c.querySelector("iframe.bingo-frame")) c.innerHTML=`<iframe class="bingo-frame" src="/bingo/#display" title="Relax Bingo"></iframe>`;
+}
+function bgRender(){
+  bgRenderDisplay();
+  if(DISPLAY_ONLY) return;
+  $("#controlBody").innerHTML=`<div class="page-h">Relax Bingo is in the stream box</div><button class="primary" id="bgOpen">Open the bingo panel</button>`;
+  $("#bgOpen").onclick=openBingo;
+}
+function openBingo(){ if(parent!==window) parent.postMessage({studioOpen:"bingo"}, "*"); else window.open("/bingo/"); }
 function goToMenu(){ appMode=null; saveMode(); renderApp(); window.scrollTo(0,0); }
 function selectMode(m){ appMode=m; saveMode(); renderApp(); window.scrollTo(0,0); }
 function menuDisplayView(){
@@ -4795,6 +4813,7 @@ function menuDisplayView(){
 }
 /* what each format is doing right now, so Home shows which one is mid-show */
 function modeStatus(m){
+  if(m==="BINGO") return null;   // its board lives in the bingo page
   const named=list=>list.some(p=>String(p.name||"").trim());
   const s = m==="LMS" ? {started:state.started, done:!!state.winnerId, round:state.round, names:named(state.players)}
           : m==="H2H" ? {started:h2h.started, done:!!h2h.winnerId, round:h2h.round, names:named(h2h.players)}
@@ -4827,6 +4846,7 @@ function menuControlView(){
       ${card("TADA","Chat types TaDa, draw 10 viewers, one bonus buy each. The top 2 wins take €50 each from the €100 pool.")}
       ${card("KEYWORD","Pick any keyword and title. Chat types it, draw winners one at a time, each one claims in chat.")}
       ${card("PRAG","Pragmatic Play Friday. Chat types Pragmatic, draw winners one at a time, and each one gets a spin on the wheel. The prizes scroll on stream.")}
+      ${card("BINGO","Money Train 5 Bingo. Its board shows in the stream box, run from its own panel.")}
     </div>`;
 }
 function menuLeaderboardView(){
@@ -4890,6 +4910,7 @@ function wireMenu(){
     const m=btn.dataset.mode, want=btn.dataset.slots!=null?"SLOTS":"PLAYERS";
     if(m==="BRACKET" && !bk.started && bk.mode!==want){ bk.mode=want; rfStop("BRACKET"); bkSave(); }
     selectMode(m);
+    if(m==="BINGO") openBingo();
   }; });
   const lm=$("#lbMode");   if(lm) lm.onchange=e=>{ lb.mode=e.target.value; lbSave(); renderApp(); };
   const lp=$("#lbPeriod"); if(lp) lp.onchange=e=>{ lb.period=e.target.value; lbSave(); renderApp(); };

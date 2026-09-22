@@ -14,6 +14,7 @@ server/index.js    Wheel Studio server (zero npm deps) + /comp/sync, /yt/*, /api
 server/comp-sync.js  competitions relay: the old 3-line sync contract + the one-controller lock
 public/app.html    the window: 4 tabs over two iframes
 public/comp/index.html  Stream Competitions (the old index.html, see its own notes below)
+public/bingo/index.html  Relax Bingo (copied from C:\Users\elias\Relax Bingo), synced via /bingo/sync
 public/*           Wheel Studio pages (index.html = OBS studio, control.html = operator)
 ```
 
@@ -21,7 +22,10 @@ Tabs: **Stream Competitions**, **Keyword**, **Special Giveaways** are all the on
 iframe. The shell posts `{studioTab}` and the page filters Home by `SECTION` (Keyword opens the
 `KEYWORD` format directly). The page posts `{studioSection}` back so the shell highlights the right tab.
 There is one stream box, so switching tabs is the Home button with a filter, and leaving a live
-format asks first. **Wheel Studio** is `/control` in the second iframe.
+format asks first. **Wheel Studio** is `/control` in the second iframe. **Relax Bingo** is a card on
+Special Giveaways Home. It opens `/bingo/` in a third iframe, which stays loaded because it reads chat. Pressing
+Special Giveaways again goes back. Bingo has its own relay instance (`bingo-state.json`, its own lock). On stream it's the `BINGO` format:
+the competitions box shows `/bingo/#display` in an iframe, so OBS keeps the one `/comp/#display` source.
 
 ## Rules that matter
 

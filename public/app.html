@@ -73,6 +73,7 @@
 <main>
   <iframe id="comp" src="/comp/" title="Competitions"></iframe>
   <iframe id="wheel" title="Wheel Studio" hidden></iframe>
+  <iframe id="bingo" title="Relax Bingo" hidden></iframe>
 </main>
 <dialog id="linksDlg">
   <h2>OBS browser sources</h2>
@@ -81,22 +82,29 @@
   <button type="button" onclick="linksDlg.close()">Close</button>
 </dialog>
 <script>
-const comp=document.getElementById("comp"), wheel=document.getElementById("wheel");
+const comp=document.getElementById("comp"), wheel=document.getElementById("wheel"), bingo=document.getElementById("bingo");
 let tab=null;
 function show(t, fromPage){
-  if(t===tab) return;
+  // bingo sits under Special Giveaways; pressing that tab again goes back to its Home
+  if(t===tab && (fromPage || bingo.hidden)) return;
   tab=t;
   try{ localStorage.setItem("studio_tab", t); }catch(e){}
   document.querySelectorAll("[data-tab]").forEach(b=>b.setAttribute("aria-selected", b.dataset.tab===t));
   const isWheel=t==="wheel";
   if(isWheel && !wheel.src) wheel.src="/control";   // loaded once, then kept alive
-  wheel.hidden=!isWheel; comp.hidden=isWheel;
+  wheel.hidden=!isWheel; comp.hidden=isWheel; bingo.hidden=true;
   if(!isWheel && !fromPage) comp.contentWindow.postMessage({studioTab:t}, "*");
+}
+function showBingo(){
+  if(!bingo.src) bingo.src="/bingo/";   // loaded once, then kept alive (it reads chat)
+  show("special", true);
+  comp.hidden=true; bingo.hidden=false;
 }
 document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>show(b.dataset.tab));
 // the competitions page says which tab its format belongs to; on Home it says nothing,
 // and gets told which tab it's under
 addEventListener("message", e=>{
+  if(e.source===comp.contentWindow && e.data && e.data.studioOpen==="bingo") return showBingo();
   if(e.source!==comp.contentWindow || !e.data || !("studioSection" in e.data)) return;
   const sec=e.data.studioSection;
   if(sec){ if(tab!=="wheel") show(sec, true); }
