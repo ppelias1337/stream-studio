@@ -5,46 +5,66 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Stream Studio</title>
 <style>
-  /* The app window: a tab bar over two pages. Three tabs are the competitions
+  /* The app window: a title strip over two pages. Three tabs are the competitions
      page (one instance, told which formats to list), the fourth is the wheel's
-     control page. Colours are the competitions page's tokens. */
-  :root{--ground:#070E1A;--slab:#12213A;--slab-2:#182B48;--line:#263A5C;--text:#F4F7FB;--muted:#9BACC6;--gold:#FDCE67;--gold-ink:#241A04;
-        --ui:"Bahnschrift","Segoe UI",system-ui,sans-serif}
+     control page. Studio graphite: the same tokens as both pages' operator side. */
+  :root{color-scheme:dark;
+        --bar:#08090B;--bg:#0C0D10;--panel-2:#1A1B20;--well:rgba(255,255,255,.035);--well-2:rgba(255,255,255,.07);
+        --edge:rgba(255,255,255,.07);--edge-2:rgba(255,255,255,.11);
+        --fg:#EDEDF0;--fg-2:#A3A4AD;--fg-3:#7F808A;
+        --accent:#6A58F0;--accent-fg:#AFA3FF;--accent-soft:rgba(122,104,255,.13);--accent-line:rgba(140,124,255,.45);
+        --go:#F2F2F4;--go-ink:#0C0D10;
+        --ui:"Segoe UI Variable Text","Segoe UI Variable","Segoe UI",system-ui,sans-serif}
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
-  body{display:flex;flex-direction:column;background:var(--ground);color:var(--text);font:15px var(--ui);-webkit-font-smoothing:antialiased}
-  nav{display:flex;align-items:stretch;gap:2px;background:var(--slab);border-bottom:1px solid var(--line);padding:0 8px;flex:none}
-  nav button{font:inherit;font-size:15px;font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;
-             padding:14px 18px 12px;border-bottom:3px solid transparent}
-  nav button:hover{color:var(--text);background:var(--slab-2)}
-  nav button[aria-selected="true"]{color:var(--text);border-bottom-color:var(--gold)}
-  nav button:focus-visible,#links:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+  body{display:flex;flex-direction:column;background:var(--bg);color:var(--fg);font:14px var(--ui);-webkit-font-smoothing:antialiased}
+  ::selection{background:var(--accent);color:#fff}
+  nav{display:flex;align-items:center;gap:16px;height:52px;padding:0 12px 0 16px;background:var(--bar);box-shadow:0 1px 0 var(--edge);flex:none;position:relative;z-index:1}
+  .brand{display:flex;align-items:center;gap:9px;font-weight:600;font-size:14px;letter-spacing:-.005em;white-space:nowrap}
+  .brand svg{width:22px;height:22px;flex:none}
+  .tabs{display:flex;gap:2px;padding:3px;border-radius:11px;background:var(--well);box-shadow:inset 0 0 0 1px var(--edge)}
+  .tabs button{display:flex;align-items:center;gap:8px;height:34px;padding:0 14px;border:none;border-radius:8px;background:none;cursor:pointer;
+               font:inherit;font-weight:500;color:var(--fg-2);white-space:nowrap;transition:background .15s,color .15s}
+  .tabs svg,#links svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+  .tabs button:hover{color:var(--fg);background:var(--well-2)}
+  .tabs button[aria-selected="true"]{color:var(--fg);background:var(--panel-2);box-shadow:inset 0 0 0 1px var(--edge-2),0 1px 2px rgba(0,0,0,.5)}
+  .tabs button[aria-selected="true"] svg{color:var(--accent-fg)}
+  :focus-visible{outline:2px solid var(--accent-fg);outline-offset:2px}
   .spacer{flex:1}
-  #links{align-self:center;font:inherit;font-size:13px;color:var(--muted);background:var(--slab-2);border:1px solid var(--line);border-radius:3px;padding:6px 12px;cursor:pointer}
-  #links:hover{color:var(--text)}
-  #note{align-self:center;font-size:13px;color:var(--gold);margin-right:12px}
+  #links{display:flex;align-items:center;gap:8px;height:34px;padding:0 12px;font:inherit;font-weight:500;color:var(--fg-2);background:var(--well);
+         border:none;border-radius:8px;box-shadow:inset 0 0 0 1px var(--edge-2);cursor:pointer;transition:background .15s,color .15s}
+  #links:hover{color:var(--fg);background:var(--well-2)}
+  #note{font-size:13px;color:var(--accent-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  #note:not(:empty){padding:5px 11px;border-radius:999px;background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent-line)}
   main{flex:1;position:relative;min-height:0}
-  iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--ground)}
+  iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--bg)}
   iframe[hidden]{display:none}
-  dialog{margin:auto;background:var(--slab);color:var(--text);border:1px solid var(--line);border-radius:4px;padding:22px 24px;max-width:640px;width:calc(100% - 32px)}
-  dialog::backdrop{background:#000a}
-  dialog h2{font-size:18px;margin-bottom:6px}
-  dialog p{color:var(--muted);font-size:14px;margin-bottom:14px}
-  dialog dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-size:14px}
-  dialog dt{color:var(--muted)}
-  dialog code{user-select:all;word-break:break-all}
-  dialog button{margin-top:18px;font:inherit;font-weight:600;background:var(--gold);color:var(--gold-ink);border:none;border-radius:3px;padding:8px 18px;cursor:pointer}
+  dialog{margin:auto;background:var(--panel-2);color:var(--fg);border:none;border-radius:14px;padding:24px 26px;max-width:640px;width:calc(100% - 32px);
+         box-shadow:inset 0 0 0 1px var(--edge-2),0 30px 70px -20px rgba(0,0,0,.8)}
+  dialog::backdrop{background:rgba(6,7,9,.72)}
+  dialog h2{font-family:"Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;font-size:20px;font-weight:650;letter-spacing:-.015em;margin-bottom:6px}
+  dialog p{color:var(--fg-2);font-size:14px;line-height:1.5;margin-bottom:18px}
+  dialog dl{display:grid;grid-template-columns:auto 1fr;gap:1px;border-radius:10px;overflow:hidden;background:var(--edge);box-shadow:0 0 0 1px var(--edge);font-size:14px}
+  dialog dt,dialog dd{padding:11px 14px;background:var(--bg)}
+  dialog dt{color:var(--fg-2)}
+  dialog code{user-select:all;word-break:break-all;font-family:inherit;color:var(--fg)}
+  dialog button{margin-top:20px;font:inherit;font-weight:600;background:var(--go);color:var(--go-ink);border:none;border-radius:8px;height:38px;padding:0 18px;cursor:pointer}
+  dialog button:hover{background:#fff}
+  @media (max-width:760px){ .brand span,.tabs button span{display:none} }
 </style>
 </head>
 <body>
-<nav role="tablist">
-  <button role="tab" data-tab="comp">Stream Competitions</button>
-  <button role="tab" data-tab="keyword">Keyword</button>
-  <button role="tab" data-tab="wheel">Wheel Studio</button>
-  <button role="tab" data-tab="special">Special Giveaways</button>
+<nav>
+  <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="7" fill="#6A58F0"/><circle cx="12" cy="12" r="5.2" fill="none" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="1.9" fill="#fff"/></svg><span>Stream Studio</span></div>
+  <div class="tabs" role="tablist">
+    <button role="tab" data-tab="comp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21h8M12 16.5V21M7 3.5h10v5.5a5 5 0 0 1-10 0z"/><path d="M17 5h3v1.5a3.5 3.5 0 0 1-3.5 3.5M7 5H4v1.5A3.5 3.5 0 0 0 7.5 10"/></svg><span>Stream Competitions</span></button>
+    <button role="tab" data-tab="keyword"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v11H9l-5 4z"/><path d="M9 10.5h6"/></svg><span>Keyword</span></button>
+    <button role="tab" data-tab="wheel"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17M3.5 12h17M6 6l12 12M18 6 6 18"/></svg><span>Wheel Studio</span></button>
+    <button role="tab" data-tab="special"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="8" width="17" height="4"/><path d="M5 12v8.5h14V12M12 8v12.5M12 8C10.5 4 6.5 4 7 6.5S12 8 12 8zM12 8c1.5-4 5.5-4 5-1.5S12 8 12 8z"/></svg><span>Special Giveaways</span></button>
+  </div>
   <span class="spacer"></span>
   <span id="note"></span>
-  <button id="links" type="button">OBS links</button>
+  <button id="links" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg>OBS links</button>
 </nav>
 <main>
   <iframe id="comp" src="/comp/" title="Competitions"></iframe>

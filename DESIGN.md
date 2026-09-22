@@ -20,6 +20,21 @@ colors:
   red-soft: "#FF8A9A"
   shield-green: "#35D08E"
   green-ink: "#03281A"
+  # operator UI (Studio Graphite, v4.1): app.html, the competitions panel, /control
+  op-bg: "#0C0D10"
+  op-panel: "#141519"
+  op-panel-2: "#1A1B20"
+  op-fg: "#EDEDF0"
+  op-fg-2: "#A3A4AD"
+  op-fg-3: "#7F808A"
+  op-accent: "#6A58F0"
+  op-accent-fg: "#AFA3FF"
+  op-go: "#F2F2F4"
+  op-go-ink: "#0C0D10"
+  op-live: "#E5484D"
+  op-live-fg: "#FF9592"
+  op-ok: "#3DD68C"
+  op-warn: "#F5A524"
 typography:
   display:
     fontFamily: "Bahnschrift Condensed, Bahnschrift SemiCondensed, Roboto Condensed, Arial Narrow, sans-serif"
@@ -114,7 +129,7 @@ components:
 
 The competition is presented like live sports graphics: a header bug naming the format and the phase, solid slabs of name and number under it, and a full-screen wipe when something decisive happens. It sits over a dark navy slot-stream overlay, so the resting state borrows the chat widget's navy and stays calm. Colour is kept for state, and the loud moments take the whole square.
 
-Two surfaces share one system. The stream box is a 450×450 square seen at chat size on a 1080p stream, so everything on it is judged by legibility at that size. The control panel is used on a second monitor by the streamer between bonus openings: large targets, one obvious action, and setup as numbered steps (Format, Rules, Players, Start).
+Two surfaces, two worlds. The stream box is a 450×450 square seen at chat size on a 1080p stream, so everything on it is judged by legibility at that size; it keeps this score-bug system. The operator UI (the app's tab bar, this control panel and Wheel Studio's `/control`) is **Studio Graphite** (next section); since v4.1 it no longer mirrors the stream box.
 
 It is flat and typographic: no gradients, glows, glass or rounded cards. DIN numerals (Bahnschrift) carry the broadcast voice.
 
@@ -123,7 +138,23 @@ It is flat and typographic: no gradients, glows, glass or rounded cards. DIN num
 - Status as solid fills, never as tinted borders
 - Condensed caps for names and labels, tabular numerals for money and scores
 - Full-square colour wipes for eliminations, extra lives, match wins and the coin flip
-- The control panel mirrors the stream box's language at operator scale
+
+## Operator UI: Studio Graphite
+
+A modern desktop app (Linear / Raycast register) on the streamer's second monitor, glanced at for a few seconds between bonuses.
+
+- **Tokens** are declared identically on `:root` in `app.html`, `comp/index.html` and `control.html` (`--bg --panel --panel-2 --well* --edge* --fg* --accent* --go* --live* --ok --warn --r*`). Change one, change all three. The stream box never reads them.
+- **White** is the one next action. **Violet** is the current step, the selected option and the picking row. **Red** is live or loss, **green** connected/done/shield, **amber** waiting.
+- Segoe UI Variable, sentence case. Controls 8px, rows 10px, panels 14px.
+
+### The Quiet Copy Rule
+The clutter was words, not colour. The panel shows **names, numbers and state**, never instructions:
+- No explanation under settings or buttons ("Nobody gets a safety net…", "wait for the winner"). How a format works lives in the **?** help.
+- Empty states are one short fact ("Nobody yet.", "No payouts yet.").
+- Say a thing once: the step rail names the step, so hero lines don't; the tab bar names the tab; the OBS address lives in **OBS links**, not under the monitor.
+- Status words appear only when something is wrong: a connected chat is its name and a green dot.
+- Keep the text that prevents a mistake: "Press twice", the armed "Press again…", why Next is disabled.
+- No em dashes in UI strings; no typed "×" for close.
 
 ## Colors
 

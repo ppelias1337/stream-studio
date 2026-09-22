@@ -38,6 +38,7 @@ Success means the streamer can pick a format, fill in what it needs step by step
 
 - On stream the box blends with the existing overlay during rounds (the calm feel of the chat widget), then goes big and bright for the loud moments: eliminations, coin flips, match wins, extra lives, winners.
 - Keyword entries (the chat raffle) takes the new design along with everything else. It no longer has to match Wheel Studio's look, but it keeps its behaviour.
+- The operator UI (app strip, competitions panel, Wheel Studio control) is one modern desktop app: graphite, white for the next action, violet for selection, and very little text. The blue-and-yellow panel is retired (Sept 2026); the stream box keeps its navy.
 
 ## Evidence on Hand
 

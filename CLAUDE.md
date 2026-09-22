@@ -42,7 +42,8 @@ format asks first. **Wheel Studio** is `/control` in the second iframe.
   `server\config.json` + cache (`importOldWheel()`).
 - **Public repo, no secrets.** `config.json` is never committed or bundled. `apps-script/Code.gs`
   ships with `RESULTS_TOKEN = ''`; the real one lives only in the sheet's script editor. Twitch/Kick
-  tokens stay in the app's localStorage (not synced keys).
+  tokens stay in the app's localStorage (not synced keys). The results sheet's /exec link and its send
+  queue ARE synced keys, so whichever screen controls sends results; the server only serves them on the LAN.
 - The wheel's session (drawn list) is in memory; closing the app asks if one is in progress.
   Competitions are on disk and survive.
 - YouTube chat goes through the server's `/yt/*` passthrough (youtubei only answers a `file://`

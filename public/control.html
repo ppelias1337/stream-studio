@@ -4,181 +4,197 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wheel Studio — control</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%231a1c1f'/%3E%3Crect x='4' y='4' width='8' height='8' rx='1.5' fill='%232fbf6b'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%236A58F0'/%3E%3Crect x='4' y='4' width='8' height='8' rx='4' fill='%23fff'/%3E%3C/svg%3E">
 <style>
   /* A guided control page: one step at a time, one big button for whatever
-     comes next. Green = do this now. Red = on air, or one press from losing
-     something. Everything else is grey and quiet. */
+     comes next. Studio graphite, the same tokens as app.html and the
+     competitions panel: white = do this now, violet = where you are,
+     red = on air or one press from losing something, green = connected. */
   :root {
     color-scheme: dark;
-    --bg:      #141517;
-    --card:    #1f2226;
-    --card-2:  #272b30;
-    --line:    #353a41;
-    --text:    #f1efe9;
-    --dim:     #a3a9b1;
-    --green:   #2fbf6b;
-    --green-hi:#4fd988;
-    --red:     #e0382c;
-    --red-text:#ff8a7d;
-    --amber:   #f2ab2e;
-    --font: 'Segoe UI', system-ui, sans-serif;
+    --bg: #0C0D10; --panel: #141519; --panel-2: #1A1B20;
+    --well: rgba(255,255,255,.035); --well-2: rgba(255,255,255,.07);
+    --edge: rgba(255,255,255,.07); --edge-2: rgba(255,255,255,.11); --edge-3: rgba(255,255,255,.2);
+    --fg: #EDEDF0; --fg-2: #A3A4AD; --fg-3: #7F808A;
+    --accent: #6A58F0; --accent-fg: #AFA3FF; --accent-soft: rgba(122,104,255,.13); --accent-line: rgba(140,124,255,.45);
+    --go: #F2F2F4; --go-hover: #FFFFFF; --go-ink: #0C0D10;
+    --live: #E5484D; --live-fg: #FF9592; --live-line: rgba(229,72,77,.45); --live-soft: rgba(229,72,77,.12);
+    --ok: #3DD68C; --warn: #F5A524;
+    --r: 8px; --r-lg: 10px; --r-xl: 14px;
+    --font: "Segoe UI Variable Text", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+    --display: "Segoe UI Variable Display", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
-         font: 400 17px/1.45 var(--font); font-variant-numeric: tabular-nums; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg);
+         font: 400 15px/1.5 var(--font); font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
   h1, h2, h3, p { margin: 0; }
-  :focus-visible { outline: 3px solid var(--text); outline-offset: 3px; }
-  .page { max-width: 1180px; margin: 0 auto; padding: 16px clamp(12px, 2vw, 28px) 40px; display: grid; gap: 16px; }
+  :focus-visible { outline: 2px solid var(--accent-fg); outline-offset: 2px; }
+  ::selection { background: var(--accent); color: #fff; }
+  * { scrollbar-color: rgba(255,255,255,.16) transparent; scrollbar-width: thin; }
+  .page { max-width: 1180px; margin: 0 auto; padding: 0 clamp(16px, 2.4vw, 32px) 48px; display: grid; gap: 18px; }
 
   /* ------------------------------------------------------------ top bar --- */
-  .top { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-  .brand { font-weight: 700; font-size: 18px; }
-  .status { flex: 1; min-width: 200px; color: var(--dim); font-size: 15px; overflow-wrap: anywhere; }
-  .status[data-tone="err"] { color: var(--red-text); font-weight: 600; }
-  .link { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; }
-  .dot { width: 11px; height: 11px; border-radius: 50%; background: #3a3e44; flex: none; }
-  .dot[data-lit="green"] { background: var(--green-hi); }
-  .dot[data-lit="red"]   { background: var(--red); }
-  .dot[data-lit="amber"] { background: var(--amber); }
+  .top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; min-height: 72px; box-shadow: 0 1px 0 var(--edge); }
+  .brand { font-weight: 600; font-size: 15px; }
+  .status { flex: 1; min-width: 200px; color: var(--fg-2); font-size: 14px; overflow-wrap: anywhere; }
+  .status[data-tone="err"] { color: var(--live-fg); font-weight: 600; }
+  .link { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 13px; color: var(--fg-2);
+          height: 30px; padding: 0 12px 0 10px; border-radius: 999px; background: var(--well); box-shadow: inset 0 0 0 1px var(--edge-2); }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--fg-3); flex: none; }
+  .dot[data-lit="green"] { background: var(--ok); }
+  .dot[data-lit="red"]   { background: var(--live); }
+  .dot[data-lit="amber"] { background: var(--warn); }
 
-  .problems { background: #2c1513; border: 2px solid #6b2a22; border-radius: 12px; padding: 14px 18px; }
-  .problems h2 { font-size: 17px; color: #ffb4aa; margin-bottom: 6px; }
+  .problems { background: var(--live-soft); box-shadow: inset 0 0 0 1px var(--live-line); border-radius: var(--r-xl); padding: 14px 18px; }
+  .problems h2 { font-size: 15px; font-weight: 600; color: var(--live-fg); margin-bottom: 6px; }
   .problems ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
-  .problems li { display: flex; gap: 10px; align-items: baseline; font-size: 15px; }
+  .problems li { display: flex; gap: 10px; align-items: baseline; font-size: 14px; }
 
   /* --------------------------------------------------------- mode picker --- */
-  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .mode { appearance: none; text-align: left; cursor: pointer; font: inherit; color: var(--text);
-          border: 3px solid var(--line); border-radius: 14px; background: var(--card);
-          padding: 14px 18px; display: grid; gap: 2px; min-height: 76px; }
-  .mode b { font-size: 21px; }
-  .mode span { color: var(--dim); font-size: 15px; }
-  .mode:hover:not(:disabled) { border-color: #5a6069; }
-  .mode[aria-pressed="true"] { border-color: var(--green); background: #16291e; cursor: default; }
-  .mode[aria-pressed="true"] span { color: var(--green-hi); font-weight: 600; }
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .mode { appearance: none; text-align: left; cursor: pointer; font: inherit; color: var(--fg);
+          border: 0; border-radius: var(--r-xl); background: var(--panel); box-shadow: inset 0 0 0 1px var(--edge);
+          padding: 14px 18px; display: grid; gap: 2px; min-height: 72px; transition: background .15s, box-shadow .15s; }
+  .mode b { font-size: 16px; font-weight: 600; }
+  .mode span { color: var(--fg-2); font-size: 13px; }
+  .mode:hover:not(:disabled) { background: var(--panel-2); box-shadow: inset 0 0 0 1px var(--edge-3); }
+  .mode[aria-pressed="true"] { background: var(--accent-soft); box-shadow: inset 0 0 0 1.5px var(--accent); cursor: default; }
+  .mode[aria-pressed="true"] span { color: var(--accent-fg); font-weight: 500; }
   .mode:disabled:not([aria-pressed="true"]) { opacity: .45; cursor: not-allowed; }
 
   /* ------------------------------------------------------------- stepper --- */
-  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px;
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px;
            grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); }
-  .step { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px;
-          background: var(--card); color: var(--dim); font-weight: 600; min-width: 0; }
-  .step i { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
-            font-style: normal; font-weight: 700; background: #33373d; color: var(--text); }
-  .step[data-state="now"]  { background: #16291e; color: var(--text); box-shadow: inset 0 0 0 3px var(--green); }
-  .step[data-state="now"] i  { background: var(--green); color: #04160b; }
-  .step[data-state="done"] i { background: transparent; box-shadow: inset 0 0 0 2px var(--green); color: var(--green-hi); }
+  .step { display: flex; align-items: center; gap: 11px; height: 54px; padding: 0 12px; border-radius: var(--r-lg);
+          box-shadow: inset 0 0 0 1px var(--edge); color: var(--fg-2); font-size: 14px; font-weight: 600; min-width: 0; }
+  .step i { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+            font-style: normal; font-size: 13px; font-weight: 600; background: var(--well-2); color: var(--fg-2); }
+  .step[data-state="now"]  { background: var(--panel-2); color: var(--fg); box-shadow: inset 0 0 0 1px var(--accent-line); }
+  .step[data-state="now"] i  { background: var(--accent); color: #fff; }
+  .step[data-state="done"] { color: var(--fg); }
+  .step[data-state="done"] i { background: rgba(61,214,140,.13); color: var(--ok); }
   .step span { overflow-wrap: anywhere; }
 
   /* ---------------------------------------------------------------- hero --- */
-  .hero { background: var(--card); border-radius: 16px; padding: 24px clamp(18px, 3vw, 32px) 28px;
-          display: grid; gap: 18px; position: relative; overflow: hidden; }
-  .hero[data-live] { box-shadow: inset 0 0 0 4px var(--red); }
-  .hero-kicker { font-size: 15px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--green-hi); }
-  .hero[data-live] .hero-kicker { color: var(--red-text); }
-  .hero-head { font-size: clamp(2rem, 4.4vw, 3.6rem); line-height: 1.05; font-weight: 700; overflow-wrap: anywhere; text-wrap: balance; }
-  .hero-sub { font-size: clamp(1.1rem, 1.7vw, 1.35rem); color: var(--dim); overflow-wrap: anywhere; text-wrap: pretty; }
-  .hero-sub b { color: var(--text); }
-  .clock { position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: #2a1512; }
-  .clock i { display: block; height: 100%; background: var(--red); transform-origin: left; transform: scaleX(0); }
+  .hero { background: var(--panel); box-shadow: inset 0 0 0 1px var(--edge); border-radius: 16px;
+          padding: 26px clamp(18px, 3vw, 32px) 28px; display: grid; gap: 16px; position: relative; overflow: hidden; }
+  .hero[data-live] { box-shadow: inset 0 0 0 2px var(--live); }
+  .hero-head { order: 1; font-family: var(--display); font-size: clamp(2rem, 3.8vw, 3rem); line-height: 1.08; font-weight: 650;
+               letter-spacing: -.025em; overflow-wrap: anywhere; text-wrap: balance; }
+  /* where we are sits under the headline, never above it */
+  .hero-kicker { order: 2; margin-top: -8px; font-size: 14px; font-weight: 600; color: var(--accent-fg); }
+  .hero[data-live] .hero-kicker { color: var(--live-fg); }
+  .hero-sub { order: 3; font-size: clamp(1rem, 1.4vw, 1.15rem); color: var(--fg-2); overflow-wrap: anywhere; text-wrap: pretty; max-width: 70ch; }
+  .hero-sub b { color: var(--fg); font-weight: 600; }
+  .hero-kicker:empty, .hero-sub:empty, .btn small:empty, .mode span:empty { display: none; }
+  .hero > .fields, .hero > .actions { order: 4; }
+  .clock { order: 5; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; }
+  .clock i { display: block; height: 100%; background: var(--live); transform-origin: left; transform: scaleX(0); }
   @keyframes run-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 
-  .actions { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 12px; }
+  .actions { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 10px; }
   .actions.solo { grid-template-columns: minmax(0, 1fr); }
 
   /* Buttons. The big one is the next thing to do; nothing else is that size. */
-  .btn { appearance: none; border: 0; border-radius: 12px; cursor: pointer; font: inherit; color: var(--text);
-         background: #3a3e44; min-height: 64px; padding: 12px 20px; font-size: 19px; font-weight: 700;
-         display: grid; place-content: center; gap: 2px; text-align: center; }
-  .btn small { font-size: 14px; font-weight: 500; opacity: .85; }
-  .btn:hover:not(:disabled) { background: #464a51; }
-  .btn:active:not(:disabled) { transform: translateY(2px); }
+  .btn { appearance: none; border: 0; border-radius: var(--r-lg); cursor: pointer; font: inherit; color: var(--fg);
+         background: var(--well-2); box-shadow: inset 0 0 0 1px var(--edge-2); min-height: 56px; padding: 10px 18px;
+         font-size: 15px; font-weight: 600; display: grid; place-content: center; gap: 2px; text-align: center;
+         transition: background .15s, box-shadow .15s, transform .1s; }
+  .btn small { font-size: 13px; font-weight: 400; color: var(--fg-2); }
+  .btn:hover:not(:disabled) { background: rgba(255,255,255,.1); box-shadow: inset 0 0 0 1px var(--edge-3); }
+  .btn:active:not(:disabled) { transform: translateY(1px); }
   .btn:disabled { cursor: not-allowed; opacity: .4; }
-  .btn.big { min-height: 120px; font-size: clamp(28px, 3.4vw, 40px); border-radius: 14px; }
-  .btn.big small { font-size: 17px; }
-  .btn[data-tone="go"] { background: var(--green); color: #04160b; }
-  .btn[data-tone="go"]:hover:not(:disabled) { background: var(--green-hi); }
-  .btn[data-tone="danger"] { background: #4a1a15; color: #ffd2cc; box-shadow: inset 0 0 0 2px var(--red); }
-  .btn[data-tone="danger"]:hover:not(:disabled) { background: #5b2019; }
+  .btn.big { min-height: 112px; font-family: var(--display); font-size: clamp(26px, 3vw, 36px); font-weight: 650; letter-spacing: -.02em; border-radius: var(--r-xl); }
+  .btn.big small { font-family: var(--font); font-size: 15px; letter-spacing: 0; }
+  .btn[data-tone="go"] { background: var(--go); color: var(--go-ink); box-shadow: 0 1px 2px rgba(0,0,0,.5), 0 10px 30px -14px rgba(255,255,255,.3); }
+  .btn[data-tone="go"] small { color: #4A4B52; }
+  .btn[data-tone="go"]:hover:not(:disabled) { background: var(--go-hover); }
+  .btn[data-tone="danger"] { background: var(--live-soft); color: var(--live-fg); box-shadow: inset 0 0 0 1px var(--live-line); }
+  .btn[data-tone="danger"] small { color: var(--live-fg); opacity: .8; }
+  .btn[data-tone="danger"]:hover:not(:disabled) { background: rgba(229,72,77,.2); box-shadow: inset 0 0 0 1px var(--live); }
   /* Armed: the next press throws something away. Flashes and says so. */
-  .btn.armed, .btn.armed:hover:not(:disabled) { background: var(--red); color: #fff; animation: armed .5s steps(1) infinite; }
+  .btn.armed, .btn.armed:hover:not(:disabled) { background: var(--live); color: #fff; box-shadow: none; animation: armed .5s steps(1) infinite; }
+  .btn.armed small { color: #fff; }
   @keyframes armed { 50% { background: #7a211a; } }
   .btn[hidden] { display: none; }
 
   .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .fields[hidden] { display: none; }
-  .fields label { display: grid; gap: 6px; font-size: 15px; font-weight: 600; color: var(--dim); }
-  .fields input { height: 54px; padding: 0 14px; border: 2px solid var(--line); border-radius: 10px;
-                  background: #0e0f11; color: var(--text); font: 600 20px var(--font); width: 100%; min-width: 0; }
-  .fields input:focus-visible { outline: none; border-color: var(--green); }
-  .fields small { font-weight: 400; }
-  #chatFields label, #timeFields label { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: .04em; }
-  #chatFields input, #timeFields input { height: 64px; font-size: 24px; }
+  .fields label { display: grid; gap: 6px; font-size: 13px; font-weight: 500; color: var(--fg-2); }
+  .fields input { height: 48px; padding: 0 14px; border: 1px solid var(--edge-2); border-radius: var(--r); caret-color: var(--accent-fg);
+                  background: var(--bg); color: var(--fg); font: 600 17px var(--font); width: 100%; min-width: 0; transition: border-color .15s, box-shadow .15s; }
+  .fields input:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .fields small { font-weight: 400; color: var(--fg-3); }
+  #chatFields label, #timeFields label { font-size: 13px; font-weight: 600; color: var(--fg-2); }
+  #chatFields input, #timeFields input { height: 56px; font-size: 20px; }
 
   /* --------------------------------------------------------------- lists --- */
-  .cols { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; }
+  .cols { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 14px; }
   .cols.one { grid-template-columns: minmax(0, 1fr); }
-  .panel { background: var(--card); border-radius: 14px; padding: 16px 18px; min-width: 0; }
+  .panel { background: var(--panel); box-shadow: inset 0 0 0 1px var(--edge); border-radius: var(--r-xl); padding: 16px 18px; min-width: 0; }
   .panel[hidden] { display: none; }
-  .panel h2 { font-size: 18px; margin-bottom: 4px; }
-  .panel .meta { color: var(--dim); font-size: 15px; margin-bottom: 10px; overflow-wrap: anywhere; }
+  .panel h2 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .panel .meta { color: var(--fg-2); font-size: 13px; margin-bottom: 12px; overflow-wrap: anywhere; }
   .rows { list-style: none; margin: 0; padding: 0; max-height: 360px; overflow: auto; }
   .row { display: grid; grid-template-columns: 2.2ch minmax(0, 1fr) auto; gap: 0 12px; align-items: center;
-         padding: 10px 6px; border-top: 1px solid var(--line); }
-  .row-no { color: var(--dim); font-weight: 700; align-self: start; }
-  .row-prize { color: var(--dim); font-size: 15px; overflow-wrap: anywhere; }
-  .row-who { grid-column: 2; font-weight: 700; font-size: 18px; overflow-wrap: anywhere; }
-  .row small, .ent small { color: var(--dim); font-weight: 400; font-size: 14px; margin-left: 6px; }
-  .row[data-state="pending"] .row-who { color: var(--dim); font-weight: 400; }
-  .row[data-state="next"], .row[data-state="onair"] { background: var(--card-2); border-radius: 8px; }
-  .tag { grid-column: 3; grid-row: 1 / span 2; font-size: 13px; font-weight: 700; padding: 4px 9px; border-radius: 6px; }
-  .tag[data-tone="go"] { background: var(--green); color: #04160b; }
-  .tag[data-tone="red"] { background: var(--red); color: #fff; }
-  .ent { display: flex; align-items: center; gap: 8px; padding: 6px 6px; border-top: 1px solid var(--line); font-weight: 600; overflow-wrap: anywhere; }
+         padding: 10px 8px; border-top: 1px solid var(--edge); }
+  .row-no { color: var(--fg-3); font-weight: 600; align-self: start; }
+  .row-prize { color: var(--fg-2); font-size: 13px; overflow-wrap: anywhere; }
+  .row-who { grid-column: 2; font-weight: 600; font-size: 16px; overflow-wrap: anywhere; }
+  .row small, .ent small { color: var(--fg-3); font-weight: 400; font-size: 13px; margin-left: 6px; }
+  .row[data-state="pending"] .row-who { color: var(--fg-3); font-weight: 400; }
+  .row[data-state="next"], .row[data-state="onair"] { background: var(--panel-2); border-radius: var(--r); border-top-color: transparent; }
+  .row[data-state="next"] + .row, .row[data-state="onair"] + .row { border-top-color: transparent; }
+  .tag { grid-column: 3; grid-row: 1 / span 2; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px; }
+  .tag[data-tone="go"] { background: var(--accent); color: #fff; }
+  .tag[data-tone="red"] { background: var(--live); color: #fff; }
+  .ent { display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 8px; border-top: 1px solid var(--edge); font-weight: 500; overflow-wrap: anywhere; }
   .ent > span { flex: 1; min-width: 0; }
-  .ent-x { appearance: none; border: 0; cursor: pointer; flex: none; width: 40px; height: 40px; border-radius: 8px;
-           background: #33373d; color: var(--text); font: 700 22px/1 var(--font); }
-  .ent-x:hover:not(:disabled) { background: var(--red); color: #fff; }
+  .ent-x { appearance: none; border: 0; cursor: pointer; flex: none; width: 32px; height: 32px; border-radius: var(--r);
+           background: transparent; color: var(--fg-3); display: grid; place-items: center; transition: background .15s, color .15s; }
+  .ent-x:hover:not(:disabled) { background: var(--live-soft); color: var(--live-fg); }
   .ent-x:disabled { opacity: .35; cursor: not-allowed; }
-  .search { width: 100%; height: 48px; margin-bottom: 10px; padding: 0 14px; border: 2px solid var(--line); border-radius: 10px;
-            background: #0e0f11; color: var(--text); font: 600 18px var(--font); }
-  .search:focus-visible { outline: none; border-color: var(--green); }
-  .empty { color: var(--dim); padding: 12px 6px; border-top: 1px solid var(--line); }
-  .chats { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-bottom: 10px; font-size: 15px; color: var(--dim); }
+  .search { width: 100%; height: 42px; margin-bottom: 10px; padding: 0 14px; border: 1px solid var(--edge-2); border-radius: var(--r);
+            background: var(--bg); color: var(--fg); font: 500 15px var(--font); caret-color: var(--accent-fg); }
+  .search::placeholder { color: var(--fg-3); }
+  .search:focus-visible { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+  .empty { color: var(--fg-3); padding: 12px 8px; border-top: 1px solid var(--edge); }
+  .chats { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-bottom: 12px; font-size: 13px; color: var(--fg-2); }
   .chats span { display: flex; align-items: center; gap: 7px; }
-  .chats b { color: var(--text); }
+  .chats b { color: var(--fg); font-weight: 600; }
+  .chats em { font-style: normal; }
 
   /* ---------------------------------------------------------------- more --- */
-  .more h2 { font-size: 16px; color: var(--dim); font-weight: 600; margin-bottom: 10px; }
-  .more-keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+  .more h2 { font-size: 13px; color: var(--fg-2); font-weight: 600; margin-bottom: 10px; }
+  .more-keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; }
 
   /* The claim prompt: over everything while a chat winner has to speak up. */
   .claim { position: fixed; z-index: 10; top: 80px; left: 50%; transform: translateX(-50%);
            width: min(640px, calc(100vw - 24px)); display: grid; gap: 14px; justify-items: center; text-align: center;
-           padding: 24px; border-radius: 16px; background: var(--card);
-           box-shadow: inset 0 0 0 4px var(--red), 0 20px 60px rgba(0,0,0,.7); }
+           padding: 26px; border-radius: 18px; background: var(--panel-2);
+           box-shadow: inset 0 0 0 2px var(--live), 0 30px 70px -20px rgba(0,0,0,.85); }
   .claim[hidden] { display: none; }
-  .claim-head { font-size: clamp(1.5rem, 2.6vw, 2.1rem); font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
-  .claim-time { font: 700 2.6rem/1 Consolas, ui-monospace, monospace; color: var(--red-text); }
+  .claim-head { font-family: var(--display); font-size: clamp(1.5rem, 2.4vw, 2rem); font-weight: 650; letter-spacing: -.02em; line-height: 1.15; overflow-wrap: anywhere; }
+  .claim-time { font: 650 2.8rem/1 var(--display); color: var(--live-fg); letter-spacing: -.02em; }
   .claim .btn { width: 100%; }
 
   /* --------------------------------------------------------------- setup --- */
-  .setup { background: var(--card); border-radius: 14px; }
-  .setup summary { cursor: pointer; padding: 14px 18px; font-weight: 600; color: var(--dim); display: flex; gap: 12px; flex-wrap: wrap; }
-  .setup summary span { margin-left: auto; font-weight: 400; font-size: 15px; }
-  .setup-grid { display: grid; gap: 12px; padding: 0 18px 18px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-  .setup-grid section { background: #1a1c1f; border-radius: 12px; padding: 14px; display: grid; gap: 8px; align-content: start; }
-  .setup-grid h3 { font-size: 16px; }
-  .setup-grid p { color: var(--dim); font-size: 15px; overflow-wrap: anywhere; }
-  .setup-grid p b { color: var(--text); }
-  .setup-grid .btn { min-height: 48px; font-size: 16px; }
+  .setup { background: var(--panel); box-shadow: inset 0 0 0 1px var(--edge); border-radius: var(--r-xl); }
+  .setup summary { cursor: pointer; padding: 14px 18px; font-weight: 500; color: var(--fg-2); display: flex; gap: 12px; flex-wrap: wrap; }
+  .setup summary:hover { color: var(--fg); }
+  .setup summary span { margin-left: auto; font-weight: 400; font-size: 13px; }
+  .setup-grid { display: grid; gap: 10px; padding: 0 18px 18px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .setup-grid section { background: var(--bg); box-shadow: inset 0 0 0 1px var(--edge); border-radius: var(--r-lg); padding: 14px; display: grid; gap: 8px; align-content: start; }
+  .setup-grid h3 { font-size: 14px; font-weight: 600; }
+  .setup-grid p { color: var(--fg-2); font-size: 13px; overflow-wrap: anywhere; }
+  .setup-grid p b { color: var(--fg); }
+  .setup-grid .btn { min-height: 40px; font-size: 14px; }
   .setup-grid .fields { grid-template-columns: 1fr; }
-  .setup-grid .fields input { height: 46px; font-size: 17px; }
+  .setup-grid .fields input { height: 42px; font-size: 15px; }
   .rect { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-  .rect div { background: #0e0f11; border-radius: 8px; padding: 6px 8px; }
-  .rect span { display: block; font-size: 12px; color: var(--dim); }
-  .rect b { font: 18px Consolas, ui-monospace, monospace; }
+  .rect div { background: var(--panel); border-radius: var(--r); padding: 6px 8px; }
+  .rect span { display: block; font-size: 12px; color: var(--fg-3); }
+  .rect b { font: 600 16px var(--font); }
 
   body.offline .btn, body.offline .mode, body.offline .ent-x { pointer-events: none; }
 
@@ -187,8 +203,7 @@
     .steps { grid-template-columns: minmax(0, 1fr); }
   }
   @media (prefers-reduced-motion: reduce) { .btn.armed { animation: none; } }
-</style>
-</head>
+</style></head>
 <body>
 <div class="page">
 
@@ -205,8 +220,8 @@
 
   <!-- Which giveaway is on stream. -->
   <nav class="modes" aria-label="Which giveaway">
-    <button class="mode" id="bSheet" aria-pressed="false" disabled><b>Prize giveaway</b><span>Winners from the sheet</span></button>
-    <button class="mode" id="bChat"  aria-pressed="false" disabled><b>Chat giveaway</b><span>Anyone in chat can enter</span></button>
+    <button class="mode" id="bSheet" aria-pressed="false" disabled><b>Prize giveaway</b><span></span></button>
+    <button class="mode" id="bChat"  aria-pressed="false" disabled><b>Chat giveaway</b><span></span></button>
   </nav>
 
   <ol class="steps" id="steps"></ol>
@@ -249,7 +264,6 @@
 
   <section class="panel" aria-labelledby="timeHead">
     <h2 id="timeHead">Timings</h2>
-    <p class="meta">Saves when you click away. Takes effect from the next spin.</p>
     <div class="fields" id="timeFields">
       <label>SPIN TIME (seconds):<input id="spinSecs" type="number" min="5" max="60" step="1" inputmode="numeric"></label>
       <label>TIME TO CLAIM (seconds):<input id="claimSecs" type="number" min="10" max="300" step="1" inputmode="numeric"></label>
@@ -259,17 +273,17 @@
   <section class="more" aria-labelledby="moreHead">
     <h2 id="moreHead">If something went wrong</h2>
     <div class="more-keys">
-      <button class="btn" id="bUndo" disabled>Undo last winner<small>puts them back on the wheel</small></button>
-      <button class="btn" data-tone="danger" id="bReload" disabled>Start over<small>reloads the sheet · press twice</small></button>
-      <button class="btn" data-tone="danger" id="bClear" disabled>Empty chat wheel<small>removes all entries · press twice</small></button>
-      <button class="btn" id="bClaim" disabled>Winner must claim: off<small>they must type in chat to win</small></button>
+      <button class="btn" id="bUndo" disabled>Undo last winner</button>
+      <button class="btn" data-tone="danger" id="bReload" disabled>Start over<small>Press twice</small></button>
+      <button class="btn" data-tone="danger" id="bClear" disabled>Empty chat wheel<small>Press twice</small></button>
+      <button class="btn" id="bClaim" disabled>Winner must claim: off</button>
     </div>
   </section>
 
   <section class="claim" id="claimPop" hidden role="alertdialog" aria-labelledby="claimText" aria-live="assertive">
     <p class="claim-head" id="claimText"></p>
     <p class="claim-time" id="claimCount"></p>
-    <button class="btn big" data-tone="go" id="bClaimed">They claimed it<small>use if they wrote in another chat</small></button>
+    <button class="btn big" data-tone="go" id="bClaimed">They claimed it</button>
   </section>
 
   <details class="setup" id="setup">
@@ -330,7 +344,7 @@
       const out = await (await fetch('/api/' + cmd, { method: 'POST' })).json();
       if (!out.ok) status(out.message, 'err');
       return out;
-    } catch (e) { status('Server unreachable — ' + e.message, 'err'); return {}; }
+    } catch (e) { status('Server unreachable: ' + e.message, 'err'); return {}; }
   };
   // First load: there is no session to protect, so skip the second press.
   const load = async () => { const out = await send('reload'); if (out.armed) send('reload'); };
@@ -409,9 +423,9 @@
 
   function audioLine() {
     const a = S.audio;
-    if (!a) return 'No source has reported audio yet — is <b>?audio=1</b> on one of them?';
+    if (!a) return 'No source has reported audio yet. Is <b>?audio=1</b> on one of them?';
     const age = Math.round((Date.now() - a.at) / 1000);
-    if (age > 120) return 'The audio source last reported ' + age + 's ago — it may have been closed or reloaded.';
+    if (age > 120) return 'The audio source last reported ' + age + 's ago. It may have been closed or reloaded.';
     const missing = ['click', 'win', 'stinger', 'music'].filter(k => !a[k]);
     const played = a.playedAt ? 'last played ' + Math.round((Date.now() - a.playedAt) / 1000) + 's ago' : 'nothing played yet';
     return 'Audio ' + (a.ctx === 'running' ? '<b>running</b>' : '<b style="color:var(--red-text)">' + esc(a.ctx) + '</b> (the browser is blocking it)') +
@@ -433,16 +447,16 @@
     // Mid-draw: the same in both giveaways. Nothing to press, just read it out.
     if (p === 'spinning') return Object.assign(P, { step: 1, kicker: 'On air',
       head: 'Spinning…', sub: prize ? 'For <b>' + esc(prize) + '</b>' : plural(S.pool.length, 'entry', 'entries') + ' on the wheel',
-      main: { label: 'Spinning…', small: 'wait for the winner' } });
-    if (p === 'revealing') return Object.assign(P, { step: 1, kicker: 'Winner — read it out!',
+      main: { label: 'Spinning…' } });
+    if (p === 'revealing') return Object.assign(P, { step: 1, kicker: 'Winner! Read it out',
       head: esc(S.spin ? S.spin.winnerName : S.message),
       sub: (prize ? 'Wins <b>' + esc(prize) + '</b>. ' : '') + (S.claim ? 'They must type in <b>' + esc(S.claim.platform) + '</b> chat to claim.' : ''),
-      main: { label: 'Showing the winner…', small: 'the next step appears in a moment' } });
+      main: { label: 'Showing the winner…' } });
     if (p === 'claiming') return Object.assign(P, { step: 1, kicker: 'Waiting for the winner to claim',
       head: esc(S.claim ? S.claim.name : S.message),
       sub: S.claim && S.claim.claimed ? '<b>Claimed!</b> Saving the win.'
         : '<b id="heroCount">' + secsLeft(S.claim ? S.claim.until : 0) + 's</b> left to type in <b>' + esc(S.claim ? S.claim.platform : '') + '</b> chat.',
-      main: S.claim && !S.claim.claimed ? { label: 'They claimed it', small: 'if they wrote in another chat', cmd: 'claimed', tone: 'go' } : null });
+      main: S.claim && !S.claim.claimed ? { label: 'They claimed it', cmd: 'claimed', tone: 'go' } : null });
     if (p === 'swapping') return Object.assign(P, { step: chatUp ? 0 : 2, kicker: 'On air',
       head: 'Changing wheel…', sub: esc(S.message || 'Behind the stinger'), main: { label: 'Please wait…' } });
 
@@ -450,46 +464,44 @@
     const spin = small => ({ label: 'SPIN', small, cmd: canSpin ? 'spin' : '', tone: 'go' });
 
     if (chatUp) {
-      const openBtn = c.open ? { label: 'Close entries', small: 'stop new people joining', cmd: 'chat-close' }
-                             : { label: 'Open entries', small: 'let chat join again', cmd: 'chat-open' };
+      const openBtn = c.open ? { label: 'Close entries', cmd: 'chat-close' }
+                             : { label: 'Open entries', cmd: 'chat-open' };
       if (!c.open && !S.pool.length && !S.drawn.length) return Object.assign(P, { step: 0, fields: true,
-        kicker: 'Step 1 — set it up',
+        kicker: '',
         head: 'Start a chat giveaway',
-        main: { label: 'Open entries', small: 'chat can start joining', cmd: 'chat-open', tone: 'go' } });
-      if (!S.pool.length && c.open) return Object.assign(P, { step: 0, kicker: 'Step 1 — entries are open',
+        main: { label: 'Open entries', cmd: 'chat-open', tone: 'go' } });
+      if (!S.pool.length && c.open) return Object.assign(P, { step: 0, kicker: 'Entries open',
         head: 'Waiting for entries…',
-        sub: 'Tell chat to type <b>' + esc(c.keyword) + '</b>. The Spin button lights up as soon as someone joins.',
-        main: spin('no entries yet'), alt: openBtn });
-      if (S.pool.length) return Object.assign(P, { step: 1, kicker: 'Step 2 — spin',
+        sub: 'Keyword <b>' + esc(c.keyword) + '</b>',
+        main: spin(), alt: openBtn });
+      if (S.pool.length) return Object.assign(P, { step: 1, kicker: c.open ? 'Entries open' : 'Entries closed',
         head: plural(S.pool.length, 'entry', 'entries') + ' on the wheel',
-        sub: c.open ? 'Entries are still open — close them when you want, or just spin.' : 'Entries are closed. Press <b>Spin</b> to draw a winner.',
-        main: spin(S.drawn.length ? 'draw another winner' : 'draw a winner'), alt: openBtn });
-      return Object.assign(P, { step: 2, kicker: 'Step 3 — all done',
+                main: spin(), alt: openBtn });
+      return Object.assign(P, { step: 2, kicker: '',
         head: 'Everyone has been drawn',
-        sub: 'Empty the chat wheel for next time, or go back to the prize giveaway.',
-        main: { label: S.armed === 'clear' ? 'Press again to empty' : 'Empty chat wheel', small: 'press twice',
+                main: { label: S.armed === 'clear' ? 'Press again to empty' : 'Empty chat wheel', small: 'Press twice',
                 cmd: 'chat-clear', tone: 'danger', armed: S.armed === 'clear' },
         alt: { label: 'Back to prize giveaway', cmd: 'mode?to=sheet' } });
     }
 
     // Prize giveaway (sheet wheels).
-    if (!w) return Object.assign(P, { step: 0, kicker: 'Step 1',
-      head: 'Load the prizes', sub: 'Pulls the winners list and prizes from the Google Sheet.',
-      main: { label: 'Load prizes', small: 'from the sheet', cmd: p === 'ready' || p === 'complete' ? 'load' : '', tone: 'go' } });
-    const where = esc(w.title) + (w.sponsor ? ' · sponsored by <b>' + esc(w.sponsor) + '</b>' : '');
+    if (!w) return Object.assign(P, { step: 0, kicker: '',
+      head: 'Load the prizes',
+      main: { label: 'Load prizes', cmd: p === 'ready' || p === 'complete' ? 'load' : '', tone: 'go' } });
+    const where = w.sponsor ? 'Sponsored by <b>' + esc(w.sponsor) + '</b>' : '';
     if (left > 0 && S.pool.length) return Object.assign(P, { step: 1,
-      kicker: 'Step 2 — wheel ' + (S.wheelIndex + 1) + ' of ' + S.wheelCount,
+      kicker: S.wheelCount > 1 ? 'Wheel ' + (S.wheelIndex + 1) + ' of ' + S.wheelCount : '',
       head: 'Prize ' + (S.drawn.length + 1) + ' of ' + slots + (prize ? ': ' + esc(prize) : ''),
-      sub: where + '<br>Make sure OBS shows the wheel scene, then press <b>Spin</b>.',
-      main: spin((S.drawn.length + 1) + ' of ' + slots) });
+      sub: where,
+      main: spin() });
     const nextOk = S.wheelIndex < S.wheelCount - 1;
     const nextBtn = nextOk ? { label: S.armed === 'next' ? 'Press again to confirm' : 'Next wheel',
-      small: S.next ? S.next.title + ' · press twice' : 'press twice', cmd: 'next', tone: 'go', armed: S.armed === 'next' } : null;
-    return Object.assign(P, { step: 2, kicker: 'Step 3 — wheel ' + (S.wheelIndex + 1) + ' of ' + S.wheelCount + ' finished',
-      head: left > 0 ? 'No entries left on this wheel' : nextOk ? 'Wheel done — on to the next one' : 'All wheels done!',
+      small: 'Press twice', cmd: 'next', tone: 'go', armed: S.armed === 'next' } : null;
+    return Object.assign(P, { step: 2, kicker: S.wheelCount > 1 ? 'Wheel ' + (S.wheelIndex + 1) + ' of ' + S.wheelCount : '',
+      head: left > 0 ? 'No entries left on this wheel' : nextOk ? 'Wheel done. On to the next one' : 'All wheels done!',
       sub: nextOk ? 'Next up: <b>' + esc(S.next ? S.next.title : 'wheel ' + (S.wheelIndex + 2)) + '</b>.'
-                  : 'That was the last wheel. Switch OBS back to your main scene.',
-      main: nextBtn || { label: 'Go to chat giveaway', small: 'optional', cmd: 'mode?to=chat' } });
+                  : '',
+      main: nextBtn || { label: 'Go to chat giveaway', cmd: 'mode?to=chat' } });
   }
 
   /* --------------------------------------------------------------- render --- */
@@ -510,7 +522,7 @@
       const on = S.mode === mode, b = $(id);
       b.setAttribute('aria-pressed', on);
       b.disabled = on || !rest;
-      b.lastChild.textContent = on ? '● On stream now' : mode === 'sheet' ? 'Winners from the sheet' : 'Anyone in chat can enter';
+      b.lastChild.textContent = on ? 'On stream' : '';
     });
 
     /* Steps + hero */
@@ -534,7 +546,7 @@
 
     /* Winners list */
     const slots = w ? w.prizes.length : 0;
-    $('winHead').textContent = w ? (chatUp ? 'Chat winners — ' + c.title : 'Winners — ' + w.title) : 'Winners';
+    $('winHead').textContent = w ? (chatUp ? 'Chat winners' : 'Winners') : 'Winners';
     $('winMeta').textContent = w
       ? (chatUp ? plural(S.drawn.length, 'winner') + ' so far'
                 : 'Wheel ' + (S.wheelIndex + 1) + ' of ' + S.wheelCount + ' · ' + plural(S.pool.length, 'entry', 'entries') + ' left')
@@ -555,10 +567,10 @@
     /* Entries (chat giveaway only) */
     $('entPanel').hidden = !chatUp;
     $('cols').classList.toggle('one', !chatUp);
-    $('entHead').textContent = 'Entries — ' + c.names.length + (c.open ? ' · open' : ' · closed');
-    lit($('twDot'), chatTone(c.status.twitch));  $('twText').textContent = c.status.twitch;
-    lit($('kkDot'), chatTone(c.status.kick));    $('kkText').textContent = c.status.kick;
-    lit($('ytDot'), chatTone(c.status.youtube)); $('ytText').textContent = c.status.youtube;
+    $('entHead').textContent = 'Entries · ' + c.names.length + (c.open ? ' · open' : ' · closed');
+    lit($('twDot'), chatTone(c.status.twitch));  $('twText').textContent = c.status.twitch === 'connected' ? '' : c.status.twitch;
+    lit($('kkDot'), chatTone(c.status.kick));    $('kkText').textContent = c.status.kick === 'connected' ? '' : c.status.kick;
+    lit($('ytDot'), chatTone(c.status.youtube)); $('ytText').textContent = c.status.youtube === 'connected' ? '' : c.status.youtube;
     renderEntries();
 
     /* Claim prompt */
@@ -571,11 +583,11 @@
     $('bReload').hidden = chatUp || !w;
     $('bReload').disabled = !rest;
     $('bReload').classList.toggle('armed', S.armed === 'reload');
-    $('bReload').lastChild.textContent = S.armed === 'reload' ? 'PRESS AGAIN — wipes this session' : 'reloads the sheet · press twice';
+    $('bReload').lastChild.textContent = S.armed === 'reload' ? 'Press again to wipe this session' : 'Press twice';
     $('bClear').hidden = !chatUp;
     $('bClear').disabled = p !== 'ready' && p !== 'complete';
     $('bClear').classList.toggle('armed', S.armed === 'clear');
-    $('bClear').lastChild.textContent = S.armed === 'clear' ? 'PRESS AGAIN — removes everyone' : 'removes all entries · press twice';
+    $('bClear').lastChild.textContent = S.armed === 'clear' ? 'Press again to remove everyone' : 'Press twice';
     $('bClaim').hidden = !chatUp;
     $('bClaim').disabled = false;
     $('bClaim').firstChild.textContent = 'Winner must claim: ' + (c.claim ? 'ON (' + S.timings.claim / 1000 + 's)' : 'off');
@@ -587,11 +599,11 @@
 
     /* Problems */
     const probs = S.problems.concat(S.audio && S.audio.ctx !== 'running' && Date.now() - S.audio.at < 120000
-      ? [{ level: 'warn', text: 'Sound is ' + S.audio.ctx + ' in the audio source — the browser is blocking it, so the wheel will be silent. See Setup & diagnostics.' }] : []);
+      ? [{ level: 'warn', text: 'Sound is ' + S.audio.ctx + ' in the audio source. The browser is blocking it, so the wheel will be silent. See Setup & diagnostics.' }] : []);
     if (!S.pendingWrites) pendingSince = 0;
     else if (!pendingSince) { pendingSince = Date.now(); setTimeout(() => { if (S && online) render(); }, STUCK_MS + 500); }
     if (pendingSince && Date.now() - pendingSince > STUCK_MS)
-      probs.push({ level: 'warn', text: plural(S.pendingWrites, 'winner') + ' not reaching the sheet for over ' + STUCK_MS / 1000 + 's — they are saved locally; check the network.' });
+      probs.push({ level: 'warn', text: plural(S.pendingWrites, 'winner') + ' not reaching the sheet for over ' + STUCK_MS / 1000 + 's. They are saved locally; check the network.' });
     $('problems').hidden = !probs.length;
     if (probs.length) {
       const errs = probs.filter(pr => pr.level === 'error').length;
@@ -625,7 +637,7 @@
           const winner = won.has(n.platform + ':' + n.name);
           return '<li class="ent"><span>' + esc(n.name) + '<small>' + esc(n.platform) + (winner ? ' · winner' : '') + '</small></span>' +
             (winner ? '' : '<button class="ent-x" data-platform="' + esc(n.platform) + '" data-user="' + esc(n.user || '') + '"' +
-              (canRemove ? '' : ' disabled') + ' title="Remove ' + esc(n.name) + '" aria-label="Remove ' + esc(n.name) + '">×</button>') + '</li>';
+              (canRemove ? '' : ' disabled') + ' title="Remove ' + esc(n.name) + '" aria-label="Remove ' + esc(n.name) + '"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>') + '</li>';
         }).join('')
       : '<li class="empty">' + (q ? 'Nobody matches “' + esc(q) + '”.' : 'Nobody has typed ' + esc(c.keyword) + ' yet.') + '</li>';
   }
@@ -639,7 +651,7 @@
     online = false;
     document.body.classList.add('offline');
     lit($('linkDot'), 'red'); $('linkText').textContent = 'Offline';
-    status('Server offline — is start-wheel-studio.bat running? Retrying…', 'err');
+    status('Server offline. Is the app running? Retrying…', 'err');
     delete $('hero').dataset.live;
     $('kicker').textContent = 'Not connected';
     $('head').textContent = 'Server offline';

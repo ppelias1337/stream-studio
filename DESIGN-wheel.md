@@ -184,6 +184,8 @@ components:
 
 # Design System: Wheel Studio Control
 
+> **Superseded for colour, type, shape and copy (v4.1).** `/control` wears Studio Graphite and follows the Quiet Copy Rule in `DESIGN.md`. The behaviour below (one big button, armed double-press, on-air red, the claim prompt) still holds; its colour values and helper lines do not.
+
 Scope: the operator control page (`public/control.html`) only. The on-stream overlay (`public/index.html`) wears its own delivered art and is outside this system.
 
 ## Overview
