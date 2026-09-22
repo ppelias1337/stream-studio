@@ -43,7 +43,8 @@
       {
         "provider": "github",
         "owner": "ppelias1337",
-        "repo": "stream-studio"
+        "repo": "stream-studio",
+        "releaseType": "release"
       }
     ],
     "asar": false
