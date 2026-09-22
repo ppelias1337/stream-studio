@@ -836,6 +836,9 @@
   body.display-only .monitor-label, body.display-only .control, body.display-only .toast,
   body.display-only .help-overlay, body.display-only .confirm-overlay{display:none !important}
   body.display-only .display{position:fixed;top:50%;left:50%;margin:0;outline:none;transform:translate(-50%,-50%) scale(var(--fit,1));transform-origin:center}
+  /* leaderboard: as tall as its rows, top edge where the square's would be */
+  .display.fit{height:auto}
+  body.display-only .display.fit{top:calc(50% - 225px * var(--fit,1));transform:translate(-50%,0) scale(var(--fit,1));transform-origin:top center}
   /* full-canvas source (16:9): the box sits at its spot on the 1920×1080 overlay, the rest is alpha */
   body.display-only.canvas .display{top:var(--cy);left:var(--cx);transform:scale(var(--fit,1));transform-origin:0 0}
 
@@ -1790,6 +1793,7 @@ function lbRows(){
    running, so every renderDisplay() checks this first rather than each format
    growing its own copy of the toggle. */
 function lbTakeover(c){
+  $("#display").classList.toggle("fit", !!(lb.show && c));   // the box shrinks to the rows, so OBS can crop it
   if(!lb.show || !c) return false;
   c.innerHTML = lbDisplayHeader()+lbDisplayView();
   return true;
@@ -2556,7 +2560,7 @@ const RF_MODES={
   BOARD:{icon:"gift", get title(){ return bd.title||"Challenge Board"; }, setup:()=>!!rf.spin || bdDue().length>0, roster:()=>[], display:()=>bdRenderDisplay(), save:()=>bdSaveWin(),
     add:()=>{ const p={id:uid(), name:"", cell:bdDue()[0]?.id||null}; bd.winners.push(p); return p; }},
   // five fixed seats: the entries show until the first is taken, then the crew board; a claim fills the next open seat
-  CREW:{icon:"gift", title:"Dead Man's Crew", kw:"Crew", spinMs:()=>CR_DRAW_MS, setup:()=>!!rf.spin || !crTaken(), roster:()=>cr.winners, display:()=>crRenderDisplay(), save:()=>crSaveWin(), add:()=>null},
+  CREW:{icon:"gift", title:"Dead Man's Crew", kw:"Slotmill", spinMs:()=>CR_DRAW_MS, setup:()=>!!rf.spin || !crTaken(), roster:()=>cr.winners, display:()=>crRenderDisplay(), save:()=>crSaveWin(), add:()=>null},
 };
 /* Slot entries ("!slot Gates of Olympus"): the words after the keyword are the entry.
    Frozen into rf.slots when entries open, so a format switching mid-entries can't mix them. */
@@ -5192,7 +5196,7 @@ function menuControlView(){
       ${card("KEYWORD","Pick any keyword and title. Chat types it, draw winners one at a time, each one claims in chat.")}
       ${card("PRAG","Pragmatic Play Friday. Chat types Pragmatic, draw winners one at a time, and each one gets a spin on the wheel. The prizes scroll on stream.")}
       ${card("BOARD","4x4 challenges, each with a count. Tick them as they happen on stream. A full challenge is a giveaway: chat types the keyword, draw a winner.")}
-      ${card("CREW","Slotmill visit: Dead Man's Crew. Chat types Crew, draw 5 winners of €100 each. Themed in the game's art.")}
+      ${card("CREW","Slotmill visit: Dead Man's Crew. Chat types Slotmill, draw 5 winners of €100 each. Themed in the game's art.")}
       ${card("BINGO","Money Train 5 Bingo. Its board shows in the stream box, run from its own panel.")}
     </div>`;
 }

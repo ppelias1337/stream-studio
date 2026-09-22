@@ -29,7 +29,7 @@ the competitions box shows `/bingo/#display` in an iframe, so OBS keeps the one 
 **Challenge Board** (`BOARD`, `board_state_v1`, Special Giveaways) is 16 challenges, each with a count. A full
 one owes a giveaway: `RF_MODES.BOARD.setup()` puts the keyword entries on the box only while one is due
 (`bdDue()`), and each winner row keeps the `cell` it was drawn for.
-**Dead Man's Crew** (`CREW`, `crew_state_v1`, Special Giveaways) is the Slotmill visit raffle: keyword `Crew`,
+**Dead Man's Crew** (`CREW`, `crew_state_v1`, Special Giveaways) is the Slotmill visit raffle: keyword `Slotmill`,
 five fixed €100 seats; its draw is a full-canvas slot spin (`crDrawFrame`, like Prag's) with a captain win tier per seat; art in `public/comp/crew/` (cut down from the pack in `Dead_Mans_Crew/`, which is gitignored).
 
 ## Rules that matter
