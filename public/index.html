@@ -1,0 +1,1203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wheel Studio</title>
+<style>
+  html, body { margin:0; padding:0; background:transparent; overflow:hidden;
+               font-family:'Segoe UI',Verdana,sans-serif; color:#dbe6f5; }
+
+  /* ---------------------------------------------------------- typography ---
+     THIS PAGE DRAWS THE WHEEL AND THE WORDS. Nothing else. The room, the
+     backdrop, the boards, the chat frame and the shutter are a looping video
+     and a stinger in OBS, underneath and around this source — so there is no
+     CSS plate under any of this text and there never will be. Every text
+     element owns its own contrast: a dark shadow under it, and enough weight
+     that it survives whatever the loop is doing behind it.
+
+     Three voices, and every piece of text on the wall is exactly one of them:
+
+       display   the things that shout — competition title, the chat command,
+                 the winner's name. Condensed, heavy, gold, and LIT.
+       engraved  labels stamped on the set — the board headers. Same condensed
+                 face, solid gold, opened right up, a hairline under it.
+       muted     what the eye reads second — WINNER, and the line under the
+                 chat command. Small, very wide, dim warm gold.
+
+     THE FACE. Bahnschrift ships with Windows 10 and 11, so the streaming
+     machine already has it and nothing is fetched at run time — a webfont that
+     fails to arrive mid-stream is a dead overlay. Signage only: viewer names
+     stay in the UI face, because a handle is data, not a sign.               */
+
+  :root{
+    --disp:'Bahnschrift','Bahnschrift SemiCondensed','DIN Alternate','Segoe UI',Verdana,sans-serif;
+    --gold-hi:#ffe9b0;     /* the lit edge — display voice          */
+    --gold:#f0c33c;        /* the set's gold — prizes, title        */
+    --gold-mute:#c9b487;   /* dim warm     — muted voice            */
+    --name:#eaf1fb;        /* a viewer's handle                     */
+    --dead:#46597a;        /* a prize nobody has won yet            */
+    --lift:0 2px 4px rgba(0,0,0,.85), 0 0 16px rgba(0,0,0,.6);
+
+    /* HOW FAR DOWN THE TOP SIGN SITS. Title and sponsor logo move together off
+       this one number, because they are one sign — and the only thing that ever
+       needs tuning about them is where the backdrop's own panel ends, which is
+       a property of the loop playing in OBS and cannot be measured from in
+       here. Negative is higher. Nothing else has to move with it. */
+    --sign-y:-24px;
+  }
+
+  /* Exactly 1920x1080 in OBS. Scales down only when previewed in a smaller window. */
+  #fit { position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:top left; }
+
+  /* THE STUDIO IS ALWAYS ON. Arriving in it is an OBS scene change, so this page
+     has no idea whether it is being looked at and no business hiding itself. */
+  #studio { position:absolute; inset:0; overflow:hidden; }
+
+  /* ---------------------------------------------------------- the camera ---
+     The set is a room in the OBS loop, and the wheel has to stand in it. So
+     everything this page paints on the back wall — wheel, boards, signs — lives
+     in ONE group carrying a single scale-and-translate, authored on the same
+     flat 1920x1080 plane the art was drawn on. room.js owns the two dials;
+     nothing in here is a typed-in room coordinate.
+
+     THE SWAP STINGER IS NOT IN THIS GROUP. It is a full-frame 1920x1080 clip,
+     composed against the finished picture, so it is placed in frame space. */
+
+  .wallspace { position:absolute; left:0; top:0; width:1920px; height:1080px;
+               transform-origin:0 0; }
+  #wall { z-index:1; }
+
+  /* --------------------------------------------------------- wheel mount --- */
+  /* The disc hangs on the back wall. Empty until wheel-mount.png is delivered —
+     the shadow and the boss are art, not CSS. */
+  #wheelshadow { position:absolute; left:530px; top:180px; width:860px; height:860px; }
+
+  /* --------------------------------------------------------------- stage --- */
+
+  #stageclip { position:absolute; left:0; top:0; width:1920px; height:1080px; z-index:3; }
+  #stage { position:absolute; left:0; top:0; width:1920px; height:1080px;
+           transition:opacity .35s ease; }
+  /* Only used when no stinger has been delivered: the wheel dips out and back so
+     a swap still reads as a change rather than a jump cut. */
+  #stage.gone { opacity:0; }
+
+  #wheel { position:absolute; left:650px; top:290px; }
+  .spins { will-change:transform; }
+
+  /* Boxes only. Every one of these is a mount for a delivered file — see
+     slots.js — and the page paints nothing inside them. */
+  #rim     { position:absolute; left:560px; top:200px; width:800px; height:800px; }
+  #hub     { position:absolute; left:760px; top:400px; width:400px; height:400px; }
+  #hubmark { position:absolute; left:122px; top:122px; width:156px; height:156px; }
+  #pointer { position:absolute; left:800px; top:0; width:320px; height:320px; }
+  /* Pivot 960,235 in wall space; the blade art hangs off it, 200x200 centred. */
+  #blade   { position:absolute; left:160px; top:235px; width:0; height:0; transform-origin:0 0; }
+
+  /* ----------------------------------------------------------- the words --- */
+  /* A board is a LEADERBOARD, so it is set as three columns rather than as a
+     sentence with a number glued to the front of it: the rank is its own dim
+     gold column, which is what lets every name start on the same x.
+
+     AND IT IS A WINDOW, NOT A LIST. A competition can have more prizes than the
+     screen has rows, so .rows is the aperture, fixed to a whole number of rows
+     and clipped, and .reel is the strip that slides inside it. See
+     winnersWindow(). The frame around all of this is in the OBS loop; .screen
+     is where that frame's opening lands, and it paints nothing. */
+
+  .screen { position:absolute; left:20px; width:545px; }
+  .phead  { position:absolute; left:0; top:0; width:545px; height:59px; box-sizing:border-box;
+            padding:0 14px; display:flex; align-items:center;
+            font-family:var(--disp); font-weight:700; font-size:34px;
+            text-transform:uppercase; letter-spacing:.14em;
+            color:var(--gold-hi); text-shadow:var(--lift); }
+  .phead::after { content:''; position:absolute; left:14px; right:14px; bottom:0; height:1px;
+            background:linear-gradient(90deg,rgba(240,195,60,.55),rgba(240,195,60,.06)); }
+
+  .rows { position:absolute; left:0; top:63px; width:545px; overflow:hidden; }
+  .reel { position:relative; transition:transform .55s cubic-bezier(.35,0,.15,1); }
+  .row  { height:56px; box-sizing:border-box; padding:0 14px; font-size:29px;
+          display:flex; align-items:center; gap:12px;
+          color:var(--name); text-shadow:var(--lift); }
+  .row + .row { box-shadow:inset 0 1px 0 rgba(240,195,60,.13); }
+  /* Aperture heights are a whole number of rows, and WIN_ROWS in the script is
+     the same 5. Change one, change the other. */
+  #winners .row  { height:53px; }
+  #winners .rows { height:265px; }              /* 5 x 53 */
+  #xwin .row     { height:52px; }
+  #xwin .rows    { height:312px; }              /* 6 x 52 */
+  .row .rk  { flex:none; width:30px; font-family:var(--disp); font-weight:700; font-size:24px;
+              color:var(--gold-mute); opacity:.7; font-variant-numeric:tabular-nums; }
+  .row .who { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .row .pz  { flex:none; font-family:var(--disp); font-weight:700; font-size:30px;
+              color:var(--gold); letter-spacing:.02em; font-variant-numeric:tabular-nums; }
+  /* Not yet won: the prize stays gold — it is still on offer — and only the name
+     goes dark, so an unclaimed row reads as a slot waiting to be filled. */
+  .row.empty .who { color:var(--dead); letter-spacing:.24em; }
+  .row.empty .rk  { opacity:.4; }
+  .row.empty .pz  { opacity:.5; }
+  .row.hit { animation:pop .5s ease; }
+  @keyframes pop { 0%   { background:rgba(240,195,60,.5); }
+                   100% { background:transparent; } }
+
+  #winners { position:absolute; left:-230px; top:70px; width:585px; height:360px; z-index:5; }
+  #winners .screen { top:14px; height:332px; }
+  #xwin    { position:absolute; left:-230px; top:544px; width:585px; height:402px; z-index:5; }
+  #xwin .screen { top:12px; height:378px; }
+
+  /* Title + sponsor: one two-tier sign filling the whole band above the wheel.
+     The band is y0..194 — that is where the wheel art starts — and the two tiers
+     divide it, title 6..88, sponsor 88..192. */
+  #title { position:absolute; left:560px; top:var(--sign-y); width:800px; height:68px; z-index:6; }
+  /* DISPLAY, and the loudest thing on the wall. Gold poured top to bottom rather
+     than filled flat, which is what makes a plate look struck instead of typed,
+     and the glow rides the drop-shadow so it hugs the letters instead of boxing
+     them. Uppercased in CSS: a marquee is not a sentence. */
+  #titleText { position:absolute; left:40px; top:4px; width:720px; height:60px; line-height:60px;
+               text-align:center; white-space:nowrap; overflow:hidden;
+               font-family:var(--disp); font-size:52px; font-weight:700;
+               text-transform:uppercase; letter-spacing:.05em; text-indent:.05em;
+               color:var(--gold);
+               background:linear-gradient(180deg,#fff3cf 0%,#f6cf55 46%,#c9911a 100%);
+               -webkit-background-clip:text; background-clip:text;
+               -webkit-text-fill-color:transparent;
+               filter:drop-shadow(0 2px 3px rgba(0,0,0,.85))
+                      drop-shadow(0 0 18px rgba(240,195,60,.45)); }
+
+  #sponsor { position:absolute; left:560px; top:calc(68px + var(--sign-y)); width:800px; height:126px; z-index:6; }
+  /* HEIGHT is what binds a lockup, so the logo has the whole plate: 760x114,
+     centred on the same axis as the title. Sponsor artwork is white or light on
+     this set — the band behind it in the loop is dark and stays so. */
+  #sponsorBed { position:absolute; left:20px; top:4px; width:760px; height:114px;
+                display:flex; align-items:center; justify-content:center; }
+  /* Shown only when a sponsor has no logo file, so it stands in for artwork and
+     is set like signage rather than like a row. */
+  #sponsorName { font-family:var(--disp); font-size:76px; font-weight:700;
+                 text-transform:uppercase; letter-spacing:.04em;
+                 color:var(--gold); white-space:nowrap; text-shadow:var(--lift); }
+  /* height + auto width, NOT max-width/max-height: a cap only ever shrinks, so a
+     small file would render at its own size and look like nothing had happened.
+     A low-resolution file gets scaled up and will look it — logos want 900px or
+     better on the long edge. */
+  #sponsorLogo { height:114px; width:auto; max-width:760px; object-fit:contain; display:none; }
+  #sponsor.haslogo #sponsorName { display:none; }
+  #sponsor.haslogo #sponsorLogo { display:block; }
+
+  /* How viewers join, wedged between the two left boards. Two lines: the chat
+     command, then what it does. The wording comes from server/config.json. */
+  #join { position:absolute; left:-230px; top:446px; width:585px; height:84px; z-index:6; }
+  #joinCmd  { position:absolute; left:12px; top:8px; width:561px; height:38px; line-height:38px;
+              text-align:center; white-space:nowrap; overflow:hidden;
+              font-family:var(--disp); font-size:36px; font-weight:700;
+              color:var(--gold-hi); letter-spacing:.04em;
+              text-shadow:0 2px 4px rgba(0,0,0,.85), 0 0 20px rgba(240,195,60,.6); }
+  #joinWhat { position:absolute; left:12px; top:46px; width:561px; height:22px; line-height:22px;
+              text-align:center; white-space:nowrap; overflow:hidden;
+              font-family:var(--disp); font-size:18px; text-transform:uppercase;
+              color:var(--gold-mute); letter-spacing:.24em; text-indent:.24em;
+              text-shadow:var(--lift); }
+  /* A one-line instruction with no command in it gets the whole plate. */
+  #join.oneline #joinCmd  { top:20px; height:44px; line-height:44px; font-size:30px;
+                            letter-spacing:.06em; }
+  #join.oneline #joinWhat { display:none; }
+
+  /* ------------------------------------------------------ the text swap ---
+     When the wheel changes, the words must not cut to the new ones on a frame —
+     that is the one thing that gives a swap away. They used to power-cycle like
+     a CRT: the lit face collapsed to a scan line and struck back up. That read
+     as a television because WE were drawing the television. The bezels are in
+     the OBS loop now and they stay rock steady, so a picture collapsing inside
+     one reads as the text falling over rather than as a set changing.
+
+     So the words simply leave and come back: a fast lift out, the dark gap the
+     server changes the data in, then they settle in from below. Only the four
+     things that actually change are animated — the two board reels, the title,
+     the sponsor. The headers do not move: they say the same words before and
+     after, and flickering them would draw the eye to the swap.
+
+     OPACITY AND TRANSFORM, AND NOTHING ELSE. This had a blur on it, which looked
+     better in isolation and cost about one dropped frame per swap — measured,
+     interleaved, 4 runs each way. That is a frame taken from the three seconds
+     the stinger is decoding a full-frame alpha video, which is the one stretch
+     of the whole segment with no headroom to give. Opacity and transform are
+     handled by the compositor and cost nothing; a blur over gradient-filled text
+     with a drop-shadow under it is a repaint of every one of those layers, every
+     frame. will-change promotes them for the duration so even the opacity does
+     not force a repaint.
+
+     The duration is the swap phase, whose length the server owns, and the
+     negative delay is what keeps both OBS instances on the same frame — and what
+     lets a source that loads halfway through drop into the right part of it. The
+     dark gap runs 7%..62% = 210ms..1860ms, and the server changes the wheel at
+     swapData = 1000ms, squarely inside it. */
+
+  #studio.textswap .swapfade { animation:swapText 3000ms linear both;
+                               will-change:opacity, transform; }
+
+  @keyframes swapText {
+    0%   { opacity:1; transform:translateY(0);     }
+    7%   { opacity:0; transform:translateY(-16px); }
+    62%  { opacity:0; transform:translateY(16px);  }
+    76%  { opacity:1; transform:translateY(0);     }
+    100% { opacity:1; transform:translateY(0);     }
+  }
+
+  /* Reshuffle glint, artboard 18. Plays when the wheel redraws — after a winner
+     is struck off, and as a new wheel arrives behind the stinger. Rotating the
+     whole disc sweeps the 118deg band across it. Masked to r<=348 so nothing
+     spills off the rim. CSS until a glint file is delivered. */
+  #glint { position:absolute; left:560px; top:200px; width:800px; height:800px; opacity:0; }
+  #glint.play { animation:glintFade .9s ease-out; }
+  #glint.play .sw { animation:glintSweep .9s cubic-bezier(.4,0,.5,1); }
+  #glint .sw { position:absolute; inset:0; }
+  #glint .g1 { position:absolute; left:52px; top:52px; width:696px; height:696px; border-radius:50%;
+               background:linear-gradient(118deg,rgba(255,246,220,0) 26%,rgba(255,246,220,.10) 40%,rgba(255,246,220,.55) 49%,rgba(168,220,255,.45) 52%,rgba(255,246,220,.10) 62%,rgba(255,246,220,0) 76%); }
+  #glint .g2 { position:absolute; left:52px; top:52px; width:696px; height:696px; border-radius:50%; filter:blur(3px);
+               background:linear-gradient(118deg,rgba(255,255,255,0) 46%,rgba(255,255,255,.75) 49.5%,rgba(255,255,255,0) 53%); }
+  #glint .g3 { position:absolute; inset:0; border-radius:50%;
+               background:conic-gradient(from 118deg,rgba(240,195,60,.55) 0deg,rgba(240,195,60,0) 22deg,rgba(240,195,60,0) 338deg,rgba(240,195,60,.55) 360deg);
+               -webkit-mask:radial-gradient(circle,transparent 317px,#000 320px,#000 348px,transparent 351px);
+                       mask:radial-gradient(circle,transparent 317px,#000 320px,#000 348px,transparent 351px); }
+  @keyframes glintFade  { 0%{opacity:0} 18%{opacity:1} 70%{opacity:1} 100%{opacity:0} }
+  @keyframes glintSweep { from{transform:rotate(-55deg)} to{transform:rotate(55deg)} }
+
+  /* Win FX, artboard 11. The winning segment always rests with its angular centre
+     under the pointer, so the wedge points at 12 o'clock and never needs rotating
+     — built narrow-cored precisely so a 0.9-degree sliver still reads as the
+     thing that is glowing. */
+  #winfx { position:absolute; left:510px; top:150px; width:900px; height:900px; z-index:6;
+           opacity:0; transition:opacity .3s ease; }
+  #winfx.show { opacity:1; }
+  #winfx .w1 { position:absolute; left:390px; top:60px; width:120px; height:400px; filter:blur(18px);
+               clip-path:polygon(42% 0%,58% 0%,54% 100%,46% 100%);
+               background:linear-gradient(180deg,rgba(240,195,60,0) 0%,rgba(240,195,60,.10) 30%,rgba(240,195,60,.22) 74%,rgba(240,195,60,.05) 100%); }
+  #winfx .w2 { position:absolute; left:438px; top:70px; width:24px; height:392px; filter:blur(6px);
+               clip-path:polygon(38% 0%,62% 0%,56% 100%,44% 100%);
+               background:linear-gradient(180deg,rgba(255,233,176,0),rgba(255,233,176,.35) 34%,rgba(255,246,220,.85) 88%,rgba(255,246,220,.35)); }
+  #winfx .w3 { position:absolute; left:446px; top:96px; width:8px; height:366px;
+               background:linear-gradient(180deg,rgba(255,246,220,0),#fff6dc 70%,#ffe9b0); }
+  #winfx .w4 { position:absolute; left:378px; top:82px; width:144px; height:144px; border-radius:50%;
+               background:radial-gradient(circle,rgba(255,246,220,.55),rgba(240,195,60,.22) 45%,rgba(240,195,60,0) 72%); }
+  /* CONFETTI IS FULL FRAME, and the second thing on the set authored in frame
+     space rather than on the wall. A burst that blows out from the middle and
+     covers the screen is not a 900x900 box over the wheel: it is the whole
+     picture, composed against the output the way OBS shows it, exactly like the
+     swap stinger. The CSS burst below is generated at frame coordinates around
+     the wheel's projected centre so it looks the same as it always did, and a
+     delivered clip drops straight in over the top of it.
+
+     It sits ABOVE the whole wall group and BELOW the nameplate: the winner's
+     name is the payoff of the segment and must never end up behind the paper. */
+  /* THE LAYER IS OFF UNLESS IT IS BURSTING, and that is not a nicety. A delivered
+     clip is a video element parked on a frame: if its first frame is not empty it
+     sits on screen from the moment it mounts, and if its last frame is not empty
+     it sits there for the rest of the stream once it has played. Neither is
+     something we can ask an animator to guarantee frame-perfectly, so the page
+     simply does not show the layer outside the burst, and fades rather than cuts
+     so a clip that is still dropping paper when the reveal ends bows out. */
+  #fxconf { position:absolute; left:0; top:0; width:1920px; height:1080px; z-index:6;
+            opacity:0; transition:opacity .35s ease; }
+  #fxconf.burst { opacity:1; }
+  .conf { position:absolute; opacity:0; }
+  #fxconf.burst .conf { animation:burst 1.5s cubic-bezier(.15,.7,.4,1) forwards; }
+  @keyframes burst {
+    0%   { transform:translate(var(--tx),var(--ty)) scale(.2) rotate(0deg); opacity:0; }
+    10%  { opacity:1; }
+    70%  { opacity:1; }
+    100% { transform:translate(0,0) scale(1) rotate(var(--r)); opacity:0; }
+  }
+
+  /* Winner nameplate, artboard 17. Ours to draw: it is on screen for three
+     seconds in the middle of a segment, which is not something a background loop
+     can do. Entry/exit match the 350ms in/out.
+
+     It is authored in WALL space like the rest of the set, but it hangs in its
+     own wallspace group at frame level rather than inside #wall — it carries the
+     same transform and lands in exactly the same place, and being outside that
+     group is what lets it sit over the full-frame confetti. */
+  #plate { position:absolute; left:560px; top:540px; width:800px; height:120px; z-index:7;
+           opacity:0; transform:scaleX(.72) scaleY(.86);
+           transition:opacity .35s ease, transform .35s cubic-bezier(.3,1.5,.5,1); }
+  #plate.show { opacity:1; transform:scaleX(1) scaleY(1); }
+  #plate .glow { position:absolute; left:-40px; top:-40px; width:880px; height:200px;
+                 background:radial-gradient(58% 88% at 50% 50%,rgba(240,195,60,.30),rgba(240,195,60,0) 76%); }
+  #plate .gold { position:absolute; inset:0; border-radius:5px;
+                 background:linear-gradient(180deg,#f7dc9a,#f0c33c 22%,#b08d1e 88%,#6b5310);
+                 box-shadow:0 10px 28px rgba(0,0,0,.55); }
+  #plate .well { position:absolute; left:6px; top:6px; width:788px; height:108px; border-radius:3px;
+                 background:linear-gradient(180deg,#0d2340,#061224); box-shadow:inset 0 0 30px rgba(0,0,0,.7); }
+  /* The muted voice at its widest — this label sits above an 80px name for three
+     seconds and has one job, which is to not be the thing you look at. */
+  #plate .lab  { position:absolute; left:0; top:9px; width:800px; text-align:center;
+                 font-family:var(--disp); font-size:19px; line-height:22px;
+                 text-transform:uppercase; color:var(--gold-mute);
+                 letter-spacing:.44em; text-indent:.44em; text-shadow:var(--lift); }
+  /* The display voice at its largest, and the payoff of the whole segment.
+     fitPlateName starts its shrink at 80px — keep the two numbers together. */
+  #plate .nm   { position:absolute; left:30px; top:30px; width:740px; height:70px; line-height:70px;
+                 text-align:center; white-space:nowrap;
+                 overflow:hidden; text-overflow:ellipsis;
+                 font-family:var(--disp); font-size:80px; font-weight:700;
+                 letter-spacing:.01em; text-indent:.01em;
+                 color:var(--gold);
+                 background:linear-gradient(180deg,#fff6dc 0%,#f6cf55 44%,#c9911a 100%);
+                 -webkit-background-clip:text; background-clip:text;
+                 -webkit-text-fill-color:transparent;
+                 filter:drop-shadow(0 3px 5px rgba(0,0,0,.85))
+                        drop-shadow(0 0 26px rgba(240,195,60,.55)); }
+
+  /* Under the plate: the platform a chat winner entered from — two people can
+     have the same name on Twitch and Kick — and, with claiming on, what they
+     have to do and how long they have left. Comes and goes with the plate. */
+  #claim { position:absolute; left:50%; top:134px; transform:translateX(-50%);
+           display:none; align-items:center; gap:14px; white-space:nowrap;
+           height:56px; padding:0 22px 0 10px; border-radius:6px;
+           background:linear-gradient(180deg,#0d2340,#061224);
+           box-shadow:0 0 0 2px #b08d1e, 0 10px 24px rgba(0,0,0,.55);
+           font-family:var(--disp); font-size:26px; font-weight:700; letter-spacing:.12em;
+           text-transform:uppercase; color:var(--gold-hi); text-shadow:var(--lift); }
+  #claim.on { display:flex; }
+  #claim b  { min-width:2ch; text-align:right; color:var(--gold); font-variant-numeric:tabular-nums; }
+  .pf { display:inline-flex; align-items:center; justify-content:center; flex:none;
+        width:38px; height:38px; border-radius:6px; text-shadow:none; }
+  .pf svg { width:24px; height:24px; }
+  .pf-twitch { background:#9146ff; fill:#fff; }
+  .pf-kick   { background:#53fc18; fill:#000; }
+  .pf-youtube { background:#f00; fill:#fff; }
+  .row .pf { width:32px; height:32px; margin-right:10px; vertical-align:middle; }
+  .row .pf svg { width:20px; height:20px; }
+
+  /* ------------------------------------------------------ delivered art --- */
+  /* assets.js mounts any file dropped in public/assets/ — slots.js is the table
+     of what lands where. The art goes in as the first child of its mount so the
+     live content kept on top of it still paints over it. */
+
+  .ws-art  { position:absolute; display:block; object-fit:fill; pointer-events:none; }
+  .ws-hide { display:none !important; }
+  /* A container whose CSS art has been replaced but whose live children have to
+     stay: it loses its own paint and keeps its box. Masks are deliberately NOT
+     reset — a mount may be carrying a cutout of its own. */
+  .ws-strip { background:none !important; box-shadow:none !important; border:0 !important; }
+  .ws-strip::before, .ws-strip::after { display:none !important; }
+
+  /* Mount points for the wheel art. Empty boxes; the files fill them. */
+  #rimspin, #rimstatic, #hubspin, #hubstatic, #fxglow { position:absolute; inset:0; }
+
+  /* THE SWAP STINGER IS FULL FRAME. It is composed against the finished 1920x1080
+     picture — the wheel as OBS sees it, after the wall transform — so it is NOT
+     in wall space and must never be scaled with the wheel. Drop the clip straight
+     into OBS over the output and it lands exactly where it lands here. */
+  #stingervid { position:absolute; left:0; top:0; width:1920px; height:1080px; z-index:8; }
+
+  /* Only appears if the server goes away mid-stream. Deliberately unmissable. */
+  #offline { position:absolute; left:0; top:0; width:1920px; height:40px; z-index:20;
+             background:#7a1220; color:#fff; font-size:20px; letter-spacing:.08em;
+             display:none; align-items:center; justify-content:center; }
+  #offline.show { display:flex; }
+</style>
+</head>
+
+<body>
+<div id="fit">
+  <div id="studio">
+    <!-- WALL SPACE. Everything in here is authored on the flat 1920x1080 plane
+         the art was drawn on, and the whole group is scaled and pushed back into
+         the room by one transform. Nothing inside knows about it. -->
+    <div id="wall" class="wallspace">
+
+      <!-- Behind the disc: how it hangs on the wall. Art only. -->
+      <div id="wheelshadow"></div>
+
+      <div id="stageclip">
+        <div id="stage">
+          <canvas id="wheel" class="spins" width="620" height="620"></canvas>
+          <!-- static body first, turning parts over it — the order the art is built -->
+          <div id="rim"><div id="rimstatic"></div><div id="rimspin" class="spins"></div></div>
+          <div id="hub"><div id="hubstatic"></div><div id="hubspin" class="spins"></div><div id="hubmark"></div></div>
+          <div id="glint"><div class="sw"><div class="g1"></div><div class="g2"></div><div class="g3"></div></div></div>
+          <div id="pointer"><div id="blade"></div></div>
+        </div>
+      </div>
+
+      <div id="winners">
+        <div class="screen">
+          <div class="phead">RANDOM WINNERS</div>
+          <div class="rows swapfade"><div class="reel" id="winrows"></div></div>
+        </div>
+      </div>
+
+      <!-- Between the boards: the one thing on the wall asking for something. -->
+      <div id="join">
+        <div id="joinCmd"></div><div id="joinWhat"></div>
+      </div>
+
+      <div id="xwin">
+        <div class="screen">
+          <div class="phead">HIGHEST X-WIN</div>
+          <div class="rows swapfade"><div class="reel" id="xrows"></div></div>
+        </div>
+      </div>
+
+      <div id="title"><div id="titleText" class="swapfade"></div></div>
+
+      <div id="sponsor">
+        <div id="sponsorBed" class="swapfade"><b id="sponsorName">&mdash;</b><img id="sponsorLogo" alt=""></div>
+      </div>
+
+      <div id="winfx"></div>
+    </div>
+  </div>
+
+  <!-- Full-frame confetti, over the whole set. -->
+  <div id="fxconf"></div>
+
+  <!-- The nameplate: wall coordinates, frame-level stacking, so the confetti
+       bursts behind the winner's name rather than over it. -->
+  <div class="wallspace" style="z-index:7">
+    <div id="plate">
+      <div class="glow"></div><div class="gold"></div><div class="well"></div>
+      <div class="lab">WINNER</div>
+      <div class="nm" id="plateName"></div>
+      <div id="claim"></div>
+    </div>
+  </div>
+
+  <!-- The wheel-swap stinger, full frame, above everything this page draws. -->
+  <div id="stingervid"></div>
+  <div id="offline">LOST CONNECTION TO THE WHEEL STUDIO SERVER</div>
+</div>
+
+<!-- Where the camera stands, the slot table, and the loader that mounts
+     delivered files. The last two are inert until something is in public/assets/. -->
+<script src="room.js"></script>
+<script src="slots.js"></script>
+<script src="assets.js"></script>
+<script src="sound.js"></script>
+
+<script>
+(function(){
+  const WA = window.WheelAssets;
+  const WS = window.WheelSound;
+
+  // Blue 1 was #0d2a4e. The art bible failed it against the finished backdrop —
+  // only ~4 L* off the lit room navy, so a 1-degree slice read as a hole in the
+  // wheel. #14355e is the replacement it specified.
+  const BLUES = ['#14355e','#154479','#1d5c9e','#2a79c4','#4497dc','#7cbdee'];
+  const GOLD = '#f0c33c', HAIR = '#b08d1e';
+
+  const cv = document.getElementById('wheel'), cx = cv.getContext('2d');
+  const R = 310, CXY = 310;
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const el = (cls, css) => '<div class="'+cls+'" style="'+css+'"></div>';
+
+  let spinParts = [];                // rim/hub layers that turn with the segments
+  let S = null;                      // latest server snapshot — the only source of truth
+  let wheelSig = null, drawnSig = null, logoSig = null, joinSig = null, drawnCount = 0;
+  let phaseTimers = [];
+
+  function fit(){
+    const s = Math.min(1, window.innerWidth/1920, window.innerHeight/1080);
+    $('fit').style.transform = 'scale('+s+')';
+  }
+  window.addEventListener('resize', fit);
+
+  /* ---------------------------------------------------------- the room --- */
+  /* Where the camera stands — see room.js, which owns the dials and is shared
+     with the control page so the operator is told the same numbers. */
+
+  const ROOM = window.WHEEL_ROOM;
+
+  // Every .wallspace group gets the same transform: the set itself, and the
+  // nameplate, which is authored on the wall but stacks at frame level.
+  function applyRoom(){
+    const t = 'translate(' + ROOM.x + 'px,' + ROOM.top + 'px) scale(' + ROOM.scale + ')';
+    document.querySelectorAll('.wallspace').forEach(e => { e.style.transform = t; });
+  }
+
+  /* ------------------------------------------------------------- the set --- */
+  /* The only thing this page still builds is the confetti field. Everything else
+     that used to be drawn here — the room, the boards, the rim, the hub, the
+     shutter — is either a delivered file or is in the OBS loop. */
+
+  function buildConfetti(){
+    // FRAME coordinates, not wall: this layer is not in the wall group any more.
+    // The burst is thrown from the wheel's centre as the viewer sees it — wall
+    // 960,600 projected through the room transform — and its radii carry the
+    // same scale, so the placeholder looks exactly as it did when it lived in a
+    // 900x900 box over the wheel. A delivered clip covers the whole frame and
+    // has nothing to do with any of these numbers.
+    const cx = ROOM.x + 960 * ROOM.scale, cy = ROOM.top + 600 * ROOM.scale;
+
+    // Same seeded scatter the art bible used, so the burst matches the artboard
+    // rather than being a different random field every reload.
+    const cols = ['#f0c33c','#ffe9b0','#fff6dc','#7cbdee','#4497dc','#e2b95f'];
+    let seed = 7;
+    const rnd = () => { seed = (seed*1103515245 + 12345) % 2147483648; return seed/2147483648; };
+    let conf = '';
+    for (let i=0;i<130;i++){
+      const a = rnd()*Math.PI*2, r = (120 + rnd()*300) * ROOM.scale, long = rnd() > .35;
+      const w = long ? 6+rnd()*12 : 5+rnd()*5, h = long ? 14+rnd()*26 : w;
+      const x = cx + Math.cos(a)*r, y = cy + Math.sin(a)*r;
+      if (x < 0 || x > 1920 || y < 0 || y > 1080) continue;
+      conf += el('conf','left:'+x.toFixed(0)+'px;top:'+y.toFixed(0)+'px;width:'+w.toFixed(0)+'px;height:'+h.toFixed(0)+'px;'+
+        'background:'+cols[i%cols.length]+';border-radius:'+(long?2:6)+'px;'+
+        '--tx:'+(cx-x).toFixed(0)+'px;--ty:'+(cy-y).toFixed(0)+'px;'+
+        '--r:'+(a*180/Math.PI + rnd()*60).toFixed(0)+'deg;'+
+        'animation-delay:'+(rnd()*180).toFixed(0)+'ms');
+    }
+    $('fxconf').innerHTML = conf;
+    // The beam stays on the wall, pointed at the winning segment.
+    $('winfx').innerHTML =
+      '<div id="fxglow"><div class="w1"></div><div class="w2"></div><div class="w3"></div><div class="w4"></div></div>';
+  }
+
+  /* ONLY THE OUTERMOST .spins IN ANY NEST. A turning slot's mount carries the
+     class — #rimspin, #hubspin — and assets.js puts it on the delivered file it
+     mounts inside them as well, from the slot table's own `spin` flag. Both were
+     being collected, so both were given the same rotate() and the transforms
+     compounded: the delivered rim turned at exactly twice the speed of the
+     segments it is meant to be rigid with. */
+  function collectSpin(){
+    spinParts = [...document.querySelectorAll('.spins')]
+      .filter(e => !e.parentElement || !e.parentElement.closest('.spins'));
+  }
+
+  function reskin(){ WA.refresh(); collectSpin(); }
+
+  /* -------------------------------------------------------------- render --- */
+
+  /* The segments are RASTERISED AT REST and turned with a transform, never
+     redrawn per frame. Nothing about the picture depends on the angle: draw it
+     once at angle zero, and the canvas becomes one more layer that turns with
+     the rim and the hub under the transform they already share. */
+
+  let segPool = null, segGold = null;
+  /* A name is written from the rim inwards, and a long enough one used to run
+     under the hub and come out the other side of it looking like it had been
+     bitten off. LABEL_MAX is how far it may travel: the text starts at LABEL_R
+     and the hub art covers about r90, so this is the gap between them. */
+  const LABEL_R = R - 28;
+  const LABEL_MAX = 190;
+
+  /* HOW BIG A NAME IS SET, AND WHY EVERY SEGMENT GETS ONE.
+
+     A slice is a wedge, so the room for type across it is `radius * span`, and
+     the name is written along the radius — which means the size that fits comes
+     from how thin the wedge is where the middle of the name sits. LABEL_MID is
+     that radius, so `span * LABEL_MID` is the tallest type that still clears the
+     neighbours either side.
+
+     THERE IS NO LOWER CUT-OFF. There used to be: below five degrees a segment
+     was simply left blank, which on a wheel of ninety-nine entries — 3.6 degrees
+     each — meant a wheel of a hundred empty blue slivers and not one name on it.
+     A hundred names IS small type; it is not no type. So the size floors at
+     LABEL_MIN and the slice is always labelled, which is the trade every wheel
+     of this kind makes.
+
+     LABEL_MIN is where a name stops being type and starts being texture. It is
+     canvas pixels, and the wall is scaled 0.80 into the frame, so nine here is
+     about seven on the broadcast — small, and still legibly a word. Below that
+     it would only be a smear that costs a fill. */
+  const LABEL_MID = 170;
+  const LABEL_MIN = 9;
+  const LABEL_MAXSIZE = 26;
+  // Cap height as a fraction of the set size — how much of the wedge the letters
+  // themselves actually claim, which is what decides where a name has to stop.
+  const CAP = 0.72;
+
+  function clipText(ctx, text, max){
+    if (ctx.measureText(text).width <= max) return text;
+    let lo = 0, hi = text.length;
+    while (lo < hi){
+      const mid = (lo + hi + 1) >> 1;
+      if (ctx.measureText(text.slice(0, mid) + '…').width <= max) lo = mid; else hi = mid - 1;
+    }
+    return lo > 0 ? text.slice(0, lo) + '…' : '…';
+  }
+
+  function paintSegments(goldIdx){
+    // S.pool is a fresh array off each snapshot, so identity is exactly the
+    // right test: same array, same picture.
+    if (S.pool === segPool && goldIdx === segGold) return;
+    segPool = S.pool; segGold = goldIdx;
+
+    const pool = S.pool;
+    cx.clearRect(0,0,620,620);
+    const tot = pool.reduce((a,e)=>a+e.weight,0);
+    let acc = 0;
+    pool.forEach((e,i)=>{
+      const a0 = -Math.PI/2 + (acc/tot)*2*Math.PI;
+      acc += e.weight;
+      const a1 = -Math.PI/2 + (acc/tot)*2*Math.PI;
+      cx.beginPath(); cx.moveTo(CXY,CXY); cx.arc(CXY,CXY,R-8,a0,a1); cx.closePath();
+      // never let the wrap-around segment share a shade with segment 0
+      let ci = i % BLUES.length;
+      if (i === pool.length-1 && ci === 0) ci = 3;
+      cx.fillStyle = (i===goldIdx) ? GOLD : BLUES[ci];
+      cx.fill();
+      cx.strokeStyle = HAIR; cx.lineWidth = 1.5; cx.stroke();
+
+      const span = a1-a0;
+      const size = Math.min(LABEL_MAXSIZE, Math.max(LABEL_MIN, span * LABEL_MID));
+      // ...and a name runs inwards until the wedge is no taller than the letters
+      // are, whichever comes first with clearing the hub. Without this the long
+      // handles on a busy wheel keep going into the narrow end and lie across
+      // their neighbours. The 46 is a floor for the slivers the size floored
+      // too: a couple of characters and an ellipsis beats nothing at all.
+      const room = Math.max(46, Math.min(LABEL_MAX, LABEL_R - CAP * size / span));
+      cx.save(); cx.translate(CXY,CXY); cx.rotate((a0+a1)/2);
+      cx.fillStyle = (i===goldIdx) ? '#061224' : (ci>=4 ? '#0a1e38' : '#eaf3ff');
+      cx.font = '600 '+size.toFixed(1)+'px Segoe UI, sans-serif';
+      cx.textAlign='right'; cx.textBaseline='middle';
+      cx.fillText(clipText(cx, e.name, room), LABEL_R, 0); cx.restore();
+    });
+  }
+
+  function drawWheel(angle, goldIdx){
+    paintSegments(goldIdx);
+    // The canvas paints segments and nothing else, out to exactly r302 where the
+    // rim's inner edge lands. Rim and hub are separate elements over it: one
+    // rigid wheel, teeth and bulbs travelling with the slices under them.
+    const deg = 'rotate(' + (angle * 180 / Math.PI).toFixed(3) + 'deg)';
+    for (let i=0;i<spinParts.length;i++) spinParts[i].style.transform = deg;
+    flick(angle);
+  }
+
+  // The flapper rides the rim's tooth track, so its deflection comes from how
+  // fast the wheel is actually turning rather than a fixed loop: gentle ticks at
+  // idle drift, full 22-degree throws at spin speed. Past ~16 teeth/s you cannot
+  // resolve individual hits anyway, so the visible rate caps there.
+  const PEGS = 100;
+  // Where the ear gives up on separate hits. Above this a real wheel is a rattle
+  // rather than a rhythm, and firing every one of 180 pegs a second would be
+  // three times the voices for a sound nobody can pick apart. SOUND.JS OWNS THE
+  // NUMBER: it sets each tick's level from how many are landing, so a cap here
+  // that it did not know about is exactly what made the spin swell in the middle.
+  const TICK_MAX = WS.TICK_MAX;
+  // Faster than the wheel can physically be driven, so it can only be the server
+  // re-anchoring the angle. See the note in flick().
+  const REANCHOR_RATE = 400;
+  let flickPhase = 0, tickPhase = 0, lastAngle = null, lastT = 0, flickDir = -1;
+  function flick(angle){
+    const now = performance.now();
+    if (lastAngle !== null){
+      const dt = Math.min(0.1, Math.max(0.001, (now - lastT)/1000));
+      // Wrapped into (-pi, pi]. The angle is not continuous — the server
+      // re-anchors it mod 2pi between phases, and a spin runs through several
+      // whole turns — so a raw subtraction reads those as enormous jumps.
+      const step = Math.atan2(Math.sin(angle - lastAngle), Math.cos(angle - lastAngle));
+      const rate = (Math.abs(step)/dt) * PEGS / (2*Math.PI);
+      flickPhase += Math.min(rate, 16) * dt;
+      const f = flickPhase % 1;
+      const amp = Math.min(1, rate/8);   // idle drift is a nudge, a spin is a full throw
+
+      /* THE SOUND IS NOT THE PICTURE, and it must not be capped like it.
+         The flapper animation is capped at 16 throws a second because past that
+         the eye cannot resolve one from the next — but the ear absolutely can,
+         and at the top of a spin this wheel passes 1.8 revolutions a second,
+         which at 100 pegs is a hundred and eighty of them. Ticking at 16 through
+         all of that is why it plodded: no rattle at the start, no ramp, no
+         reward for the wheel slowing down.
+
+         So the audio keeps its own count at the REAL rate. It is capped far
+         higher, at a point where the ear stops separating hits and starts
+         hearing a rattle, and it is handed the frame's own length so the ticks
+         inside it can be spaced evenly rather than landing wherever the frame
+         happened to fall. */
+      const pegsBefore = Math.floor(tickPhase);
+      tickPhase += Math.min(rate, TICK_MAX) * dt;
+      const ticks = Math.floor(tickPhase) - pegsBefore;
+
+      /* THE WHEEL TICKS WHENEVER IT IS TURNING, spin or resting drift. A disc
+         this size does not fall silent because nobody has pressed anything, and
+         the drift is what says the studio is live rather than a still frame.
+
+         It does not need holding down to sit under a spin: the drift is 2.5 pegs
+         a second against 190 at the top of a spin, and the level already follows
+         how hard the flapper is being thrown, so this comes out as one soft knock
+         every 400ms — about a twelfth of the rattle — rather than as a second,
+         slower tick track competing with it. It is the same knock the last
+         crawling segment of a spin makes, because it is the same speed.
+
+         AND NOT DURING A SWAP. The wheel is behind the jaws for those three
+         seconds and there is a stinger over the top of it; a drift knock from a
+         wheel nobody can see is the one tick that reads as a fault rather than
+         as the studio being alive. The re-anchor guard below only catches the
+         single jumped frame — this covers the whole phase. */
+      if (ticks > 0 && rate < REANCHOR_RATE && S.phase !== 'swapping') WS.ticks(ticks, dt, rate);
+      const th = amp * 22 * (f < 0.35 ? f/0.35 : Math.max(0, 1 - (f-0.35)/0.65));
+      // A peg throws the flapper the way the peg is travelling, and it is the rim
+      // at TWELVE O'CLOCK doing the pushing: on a wheel turning clockwise that
+      // surface runs left to right, so the blade is knocked to the RIGHT and
+      // springs back. The blade hangs BELOW its pivot, so swinging its tip right
+      // is a NEGATIVE rotation. Held between frames because a stopped wheel has
+      // no direction and the blade must not flip sides at rest.
+      if (step) flickDir = step > 0 ? -1 : 1;
+      $('blade').style.transform = 'rotate('+(flickDir * th).toFixed(2)+'deg)';
+    }
+    lastAngle = angle; lastT = now;
+  }
+
+  // Spin curve. The wheel is already drifting when a spin starts, so it
+  // accelerates into the spin instead of snapping to full speed, then runs out on
+  // a long cubic settle. Velocity is continuous at the join and zero at both
+  // ends. The wind-up is a fixed wall-clock time rather than a fraction of the
+  // spin, so a 30s spin gets the same punchy start as a 20s one and just holds
+  // the tail longer — which is where the suspense lives.
+  const ACCEL_MS = 1100;
+  function ease(k, duration){
+    const ramp = Math.min(0.5, ACCEL_MS / duration);
+    const vmax = 1 / (ramp/2 + (1-ramp)/3);
+    return k < ramp
+      ? vmax * k * k / (2*ramp)
+      : vmax * ramp/2 + vmax * (1-ramp)/3 * (1 - Math.pow(1 - (k-ramp)/(1-ramp), 3));
+  }
+
+  // Where the wheel sits when it isn't mid-spin: the server's anchor plus however
+  // much idle drift has accrued since. Same anchor in both instances, same clock.
+  const restingAngle = () => S.angle + S.driftRate * (Date.now() - S.anchoredAt);
+
+  // rAF drives the spin and the idle drift. Resting frames are also drawn the
+  // moment a snapshot arrives, so a source OBS has had hidden (rAF throttled to
+  // nothing) comes back showing the right wheel rather than a blank canvas.
+  //
+  // A SPIN GETS EVERY FRAME. THE DRIFT DOES NOT. The resting wheel turns once
+  // every forty seconds — six thousandths of a degree per frame at 60fps — and
+  // every one of those frames re-composites the canvas, the rim and the hub for
+  // a movement nobody can see. Half of that is given back, for the hours the
+  // studio sits in ready between spins, at no visible cost.
+  const DRIFT_MS = 32;
+  let lastDrift = 0;
+  function frame(){
+    requestAnimationFrame(frame);
+    if (!S) return;
+    if (S.phase === 'spinning' && S.spin){
+      const k = Math.min(1, (Date.now() - S.spin.startedAt) / S.spin.duration);
+      drawWheel(S.spin.startAngle + (S.spin.endAngle - S.spin.startAngle)*ease(k, S.spin.duration), -1);
+    } else if (S.driftRate){
+      const now = performance.now();
+      if (now - lastDrift < DRIFT_MS) return;
+      lastDrift = now;
+      drawWheel(restingAngle(), -1);
+    }
+  }
+
+  function drawResting(){
+    if ((S.phase === 'revealing' || S.phase === 'claiming') && S.spin) drawWheel(S.spin.endAngle, S.spin.winnerIndex);
+    else if (S.phase !== 'spinning') drawWheel(restingAngle(), -1);
+  }
+
+  // A 24-character handle at 80px runs well past the 740px well, so shrink until
+  // it fits rather than letting it overflow the art.
+  function fitPlateName(name){
+    const e = $('plateName');
+    e.style.fontSize = '';
+    e.textContent = name;
+    let size = 80;
+    while (e.scrollWidth > 740 && size > 30){ size -= 2; e.style.fontSize = size + 'px'; }
+  }
+
+  // Same treatment: a long competition title shrinks rather than being cut off.
+  function fitTitle(text){
+    const e = $('titleText');
+    e.style.fontSize = '';
+    e.textContent = text;
+    let size = 52;
+    while (e.scrollWidth > 720 && size > 26){ size -= 2; e.style.fontSize = size + 'px'; }
+  }
+
+  // A sponsor with no logo file falls back to its NAME, and that name IS the
+  // plate — so it is set big, and shrunk only as far as a long one needs.
+  function fitSponsorName(text){
+    const e = $('sponsorName');
+    e.style.fontSize = '';
+    e.textContent = text;
+    let size = 76;
+    while (e.scrollWidth > 760 && size > 24){ size -= 1; e.style.fontSize = size + 'px'; }
+  }
+
+  function renderWheelChrome(){
+    const w = S.wheel;
+    fitTitle(w ? w.title : '');
+    fitSponsorName(w ? w.sponsor : '—');
+    $('xwin').style.display = (w && w.xwin.length) ? 'block' : 'none';
+    $('xrows').innerHTML = w ? w.xwin.map(x =>
+      '<div class="row"><span class="rk">'+esc(x.rank)+'</span>'+
+      '<span class="who">'+esc(x.name)+'</span>'+
+      '<span class="pz">'+esc(x.prize)+'</span></div>'
+    ).join('') : '';
+  }
+
+  /* ------------------------------------------------------- the text swap --- */
+  /* One class on #studio runs every changing word's animation; the negative delay
+     keeps the two OBS instances on the same frame and lets a source that loads
+     halfway through the swap drop straight into the right part of it. */
+
+  function screenSwap(on, elapsed){
+    const dur = S.timings.swapEnd;
+    document.querySelectorAll('.swapfade').forEach(e => {
+      e.style.animationDuration = on ? dur + 'ms' : '';
+      e.style.animationDelay = on ? (-Math.max(0, Math.min(elapsed, dur))) + 'ms' : '';
+    });
+    $('studio').classList.toggle('textswap', on);
+  }
+
+  // "!COMPETITIONS TO SEE THEM ALL" reads as two things: the command, and
+  // what it gets you. Split on the first space when the string opens with a
+  // command so the command carries the size; otherwise it is one line.
+  function renderJoin(){
+    const raw = (S.joinText || '').trim();
+    const j = $('join');
+    if (!raw){ j.style.display = 'none'; return; }
+    j.style.display = '';
+    const sp = raw.indexOf(' ');
+    const isCmd = /^[!\/]/.test(raw) && sp > 0;
+    j.classList.toggle('oneline', !isCmd);
+    $('joinCmd').textContent  = isCmd ? raw.slice(0, sp) : raw;
+    $('joinWhat').textContent = isCmd ? raw.slice(sp + 1) : '';
+  }
+
+  /**
+   * Cut the blank margin off a sponsor logo.
+   *
+   * Sponsor artwork is not ours and it arrives however the sponsor exported it —
+   * often a share card with the mark in one corner and two thirds of the image
+   * empty, which object-fit dutifully fits, emptiness and all. So the page trims
+   * it: find the bounding box of the artwork and redraw only that. A file WITH
+   * alpha is trimmed on alpha; a fully opaque one takes its corner pixel as the
+   * background. Gives up silently on anything it cannot read — an untrimmed logo
+   * is a poor logo, a missing one is a hole in the stream.
+   */
+  function trimLogo(img){
+    const W = img.naturalWidth, H = img.naturalHeight;
+    if (!W || !H || W * H > 16e6) return null;
+    const c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const x = c.getContext('2d');
+    x.drawImage(img, 0, 0);
+    let d;
+    try { d = x.getImageData(0, 0, W, H).data; } catch (e) { return null; }
+
+    let hasAlpha = false;
+    for (let i = 3; i < d.length; i += 4) if (d[i] < 250){ hasAlpha = true; break; }
+    const br = d[0], bg = d[1], bb = d[2];
+    const solid = hasAlpha
+      ? i => d[i+3] > 24
+      : i => Math.abs(d[i]-br) + Math.abs(d[i+1]-bg) + Math.abs(d[i+2]-bb) > 36;
+
+    let x0 = W, y0 = H, x1 = -1, y1 = -1;
+    for (let py = 0; py < H; py++){
+      for (let px = 0; px < W; px++){
+        if (!solid((py*W + px) * 4)) continue;
+        if (px < x0) x0 = px;
+        if (px > x1) x1 = px;
+        if (py < y0) y0 = py;
+        y1 = py;
+      }
+    }
+    const cw = x1 - x0 + 1, ch = y1 - y0 + 1;
+    if (cw < 8 || ch < 8) return null;                    // found nothing worth keeping
+    if (cw >= W - 2 && ch >= H - 2) return null;          // already tight, leave it alone
+    const out = document.createElement('canvas');
+    out.width = cw; out.height = ch;
+    out.getContext('2d').drawImage(c, x0, y0, cw, ch, 0, 0, cw, ch);
+    return out.toDataURL('image/png');
+  }
+
+  function renderSponsorLogo(){
+    const w = S.wheel, sp = $('sponsor'), img = $('sponsorLogo');
+    sp.classList.remove('haslogo');
+    if (!w || !w.logoFile){ img.removeAttribute('src'); delete img.dataset.trimmed; return; }
+    img.onload = ()=>{
+      sp.classList.add('haslogo');
+      // Swapping src re-fires this handler; the flag goes up first so the second
+      // pass is a no-op rather than a loop.
+      if (img.dataset.trimmed) return;
+      img.dataset.trimmed = '1';
+      const tight = trimLogo(img);
+      if (tight) img.src = tight;
+    };
+    img.onerror = ()=> sp.classList.remove('haslogo');    // falls back to the sponsor name
+    delete img.dataset.trimmed;
+    img.src = '/logos/' + encodeURIComponent(w.logoFile);
+  }
+
+  // Restarting a CSS animation needs the class off, a forced reflow, then on.
+  function playGlint(){
+    const g = $('glint');
+    g.classList.remove('play'); void g.offsetWidth; g.classList.add('play');
+    WA.play('glint');                     // rewinds a delivered clip to frame 0
+  }
+
+  /* How many rows the winners aperture shows. The CSS height is WIN_ROWS times
+     the row height and the two have to agree. */
+  const WIN_ROWS = 5;
+
+  /**
+   * Which row the window starts on. The board follows the draw: slots 1-5 are up
+   * while the first three are drawn, then the window keeps the slot about to be
+   * drawn two rows from the top, until it runs out of list — the last screenful
+   * stays put rather than scrolling to a half-empty board.
+   */
+  function winnersWindow(total, next){
+    if (total <= WIN_ROWS) return 0;
+    return Math.max(0, Math.min(next - (WIN_ROWS - 3), total - WIN_ROWS));
+  }
+
+  function renderWinners(hit){
+    const w = S.wheel, reel = $('winrows');
+    reel.innerHTML = w ? w.prizes.map((p,i)=>{
+      const got = S.drawn[i];
+      return '<div class="row'+(got?'':' empty')+(hit===i?' hit':'')+'">'+
+             '<span class="rk">'+(i+1)+'</span>'+
+             '<span class="who">'+(got?pfBadge(got.platform)+esc(got.name):'———')+'</span>'+
+             '<span class="pz">'+esc(p.prize)+'</span></div>';
+    }).join('') : '';
+    // Measured off a real row rather than assumed, so the reel cannot drift out
+    // of step with the CSS if a row height is ever tuned.
+    const first = reel.firstElementChild;
+    const rowH = first ? first.offsetHeight : 53;
+    const start = w ? winnersWindow(w.prizes.length, S.drawn.length) : 0;
+    reel.style.transform = 'translateY(' + (-start * rowH) + 'px)';
+  }
+
+  // Platform glyphs (Simple Icons paths), each on its brand colour.
+  const PF = {
+    twitch: 'M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z',
+    kick: 'M1.333 0h8v5.333H12V2.667h2.667V0h8v8H20v2.667h-2.667v2.666H20V16h2.667v8h-8v-2.667H12v-2.666H9.333V24h-8Z',
+    youtube: 'M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z'
+  };
+  const pfBadge = p => PF[p] ? '<i class="pf pf-'+p+'"><svg viewBox="0 0 24 24"><path d="'+PF[p]+'"/></svg></i>' : '';
+
+  /** The line under the plate. Called on every snapshot and four times a second for the countdown. */
+  let claimSig = null;
+  function renderClaim(){
+    const box = $('claim');
+    const up = S && (S.phase === 'revealing' || S.phase === 'claiming') && S.spin;
+    const entry = up && S.pool[S.spin.winnerIndex];
+    const c = up && S.claim;
+    const sig = entry && entry.platform ? entry.platform + (c ? (c.claimed ? '|claimed' : '|wait') : '') : '';
+    if (sig !== claimSig){
+      claimSig = sig;
+      box.classList.toggle('on', !!sig);
+      if (sig){
+        const pf = entry.platform.toUpperCase();
+        box.innerHTML = pfBadge(entry.platform) + '<span>' +
+          (!c ? pf : c.claimed ? 'CLAIMED ON ' + pf : 'TYPE IN ' + pf + ' CHAT TO CLAIM') + '</span>' +
+          (c && !c.claimed ? '<b id="claimSecs"></b>' : '');
+      }
+    }
+    if (c && !c.claimed) $('claimSecs').textContent = Math.max(0, Math.ceil((c.until - Date.now()) / 1000));
+  }
+  setInterval(renderClaim, 250);
+
+  /* -------------------------------------------------------------- phases --- */
+
+  /** In ms from now, or straight away if that is already past. */
+  function after(ms, fn){
+    if (ms <= 0) fn(); else phaseTimers.push(setTimeout(fn, ms));
+  }
+
+  // Scheduled relative to the server's phase start, so a page that loads or
+  // reloads mid-transition still lands in the right place.
+  function at(ms, fn){ after(ms - (Date.now() - S.since), fn); }
+
+  /**
+   * The winner FX: gold beam, confetti burst, then the nameplate.
+   *
+   * @param elapsed  how far into the effect we already are. The reveal passes
+   *   the phase's own age, so a source that loads halfway through a reveal
+   *   catches up instead of starting again. THE PREVIEW BUTTON PASSES ZERO, and
+   *   that is the whole reason this is a parameter: a cue is not a phase, and
+   *   scheduling its end off the phase clock ended the burst before it started —
+   *   the phase it was fired from was minutes old.
+   */
+  function playWinFx(name, elapsed){
+    const fx = $('winfx'), conf = $('fxconf'), t = S.timings;
+    fitPlateName(name);
+    // void offsetWidth restarts the burst keyframes on a re-entered phase.
+    conf.classList.remove('burst'); void conf.offsetWidth;
+    conf.classList.add('burst');
+    fx.classList.add('show');
+    WA.play('winfx-confetti'); WA.play('winfx-glow');
+    WS.win();
+    after(t.plateIn - elapsed, ()=> $('plate').classList.add('show'));
+    after(t.revealHold - elapsed, ()=>{
+      fx.classList.remove('show');
+      conf.classList.remove('burst');
+      // The reveal phase would clear this on its way to 'ready' anyway; the
+      // preview has no phase change coming, and a nameplate left up until the
+      // next one is not a preview, it is a mistake on screen. A winner still
+      // being asked to claim keeps it: the plate is what tells them.
+      if (!S.claim) $('plate').classList.remove('show');
+      // A clip longer than the reveal would otherwise go on decoding behind the
+      // fade, which lands on the frame the winner commits and the wheel redraws.
+      WA.stop('winfx-confetti');
+    });
+  }
+
+  function applyPhase(){
+    phaseTimers.forEach(clearTimeout); phaseTimers = [];
+    const t = S.timings, stage = $('stage');
+    if (S.phase !== 'revealing'){ if (S.phase !== 'claiming') $('plate').classList.remove('show');
+                                  $('winfx').classList.remove('show'); $('fxconf').classList.remove('burst'); }
+    if (S.phase !== 'swapping'){ stage.classList.remove('gone'); WA.stinger(false, 0); screenSwap(false, 0); }
+
+    // The stinger is the one clip that has to be instantly ready: nothing cues
+    // it, the operator does, and it is on screen 800ms later.
+    if (S.phase === 'ready' || S.phase === 'complete') WA.prime();
+
+    switch (S.phase){
+      case 'swapping': {
+        // The swap hit, with the jaws. Only on the way in — a source that
+        // reconnects two seconds into a swap must not fire it against the jaws
+        // already opening.
+        if (Date.now() - S.since < 400) WS.stinger();
+        // Every changing word on the wall leaves and comes back with it. The
+        // wheel is covered by the stinger; the title, the sponsor and the two
+        // boards are not, and cutting their text on a frame is the one thing
+        // that gave the swap away.
+        screenSwap(true, Date.now() - S.since);
+        // Jaws close over the wheel, hold shut while the server changes it at
+        // swapData, then open on the new one. The wheel itself never moves.
+        if (WA.stinger(true, Date.now() - S.since)){
+          at(t.swapEnd, ()=> WA.stinger(false, 0));
+        } else {
+          // No stinger delivered. The wheel dips out and back inside the same
+          // window, so the server's swap point still lands while it is hidden.
+          stage.classList.add('gone');
+          at(t.swapClear - 350, ()=> stage.classList.remove('gone'));
+        }
+        at(t.swapClear, playGlint);                           // catches the light as it reappears
+        break;
+      }
+
+      case 'revealing':
+        playWinFx(S.spin ? S.spin.winnerName : '', Date.now() - S.since);
+        break;
+
+      case 'claiming':
+        // Already up if we watched the reveal; this is for a source that loads mid-claim.
+        fitPlateName(S.spin ? S.spin.winnerName : '');
+        $('plate').classList.add('show');
+        break;
+    }
+  }
+
+  /* ---------------------------------------------------------------- cues --- */
+  /* One-shot previews the operator fires by hand from the control page. They are
+     not phases and they change nothing about the draw — they exist so the swap
+     stinger and the win FX can be checked against the OBS loop without spending
+     a wheel or a spin on it. A cue older than ten seconds is ignored, and so is
+     the one already in the first snapshot, so a page that loads or reconnects
+     does not replay whatever it missed. */
+
+  let cueAt = null, cueSeen = false;
+  function syncCue(){
+    const c = S.cue;
+    // The first snapshot only ever RECORDS what is there — a page that has just
+    // come up must not fire whatever the operator pressed before it existed.
+    if (!cueSeen){ cueSeen = true; cueAt = c ? c.at : null; return; }
+    if (!c || c.at === cueAt) return;
+    cueAt = c.at;
+    if (Date.now() - c.at > 10000) return;
+    if (c.name === 'stinger'){
+      WS.stinger();
+      if (WA.stinger(true, 0)) setTimeout(()=> WA.stinger(false, 0), S.timings.swapEnd);
+    } else if (c.name === 'winfx'){
+      // Whatever name is nearest to hand, so the plate is previewed at a
+      // realistic length rather than empty.
+      const last = S.drawn.length ? S.drawn[S.drawn.length-1].name : null;
+      playWinFx(last || (S.pool[0] && S.pool[0].name) || 'WINNER', 0);
+    }
+  }
+
+  /* ---------------------------------------------------------------- feed --- */
+
+  // The server bumps assetsRev whenever public/assets changes, so a delivered
+  // file appears on both instances by itself. Held back through the phases that
+  // are mid-animation: remounting art there drops a frame on stream, and the
+  // next snapshot after the move picks it up anyway.
+  const BUSY = ['spinning','revealing','claiming','swapping'];
+  let artRev = null;
+  function syncArt(){
+    if (S.assetsRev === artRev) return;
+    // The very first load always goes through, whatever the phase — a source
+    // that comes up mid-spin has nothing to glitch and everything to catch up on.
+    if (artRev !== null && BUSY.indexOf(S.phase) >= 0) return;
+    artRev = S.assetsRev;
+    WA.init().then(reskin);
+    // Sound rides the same signal: the server bumps assetsRev when public/sounds
+    // moves too, so dropping a new click in is live exactly like new art.
+    if (WS.on) fetch('/api/sounds').then(r => r.json())
+                    .then(s => WS.init(s.files, s.levels)).catch(() => {});
+  }
+
+  function apply(next){
+    const prevPhase = S && S.phase;
+    S = next;
+
+    const wSig = S.wheel ? S.wheel.tab : '';
+    // The title is in it too: the chat wheel's can be changed from the control page
+    // while the wheel is up.
+    const cSig = wSig + '|' + (S.wheel ? S.wheel.title : '');
+    if (cSig !== wheelSig){ wheelSig = cSig; renderWheelChrome(); }
+
+    if (S.joinText !== joinSig){ joinSig = S.joinText; renderJoin(); }
+
+    const lSig = S.wheel ? S.wheel.logoFile : '';
+    if (lSig !== logoSig){ logoSig = lSig; renderSponsorLogo(); }
+
+    // Keyed on the wheel too — two wheels with no winners yet share a drawn list,
+    // and without the tab a swap before the first spin would leave the old prizes up.
+    const dSig = wSig + '#' + S.drawn.map(d => d.name).join('|');
+    if (dSig !== drawnSig){
+      const grew = drawnSig !== null && S.drawn.length === drawnCount + 1;
+      drawnSig = dSig;
+      drawnCount = S.drawn.length;
+      renderWinners(grew ? S.drawn.length - 1 : undefined);
+      // The pool loses the winner on this same snapshot, so the wheel redraws a
+      // segment short — the glint covers that redraw rather than letting the
+      // slices visibly re-lay themselves.
+      if (grew) playGlint();
+    }
+
+    if (S.phase !== prevPhase) applyPhase();
+    renderClaim();
+    syncCue();
+    syncArt();
+    drawResting();
+  }
+
+  applyRoom(); buildConfetti(); collectSpin();
+
+  // CHAT SOURCE. The chat frame is a hole in the OBS loop, so that source is the
+  // one thing outside this page that has to follow the room. The control page
+  // shows this too; it is printed here as well because this is the page someone
+  // has open when they notice the chat is in the wrong place.
+  (function(){
+    const c = ROOM.chatSource();
+    console.log('[wheel-studio] OBS chat source -> ' + c.x + ',' + c.y + '  ' + c.w + ' x ' + c.h +
+                '   (room scale ' + ROOM.scale + ', top ' + ROOM.top + ')');
+  })();
+
+  fit(); frame();
+  // The bed used to come up with the studio and fade out with it. There is no
+  // "with it" any more: this page is the studio. It starts when the source does,
+  // which — with "Shutdown source when not visible" ticked in OBS, and it should
+  // be — is the moment the scene comes up.
+  WS.music(true);
+
+  // ?studio=1 marks this as an OBS source rather than the control page: the
+  // server pulls the sheet when the scene comes up, so what is on screen is
+  // never yesterday's data.
+  const stream = new EventSource('/events?studio=1');
+  stream.onmessage = ev => { $('offline').classList.remove('show'); apply(JSON.parse(ev.data)); };
+  stream.onerror = () => { if (!S || stream.readyState === EventSource.CLOSED) $('offline').classList.add('show'); };
+  // Art is loaded by syncArt off the first snapshot, and reloaded whenever the
+  // server says the folder moved.
+})();
+</script>
+</body>
+</html>

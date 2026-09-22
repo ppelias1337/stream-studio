@@ -1,0 +1,51 @@
+{
+  "name": "stream-studio",
+  "productName": "Stream Studio",
+  "version": "4.0.0",
+  "description": "Stream competitions, keyword giveaways and Wheel Studio in one app",
+  "author": "Joelsson Media",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "server": "node server/index.js",
+    "dist": "electron-builder --win",
+    "release": "electron-builder --win --publish always"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
+  },
+  "devDependencies": {
+    "electron": "^44.4.3",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "com.joelssonmedia.streamstudio",
+    "productName": "Stream Studio",
+    "files": [
+      "main.js",
+      "preload.js",
+      "package.json",
+      "server/**",
+      "public/**",
+      "logos/**",
+      "!server/test-*.js"
+    ],
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "shortcutName": "Stream Studio"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "ppelias1337",
+        "repo": "stream-studio"
+      }
+    ],
+    "asar": false
+  }
+}

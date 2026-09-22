@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wheel Studio — control</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%231a1c1f'/%3E%3Crect x='4' y='4' width='8' height='8' rx='1.5' fill='%232fbf6b'/%3E%3C/svg%3E">
+<style>
+  /* A guided control page: one step at a time, one big button for whatever
+     comes next. Green = do this now. Red = on air, or one press from losing
+     something. Everything else is grey and quiet. */
+  :root {
+    color-scheme: dark;
+    --bg:      #141517;
+    --card:    #1f2226;
+    --card-2:  #272b30;
+    --line:    #353a41;
+    --text:    #f1efe9;
+    --dim:     #a3a9b1;
+    --green:   #2fbf6b;
+    --green-hi:#4fd988;
+    --red:     #e0382c;
+    --red-text:#ff8a7d;
+    --amber:   #f2ab2e;
+    --font: 'Segoe UI', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+         font: 400 17px/1.45 var(--font); font-variant-numeric: tabular-nums; }
+  h1, h2, h3, p { margin: 0; }
+  :focus-visible { outline: 3px solid var(--text); outline-offset: 3px; }
+  .page { max-width: 1180px; margin: 0 auto; padding: 16px clamp(12px, 2vw, 28px) 40px; display: grid; gap: 16px; }
+
+  /* ------------------------------------------------------------ top bar --- */
+  .top { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .brand { font-weight: 700; font-size: 18px; }
+  .status { flex: 1; min-width: 200px; color: var(--dim); font-size: 15px; overflow-wrap: anywhere; }
+  .status[data-tone="err"] { color: var(--red-text); font-weight: 600; }
+  .link { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; background: #3a3e44; flex: none; }
+  .dot[data-lit="green"] { background: var(--green-hi); }
+  .dot[data-lit="red"]   { background: var(--red); }
+  .dot[data-lit="amber"] { background: var(--amber); }
+
+  .problems { background: #2c1513; border: 2px solid #6b2a22; border-radius: 12px; padding: 14px 18px; }
+  .problems h2 { font-size: 17px; color: #ffb4aa; margin-bottom: 6px; }
+  .problems ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+  .problems li { display: flex; gap: 10px; align-items: baseline; font-size: 15px; }
+
+  /* --------------------------------------------------------- mode picker --- */
+  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .mode { appearance: none; text-align: left; cursor: pointer; font: inherit; color: var(--text);
+          border: 3px solid var(--line); border-radius: 14px; background: var(--card);
+          padding: 14px 18px; display: grid; gap: 2px; min-height: 76px; }
+  .mode b { font-size: 21px; }
+  .mode span { color: var(--dim); font-size: 15px; }
+  .mode:hover:not(:disabled) { border-color: #5a6069; }
+  .mode[aria-pressed="true"] { border-color: var(--green); background: #16291e; cursor: default; }
+  .mode[aria-pressed="true"] span { color: var(--green-hi); font-weight: 600; }
+  .mode:disabled:not([aria-pressed="true"]) { opacity: .45; cursor: not-allowed; }
+
+  /* ------------------------------------------------------------- stepper --- */
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px;
+           grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); }
+  .step { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px;
+          background: var(--card); color: var(--dim); font-weight: 600; min-width: 0; }
+  .step i { flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+            font-style: normal; font-weight: 700; background: #33373d; color: var(--text); }
+  .step[data-state="now"]  { background: #16291e; color: var(--text); box-shadow: inset 0 0 0 3px var(--green); }
+  .step[data-state="now"] i  { background: var(--green); color: #04160b; }
+  .step[data-state="done"] i { background: transparent; box-shadow: inset 0 0 0 2px var(--green); color: var(--green-hi); }
+  .step span { overflow-wrap: anywhere; }
+
+  /* ---------------------------------------------------------------- hero --- */
+  .hero { background: var(--card); border-radius: 16px; padding: 24px clamp(18px, 3vw, 32px) 28px;
+          display: grid; gap: 18px; position: relative; overflow: hidden; }
+  .hero[data-live] { box-shadow: inset 0 0 0 4px var(--red); }
+  .hero-kicker { font-size: 15px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--green-hi); }
+  .hero[data-live] .hero-kicker { color: var(--red-text); }
+  .hero-head { font-size: clamp(2rem, 4.4vw, 3.6rem); line-height: 1.05; font-weight: 700; overflow-wrap: anywhere; text-wrap: balance; }
+  .hero-sub { font-size: clamp(1.1rem, 1.7vw, 1.35rem); color: var(--dim); overflow-wrap: anywhere; text-wrap: pretty; }
+  .hero-sub b { color: var(--text); }
+  .clock { position: absolute; left: 0; right: 0; bottom: 0; height: 6px; background: #2a1512; }
+  .clock i { display: block; height: 100%; background: var(--red); transform-origin: left; transform: scaleX(0); }
+  @keyframes run-x { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  .actions { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 12px; }
+  .actions.solo { grid-template-columns: minmax(0, 1fr); }
+
+  /* Buttons. The big one is the next thing to do; nothing else is that size. */
+  .btn { appearance: none; border: 0; border-radius: 12px; cursor: pointer; font: inherit; color: var(--text);
+         background: #3a3e44; min-height: 64px; padding: 12px 20px; font-size: 19px; font-weight: 700;
+         display: grid; place-content: center; gap: 2px; text-align: center; }
+  .btn small { font-size: 14px; font-weight: 500; opacity: .85; }
+  .btn:hover:not(:disabled) { background: #464a51; }
+  .btn:active:not(:disabled) { transform: translateY(2px); }
+  .btn:disabled { cursor: not-allowed; opacity: .4; }
+  .btn.big { min-height: 120px; font-size: clamp(28px, 3.4vw, 40px); border-radius: 14px; }
+  .btn.big small { font-size: 17px; }
+  .btn[data-tone="go"] { background: var(--green); color: #04160b; }
+  .btn[data-tone="go"]:hover:not(:disabled) { background: var(--green-hi); }
+  .btn[data-tone="danger"] { background: #4a1a15; color: #ffd2cc; box-shadow: inset 0 0 0 2px var(--red); }
+  .btn[data-tone="danger"]:hover:not(:disabled) { background: #5b2019; }
+  /* Armed: the next press throws something away. Flashes and says so. */
+  .btn.armed, .btn.armed:hover:not(:disabled) { background: var(--red); color: #fff; animation: armed .5s steps(1) infinite; }
+  @keyframes armed { 50% { background: #7a211a; } }
+  .btn[hidden] { display: none; }
+
+  .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .fields[hidden] { display: none; }
+  .fields label { display: grid; gap: 6px; font-size: 15px; font-weight: 600; color: var(--dim); }
+  .fields input { height: 54px; padding: 0 14px; border: 2px solid var(--line); border-radius: 10px;
+                  background: #0e0f11; color: var(--text); font: 600 20px var(--font); width: 100%; min-width: 0; }
+  .fields input:focus-visible { outline: none; border-color: var(--green); }
+  .fields small { font-weight: 400; }
+  #chatFields label, #timeFields label { font-size: 22px; font-weight: 700; color: var(--text); letter-spacing: .04em; }
+  #chatFields input, #timeFields input { height: 64px; font-size: 24px; }
+
+  /* --------------------------------------------------------------- lists --- */
+  .cols { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 16px; }
+  .cols.one { grid-template-columns: minmax(0, 1fr); }
+  .panel { background: var(--card); border-radius: 14px; padding: 16px 18px; min-width: 0; }
+  .panel[hidden] { display: none; }
+  .panel h2 { font-size: 18px; margin-bottom: 4px; }
+  .panel .meta { color: var(--dim); font-size: 15px; margin-bottom: 10px; overflow-wrap: anywhere; }
+  .rows { list-style: none; margin: 0; padding: 0; max-height: 360px; overflow: auto; }
+  .row { display: grid; grid-template-columns: 2.2ch minmax(0, 1fr) auto; gap: 0 12px; align-items: center;
+         padding: 10px 6px; border-top: 1px solid var(--line); }
+  .row-no { color: var(--dim); font-weight: 700; align-self: start; }
+  .row-prize { color: var(--dim); font-size: 15px; overflow-wrap: anywhere; }
+  .row-who { grid-column: 2; font-weight: 700; font-size: 18px; overflow-wrap: anywhere; }
+  .row small, .ent small { color: var(--dim); font-weight: 400; font-size: 14px; margin-left: 6px; }
+  .row[data-state="pending"] .row-who { color: var(--dim); font-weight: 400; }
+  .row[data-state="next"], .row[data-state="onair"] { background: var(--card-2); border-radius: 8px; }
+  .tag { grid-column: 3; grid-row: 1 / span 2; font-size: 13px; font-weight: 700; padding: 4px 9px; border-radius: 6px; }
+  .tag[data-tone="go"] { background: var(--green); color: #04160b; }
+  .tag[data-tone="red"] { background: var(--red); color: #fff; }
+  .ent { display: flex; align-items: center; gap: 8px; padding: 6px 6px; border-top: 1px solid var(--line); font-weight: 600; overflow-wrap: anywhere; }
+  .ent > span { flex: 1; min-width: 0; }
+  .ent-x { appearance: none; border: 0; cursor: pointer; flex: none; width: 40px; height: 40px; border-radius: 8px;
+           background: #33373d; color: var(--text); font: 700 22px/1 var(--font); }
+  .ent-x:hover:not(:disabled) { background: var(--red); color: #fff; }
+  .ent-x:disabled { opacity: .35; cursor: not-allowed; }
+  .search { width: 100%; height: 48px; margin-bottom: 10px; padding: 0 14px; border: 2px solid var(--line); border-radius: 10px;
+            background: #0e0f11; color: var(--text); font: 600 18px var(--font); }
+  .search:focus-visible { outline: none; border-color: var(--green); }
+  .empty { color: var(--dim); padding: 12px 6px; border-top: 1px solid var(--line); }
+  .chats { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-bottom: 10px; font-size: 15px; color: var(--dim); }
+  .chats span { display: flex; align-items: center; gap: 7px; }
+  .chats b { color: var(--text); }
+
+  /* ---------------------------------------------------------------- more --- */
+  .more h2 { font-size: 16px; color: var(--dim); font-weight: 600; margin-bottom: 10px; }
+  .more-keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+
+  /* The claim prompt: over everything while a chat winner has to speak up. */
+  .claim { position: fixed; z-index: 10; top: 80px; left: 50%; transform: translateX(-50%);
+           width: min(640px, calc(100vw - 24px)); display: grid; gap: 14px; justify-items: center; text-align: center;
+           padding: 24px; border-radius: 16px; background: var(--card);
+           box-shadow: inset 0 0 0 4px var(--red), 0 20px 60px rgba(0,0,0,.7); }
+  .claim[hidden] { display: none; }
+  .claim-head { font-size: clamp(1.5rem, 2.6vw, 2.1rem); font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
+  .claim-time { font: 700 2.6rem/1 Consolas, ui-monospace, monospace; color: var(--red-text); }
+  .claim .btn { width: 100%; }
+
+  /* --------------------------------------------------------------- setup --- */
+  .setup { background: var(--card); border-radius: 14px; }
+  .setup summary { cursor: pointer; padding: 14px 18px; font-weight: 600; color: var(--dim); display: flex; gap: 12px; flex-wrap: wrap; }
+  .setup summary span { margin-left: auto; font-weight: 400; font-size: 15px; }
+  .setup-grid { display: grid; gap: 12px; padding: 0 18px 18px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+  .setup-grid section { background: #1a1c1f; border-radius: 12px; padding: 14px; display: grid; gap: 8px; align-content: start; }
+  .setup-grid h3 { font-size: 16px; }
+  .setup-grid p { color: var(--dim); font-size: 15px; overflow-wrap: anywhere; }
+  .setup-grid p b { color: var(--text); }
+  .setup-grid .btn { min-height: 48px; font-size: 16px; }
+  .setup-grid .fields { grid-template-columns: 1fr; }
+  .setup-grid .fields input { height: 46px; font-size: 17px; }
+  .rect { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .rect div { background: #0e0f11; border-radius: 8px; padding: 6px 8px; }
+  .rect span { display: block; font-size: 12px; color: var(--dim); }
+  .rect b { font: 18px Consolas, ui-monospace, monospace; }
+
+  body.offline .btn, body.offline .mode, body.offline .ent-x { pointer-events: none; }
+
+  @media (max-width: 820px) {
+    .cols, .actions, .fields { grid-template-columns: minmax(0, 1fr); }
+    .steps { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (prefers-reduced-motion: reduce) { .btn.armed { animation: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="top">
+    <div class="brand">Wheel Studio</div>
+    <output class="status" id="status" aria-live="polite">Connecting to the server…</output>
+    <div class="link"><i class="dot" id="linkDot"></i><span id="linkText">Connecting</span></div>
+  </header>
+
+  <section class="problems" id="problems" hidden aria-live="polite">
+    <h2 id="problemsHead"></h2>
+    <ul id="problemsList"></ul>
+  </section>
+
+  <!-- Which giveaway is on stream. -->
+  <nav class="modes" aria-label="Which giveaway">
+    <button class="mode" id="bSheet" aria-pressed="false" disabled><b>Prize giveaway</b><span>Winners from the sheet</span></button>
+    <button class="mode" id="bChat"  aria-pressed="false" disabled><b>Chat giveaway</b><span>Anyone in chat can enter</span></button>
+  </nav>
+
+  <ol class="steps" id="steps"></ol>
+
+  <!-- Do this now: what is happening, and the one button to press. -->
+  <main class="hero" id="hero" aria-live="polite">
+    <p class="hero-kicker" id="kicker">Connecting</p>
+    <h1 class="hero-head" id="head">Waiting for the server</h1>
+    <p class="hero-sub" id="sub"></p>
+
+    <div class="fields" id="chatFields" hidden>
+      <label>KEYWORD:<input id="kw" spellcheck="false" autocomplete="off"></label>
+      <label>TITLE OF GIVEAWAY:<input id="ttl" spellcheck="false" autocomplete="off" maxlength="60"></label>
+    </div>
+
+    <div class="actions" id="actions">
+      <button class="btn big" id="bMain" disabled>…</button>
+      <button class="btn" id="bAlt" hidden></button>
+    </div>
+    <div class="clock"><i id="clock"></i></div>
+  </main>
+
+  <div class="cols" id="cols">
+    <section class="panel" aria-labelledby="winHead">
+      <h2 id="winHead">Winners</h2>
+      <p class="meta" id="winMeta"></p>
+      <ol class="rows" id="rows"></ol>
+    </section>
+    <section class="panel" id="entPanel" aria-labelledby="entHead" hidden>
+      <h2 id="entHead">Entries</h2>
+      <div class="chats">
+        <span><i class="dot" id="twDot"></i><b>Twitch</b><em id="twText">—</em></span>
+        <span><i class="dot" id="kkDot"></i><b>Kick</b><em id="kkText">—</em></span>
+        <span><i class="dot" id="ytDot"></i><b>YouTube</b><em id="ytText">—</em></span>
+      </div>
+      <input class="search" id="entSearch" type="search" placeholder="Search entries…" spellcheck="false" autocomplete="off">
+      <ol class="rows" id="entRows"></ol>
+    </section>
+  </div>
+
+  <section class="panel" aria-labelledby="timeHead">
+    <h2 id="timeHead">Timings</h2>
+    <p class="meta">Saves when you click away. Takes effect from the next spin.</p>
+    <div class="fields" id="timeFields">
+      <label>SPIN TIME (seconds):<input id="spinSecs" type="number" min="5" max="60" step="1" inputmode="numeric"></label>
+      <label>TIME TO CLAIM (seconds):<input id="claimSecs" type="number" min="10" max="300" step="1" inputmode="numeric"></label>
+    </div>
+  </section>
+
+  <section class="more" aria-labelledby="moreHead">
+    <h2 id="moreHead">If something went wrong</h2>
+    <div class="more-keys">
+      <button class="btn" id="bUndo" disabled>Undo last winner<small>puts them back on the wheel</small></button>
+      <button class="btn" data-tone="danger" id="bReload" disabled>Start over<small>reloads the sheet · press twice</small></button>
+      <button class="btn" data-tone="danger" id="bClear" disabled>Empty chat wheel<small>removes all entries · press twice</small></button>
+      <button class="btn" id="bClaim" disabled>Winner must claim: off<small>they must type in chat to win</small></button>
+    </div>
+  </section>
+
+  <section class="claim" id="claimPop" hidden role="alertdialog" aria-labelledby="claimText" aria-live="assertive">
+    <p class="claim-head" id="claimText"></p>
+    <p class="claim-time" id="claimCount"></p>
+    <button class="btn big" data-tone="go" id="bClaimed">They claimed it<small>use if they wrote in another chat</small></button>
+  </section>
+
+  <details class="setup" id="setup">
+    <summary>Setup &amp; diagnostics<span id="setupSummary"></span></summary>
+    <div class="setup-grid">
+      <section>
+        <h3>Chat source in OBS</h3>
+        <div class="rect" id="rect"></div>
+        <p>Put the StreamElements source exactly here: it is the hole in the chat frame.</p>
+      </section>
+      <section>
+        <h3>YouTube chat</h3>
+        <div class="fields">
+          <label>Channel <small>(@handle, saves when you click away)</small><input id="ytKey" spellcheck="false" autocomplete="off" placeholder="@handle"></label>
+          <label>Live link <small>(only if the stream isn't found)</small><input id="ytLink" spellcheck="false" autocomplete="off" placeholder="optional"></label>
+        </div>
+      </section>
+      <section>
+        <h3>Sheet &amp; draw log</h3>
+        <p id="feedLine"></p>
+        <p id="logLine"></p>
+      </section>
+      <section>
+        <h3>Art &amp; sound</h3>
+        <p id="artLine"></p>
+        <p id="soundLine"></p>
+        <button class="btn" id="bArt" disabled>Reload art</button>
+        <button class="btn" id="bSting" disabled>Test stinger</button>
+        <button class="btn" id="bWinfx" disabled>Test win effect</button>
+      </section>
+    </div>
+  </details>
+
+</div>
+
+<!-- The room, so the chat rectangle is the same arithmetic the studio page does. -->
+<script src="room.js"></script>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const plural = (n, one, many) => n + ' ' + (n === 1 ? one : (many || one + 's'));
+  let S = null, skew = 0, online = false;
+
+  (function(){
+    const c = window.WHEEL_ROOM.chatSource();
+    $('rect').innerHTML = [['X', c.x], ['Y', c.y], ['W', c.w], ['H', c.h]]
+      .map(([k, v]) => '<div><span>' + k + '</span><b>' + v + '</b></div>').join('');
+  })();
+
+  /* ------------------------------------------------------------- commands --- */
+
+  const status = (text, tone) => { $('status').textContent = text; $('status').dataset.tone = tone || ''; };
+
+  const send = async cmd => {
+    try {
+      const out = await (await fetch('/api/' + cmd, { method: 'POST' })).json();
+      if (!out.ok) status(out.message, 'err');
+      return out;
+    } catch (e) { status('Server unreachable — ' + e.message, 'err'); return {}; }
+  };
+  // First load: there is no session to protect, so skip the second press.
+  const load = async () => { const out = await send('reload'); if (out.armed) send('reload'); };
+
+  // The two hero buttons carry whatever command the current step needs.
+  $('bMain').onclick = () => { const c = $('bMain').dataset.cmd; c === 'load' ? load() : c && send(c); };
+  $('bAlt').onclick  = () => { const c = $('bAlt').dataset.cmd;  c && send(c); };
+  $('bSheet').onclick = () => { if (S && S.mode !== 'sheet') send('mode?to=sheet'); };
+  $('bChat').onclick  = () => { if (S && S.mode !== 'chat')  send('mode?to=chat'); };
+  $('bUndo').onclick   = () => send('undo');
+  $('bReload').onclick = () => send('reload');
+  $('bClear').onclick  = () => send('chat-clear');
+  $('bClaim').onclick  = () => send(S.chat.claim ? 'claim-off' : 'claim-on');
+  $('bClaimed').onclick = () => send('claimed');
+  $('bArt').onclick   = () => send('art');
+  $('bSting').onclick = () => send('cue?name=stinger');
+  $('bWinfx').onclick = () => send('cue?name=winfx');
+  const field = (input, cmd) => {
+    $(input).onkeydown = e => { if (e.key === 'Enter') $(input).blur(); };   // blur fires change
+    $(input).onchange = () => send(cmd + encodeURIComponent($(input).value));
+  };
+  field('kw', 'keyword?word=');
+  field('ttl', 'title?text=');
+  field('ytLink', 'youtube?link=');
+  field('ytKey', 'youtube?channel=');
+  field('spinSecs', 'timings?spin=');
+  field('claimSecs', 'timings?claim=');
+
+  const setup = $('setup');
+  try { setup.open = localStorage.getItem('setupOpen') === '1'; } catch (e) {}
+  setup.addEventListener('toggle', () => { try { localStorage.setItem('setupOpen', setup.open ? '1' : '0'); } catch (e) {} });
+
+  /* -------------------------------------------------------------- helpers --- */
+
+  const lit = (el, tone) => { if (tone) el.dataset.lit = tone; else delete el.dataset.lit; };
+  const chatTone = t => /^connected/.test(t) ? 'green' : /^(starting|connecting|idle)/.test(t) ? 'amber' : 'red';
+  const secsLeft = until => Math.max(0, Math.ceil((until - Date.now() - skew) / 1000));
+
+  // Set a button's label, command and colour in one go.
+  function button(el, b) {
+    el.hidden = !b;
+    if (!b) return;
+    el.innerHTML = esc(b.label) + (b.small ? '<small>' + esc(b.small) + '</small>' : '');
+    el.dataset.cmd = b.cmd || '';
+    if (b.tone) el.dataset.tone = b.tone; else delete el.dataset.tone;
+    el.disabled = !b.cmd;
+    el.classList.toggle('armed', !!b.armed);
+  }
+
+  /* The phase clock along the foot of the hero: CSS runs it from a negative
+     delay, so nothing redraws per frame. */
+  function phaseClock() {
+    const p = S.phase;
+    if (p === 'spinning' && S.spin) return { from: S.spin.startedAt, ms: S.spin.duration };
+    if (p === 'revealing') return { from: S.since, ms: S.timings.revealHold };
+    if (p === 'claiming' && S.claim) return { from: S.since, ms: S.claim.until - S.since };
+    if (p === 'swapping')  return { from: S.since, ms: S.timings.swapEnd };
+    return null;
+  }
+  let clockKey = '';
+  function runClock() {
+    const c = S && online ? phaseClock() : null;
+    const key = c ? S.phase + c.from : '';
+    if (key === clockKey) return;
+    clockKey = key;
+    const el = $('clock');
+    el.style.animation = 'none'; void el.offsetWidth;
+    el.style.animation = c ? 'run-x ' + c.ms + 'ms linear ' + -(Date.now() + skew - c.from) + 'ms forwards' : '';
+  }
+  setInterval(() => {
+    if (!S || !S.claim) return;
+    const t = secsLeft(S.claim.until) + 's';
+    $('claimCount').textContent = t;
+    if ($('heroCount')) $('heroCount').textContent = t;
+  }, 250);
+
+  function audioLine() {
+    const a = S.audio;
+    if (!a) return 'No source has reported audio yet — is <b>?audio=1</b> on one of them?';
+    const age = Math.round((Date.now() - a.at) / 1000);
+    if (age > 120) return 'The audio source last reported ' + age + 's ago — it may have been closed or reloaded.';
+    const missing = ['click', 'win', 'stinger', 'music'].filter(k => !a[k]);
+    const played = a.playedAt ? 'last played ' + Math.round((Date.now() - a.playedAt) / 1000) + 's ago' : 'nothing played yet';
+    return 'Audio ' + (a.ctx === 'running' ? '<b>running</b>' : '<b style="color:var(--red-text)">' + esc(a.ctx) + '</b> (the browser is blocking it)') +
+      ' · ' + played + (missing.length ? ' · no file for ' + missing.join(', ') : '');
+  }
+
+  /* ------------------------------------------------------------ the plan --- */
+
+  /* Everything the hero shows comes from here: which step we are on, what to
+     say, and which one button moves things along. */
+  function plan() {
+    const p = S.phase, c = S.chat, w = S.wheel, chatUp = S.mode === 'chat';
+    const slots = w ? w.prizes.length : 0, left = slots - S.drawn.length;
+    const prize = w && w.prizes[S.drawn.length] && w.prizes[S.drawn.length].prize;
+    const steps = chatUp ? ['Open entries', 'Spin for a winner', 'Empty the wheel when done']
+                         : ['Load the prizes', 'Spin once per prize', 'Next wheel'];
+    const P = { steps, step: 0, kicker: '', head: '', sub: '', main: null, alt: null, fields: false };
+
+    // Mid-draw: the same in both giveaways. Nothing to press, just read it out.
+    if (p === 'spinning') return Object.assign(P, { step: 1, kicker: 'On air',
+      head: 'Spinning…', sub: prize ? 'For <b>' + esc(prize) + '</b>' : plural(S.pool.length, 'entry', 'entries') + ' on the wheel',
+      main: { label: 'Spinning…', small: 'wait for the winner' } });
+    if (p === 'revealing') return Object.assign(P, { step: 1, kicker: 'Winner — read it out!',
+      head: esc(S.spin ? S.spin.winnerName : S.message),
+      sub: (prize ? 'Wins <b>' + esc(prize) + '</b>. ' : '') + (S.claim ? 'They must type in <b>' + esc(S.claim.platform) + '</b> chat to claim.' : ''),
+      main: { label: 'Showing the winner…', small: 'the next step appears in a moment' } });
+    if (p === 'claiming') return Object.assign(P, { step: 1, kicker: 'Waiting for the winner to claim',
+      head: esc(S.claim ? S.claim.name : S.message),
+      sub: S.claim && S.claim.claimed ? '<b>Claimed!</b> Saving the win.'
+        : '<b id="heroCount">' + secsLeft(S.claim ? S.claim.until : 0) + 's</b> left to type in <b>' + esc(S.claim ? S.claim.platform : '') + '</b> chat.',
+      main: S.claim && !S.claim.claimed ? { label: 'They claimed it', small: 'if they wrote in another chat', cmd: 'claimed', tone: 'go' } : null });
+    if (p === 'swapping') return Object.assign(P, { step: chatUp ? 0 : 2, kicker: 'On air',
+      head: 'Changing wheel…', sub: esc(S.message || 'Behind the stinger'), main: { label: 'Please wait…' } });
+
+    const canSpin = p === 'ready' && left > 0 && S.pool.length > 0;
+    const spin = small => ({ label: 'SPIN', small, cmd: canSpin ? 'spin' : '', tone: 'go' });
+
+    if (chatUp) {
+      const openBtn = c.open ? { label: 'Close entries', small: 'stop new people joining', cmd: 'chat-close' }
+                             : { label: 'Open entries', small: 'let chat join again', cmd: 'chat-open' };
+      if (!c.open && !S.pool.length && !S.drawn.length) return Object.assign(P, { step: 0, fields: true,
+        kicker: 'Step 1 — set it up',
+        head: 'Start a chat giveaway',
+        main: { label: 'Open entries', small: 'chat can start joining', cmd: 'chat-open', tone: 'go' } });
+      if (!S.pool.length && c.open) return Object.assign(P, { step: 0, kicker: 'Step 1 — entries are open',
+        head: 'Waiting for entries…',
+        sub: 'Tell chat to type <b>' + esc(c.keyword) + '</b>. The Spin button lights up as soon as someone joins.',
+        main: spin('no entries yet'), alt: openBtn });
+      if (S.pool.length) return Object.assign(P, { step: 1, kicker: 'Step 2 — spin',
+        head: plural(S.pool.length, 'entry', 'entries') + ' on the wheel',
+        sub: c.open ? 'Entries are still open — close them when you want, or just spin.' : 'Entries are closed. Press <b>Spin</b> to draw a winner.',
+        main: spin(S.drawn.length ? 'draw another winner' : 'draw a winner'), alt: openBtn });
+      return Object.assign(P, { step: 2, kicker: 'Step 3 — all done',
+        head: 'Everyone has been drawn',
+        sub: 'Empty the chat wheel for next time, or go back to the prize giveaway.',
+        main: { label: S.armed === 'clear' ? 'Press again to empty' : 'Empty chat wheel', small: 'press twice',
+                cmd: 'chat-clear', tone: 'danger', armed: S.armed === 'clear' },
+        alt: { label: 'Back to prize giveaway', cmd: 'mode?to=sheet' } });
+    }
+
+    // Prize giveaway (sheet wheels).
+    if (!w) return Object.assign(P, { step: 0, kicker: 'Step 1',
+      head: 'Load the prizes', sub: 'Pulls the winners list and prizes from the Google Sheet.',
+      main: { label: 'Load prizes', small: 'from the sheet', cmd: p === 'ready' || p === 'complete' ? 'load' : '', tone: 'go' } });
+    const where = esc(w.title) + (w.sponsor ? ' · sponsored by <b>' + esc(w.sponsor) + '</b>' : '');
+    if (left > 0 && S.pool.length) return Object.assign(P, { step: 1,
+      kicker: 'Step 2 — wheel ' + (S.wheelIndex + 1) + ' of ' + S.wheelCount,
+      head: 'Prize ' + (S.drawn.length + 1) + ' of ' + slots + (prize ? ': ' + esc(prize) : ''),
+      sub: where + '<br>Make sure OBS shows the wheel scene, then press <b>Spin</b>.',
+      main: spin((S.drawn.length + 1) + ' of ' + slots) });
+    const nextOk = S.wheelIndex < S.wheelCount - 1;
+    const nextBtn = nextOk ? { label: S.armed === 'next' ? 'Press again to confirm' : 'Next wheel',
+      small: S.next ? S.next.title + ' · press twice' : 'press twice', cmd: 'next', tone: 'go', armed: S.armed === 'next' } : null;
+    return Object.assign(P, { step: 2, kicker: 'Step 3 — wheel ' + (S.wheelIndex + 1) + ' of ' + S.wheelCount + ' finished',
+      head: left > 0 ? 'No entries left on this wheel' : nextOk ? 'Wheel done — on to the next one' : 'All wheels done!',
+      sub: nextOk ? 'Next up: <b>' + esc(S.next ? S.next.title : 'wheel ' + (S.wheelIndex + 2)) + '</b>.'
+                  : 'That was the last wheel. Switch OBS back to your main scene.',
+      main: nextBtn || { label: 'Go to chat giveaway', small: 'optional', cmd: 'mode?to=chat' } });
+  }
+
+  /* --------------------------------------------------------------- render --- */
+
+  let pendingSince = 0;
+  const STUCK_MS = 30000;
+
+  function render() {
+    const p = S.phase, c = S.chat, w = S.wheel, chatUp = S.mode === 'chat';
+    const rest = p === 'ready' || p === 'complete';
+    const live = p === 'spinning' || p === 'revealing' || p === 'claiming' || p === 'swapping';
+
+    status(S.message || '');
+    lit($('linkDot'), 'green'); $('linkText').textContent = 'Connected';
+
+    /* Mode picker */
+    [['bSheet', 'sheet'], ['bChat', 'chat']].forEach(([id, mode]) => {
+      const on = S.mode === mode, b = $(id);
+      b.setAttribute('aria-pressed', on);
+      b.disabled = on || !rest;
+      b.lastChild.textContent = on ? '● On stream now' : mode === 'sheet' ? 'Winners from the sheet' : 'Anyone in chat can enter';
+    });
+
+    /* Steps + hero */
+    const P = plan();
+    $('steps').style.setProperty('--n', P.steps.length);
+    $('steps').innerHTML = P.steps.map((s, i) => {
+      const st = i < P.step ? 'done' : i === P.step ? 'now' : 'todo';
+      return '<li class="step" data-state="' + st + '"' + (st === 'now' ? ' aria-current="step"' : '') + '><i>' +
+        (st === 'done' ? '✓' : i + 1) + '</i><span>' + esc(s) + '</span></li>';
+    }).join('');
+    if (live) $('hero').dataset.live = ''; else delete $('hero').dataset.live;
+    $('kicker').textContent = P.kicker;
+    $('head').innerHTML = P.head;
+    $('sub').innerHTML = P.sub;
+    $('chatFields').hidden = !P.fields;
+    button($('bMain'), P.main || { label: '…' });
+    button($('bAlt'), P.alt);
+    $('actions').classList.toggle('solo', !P.alt);
+    if (document.activeElement !== $('kw')) $('kw').value = c.keyword;
+    if (document.activeElement !== $('ttl')) $('ttl').value = c.title;
+
+    /* Winners list */
+    const slots = w ? w.prizes.length : 0;
+    $('winHead').textContent = w ? (chatUp ? 'Chat winners — ' + c.title : 'Winners — ' + w.title) : 'Winners';
+    $('winMeta').textContent = w
+      ? (chatUp ? plural(S.drawn.length, 'winner') + ' so far'
+                : 'Wheel ' + (S.wheelIndex + 1) + ' of ' + S.wheelCount + ' · ' + plural(S.pool.length, 'entry', 'entries') + ' left')
+      : 'Nothing loaded yet.';
+    $('rows').innerHTML = w && slots
+      ? w.prizes.map((pr, i) => {
+          const got = S.drawn[i];
+          const state = got ? 'done' : i === S.drawn.length ? (live && p !== 'swapping' ? 'onair' : p === 'ready' ? 'next' : 'pending') : 'pending';
+          if (chatUp && !got && state === 'pending') return '';
+          const tag = state === 'onair' ? '<span class="tag" data-tone="red">On air</span>'
+                    : state === 'next' ? '<span class="tag" data-tone="go">Next</span>' : '';
+          return '<li class="row" data-state="' + state + '"><span class="row-no">' + (i + 1) + '</span>' +
+            '<span class="row-prize">' + (pr.prize ? esc(pr.prize) : chatUp ? 'Chat winner' : 'Prize ' + (i + 1)) + '</span>' + tag +
+            '<span class="row-who">' + (got ? esc(got.name) + (got.platform ? '<small>' + esc(got.platform) + '</small>' : '') : 'Not drawn yet') + '</span></li>';
+        }).join('')
+      : '<li class="empty">' + (w ? 'This wheel has no prizes.' : 'Load the prizes to see them here.') + '</li>';
+
+    /* Entries (chat giveaway only) */
+    $('entPanel').hidden = !chatUp;
+    $('cols').classList.toggle('one', !chatUp);
+    $('entHead').textContent = 'Entries — ' + c.names.length + (c.open ? ' · open' : ' · closed');
+    lit($('twDot'), chatTone(c.status.twitch));  $('twText').textContent = c.status.twitch;
+    lit($('kkDot'), chatTone(c.status.kick));    $('kkText').textContent = c.status.kick;
+    lit($('ytDot'), chatTone(c.status.youtube)); $('ytText').textContent = c.status.youtube;
+    renderEntries();
+
+    /* Claim prompt */
+    const waiting = S.claim && !S.claim.claimed;
+    $('claimPop').hidden = !waiting;
+    if (waiting) $('claimText').innerHTML = '<b>' + esc(S.claim.name) + '</b> must type in <b>' + esc(S.claim.platform) + '</b> chat to claim';
+
+    /* If something went wrong */
+    $('bUndo').disabled = !rest || !S.canUndo;
+    $('bReload').hidden = chatUp || !w;
+    $('bReload').disabled = !rest;
+    $('bReload').classList.toggle('armed', S.armed === 'reload');
+    $('bReload').lastChild.textContent = S.armed === 'reload' ? 'PRESS AGAIN — wipes this session' : 'reloads the sheet · press twice';
+    $('bClear').hidden = !chatUp;
+    $('bClear').disabled = p !== 'ready' && p !== 'complete';
+    $('bClear').classList.toggle('armed', S.armed === 'clear');
+    $('bClear').lastChild.textContent = S.armed === 'clear' ? 'PRESS AGAIN — removes everyone' : 'removes all entries · press twice';
+    $('bClaim').hidden = !chatUp;
+    $('bClaim').disabled = false;
+    $('bClaim').firstChild.textContent = 'Winner must claim: ' + (c.claim ? 'ON (' + S.timings.claim / 1000 + 's)' : 'off');
+    ['bClaimed', 'bArt', 'bSting', 'bWinfx'].forEach(id => { $(id).disabled = false; });
+    if (document.activeElement !== $('ytLink')) $('ytLink').value = c.youtubeVideo || '';
+    if (document.activeElement !== $('spinSecs')) $('spinSecs').value = S.spinSeconds || '';
+    if (document.activeElement !== $('claimSecs')) $('claimSecs').value = S.timings.claim / 1000;
+    if (document.activeElement !== $('ytKey')) $('ytKey').value = c.youtubeChannel || '';
+
+    /* Problems */
+    const probs = S.problems.concat(S.audio && S.audio.ctx !== 'running' && Date.now() - S.audio.at < 120000
+      ? [{ level: 'warn', text: 'Sound is ' + S.audio.ctx + ' in the audio source — the browser is blocking it, so the wheel will be silent. See Setup & diagnostics.' }] : []);
+    if (!S.pendingWrites) pendingSince = 0;
+    else if (!pendingSince) { pendingSince = Date.now(); setTimeout(() => { if (S && online) render(); }, STUCK_MS + 500); }
+    if (pendingSince && Date.now() - pendingSince > STUCK_MS)
+      probs.push({ level: 'warn', text: plural(S.pendingWrites, 'winner') + ' not reaching the sheet for over ' + STUCK_MS / 1000 + 's — they are saved locally; check the network.' });
+    $('problems').hidden = !probs.length;
+    if (probs.length) {
+      const errs = probs.filter(pr => pr.level === 'error').length;
+      $('problemsHead').textContent = errs ? plural(errs, 'problem') + ' in the sheet' + (probs.length > errs ? ' · ' + plural(probs.length - errs, 'warning') : '')
+                                           : plural(probs.length, 'warning');
+      $('problemsList').innerHTML = probs.map(pr =>
+        '<li><i class="dot" data-lit="' + (pr.level === 'error' ? 'red' : 'amber') + '"></i><span>' + esc(pr.text) + '</span></li>').join('');
+    }
+
+    /* Setup */
+    $('feedLine').innerHTML = S.dataAt ? 'Pulled <b>' + new Date(S.dataAt).toLocaleString() + '</b> from ' + esc(S.source || '—') : 'No sheet data pulled yet.';
+    $('logLine').innerHTML = S.pendingWrites ? '<b>' + plural(S.pendingWrites, 'row') + '</b> waiting to reach the sheet' : 'Every draw has reached the sheet.';
+    $('artLine').innerHTML = S.assetCount ? '<b>' + plural(S.assetCount, 'file') + '</b> in public/assets' : 'No art delivered yet.';
+    $('soundLine').innerHTML = S.soundCount ? '<b>' + plural(S.soundCount, 'file') + '</b> in public/sounds · ' + audioLine() : 'No sound files yet.';
+    const soundOk = S.audio && S.audio.ctx === 'running' && Date.now() - S.audio.at < 120000;
+    $('setupSummary').textContent = [S.pendingWrites ? plural(S.pendingWrites, 'row') + ' waiting' : 'Draw log synced',
+      S.soundCount ? (soundOk ? 'sound running' : 'sound not confirmed') : 'no sound'].join(' · ');
+
+    runClock();
+  }
+
+  /* Entries, newest first, filtered by the search box. A winner can't be
+     removed here — Undo puts them back instead. */
+  function renderEntries() {
+    const c = S.chat, q = $('entSearch').value.trim().toLowerCase();
+    const canRemove = S.mode !== 'chat' || S.phase === 'ready';
+    const won = new Set(S.mode === 'chat' ? S.drawn.map(d => d.platform + ':' + d.name) : []);
+    const list = c.names.slice().reverse().filter(n => !q || n.name.toLowerCase().includes(q));
+    $('entRows').innerHTML = list.length
+      ? list.map(n => {
+          const winner = won.has(n.platform + ':' + n.name);
+          return '<li class="ent"><span>' + esc(n.name) + '<small>' + esc(n.platform) + (winner ? ' · winner' : '') + '</small></span>' +
+            (winner ? '' : '<button class="ent-x" data-platform="' + esc(n.platform) + '" data-user="' + esc(n.user || '') + '"' +
+              (canRemove ? '' : ' disabled') + ' title="Remove ' + esc(n.name) + '" aria-label="Remove ' + esc(n.name) + '">×</button>') + '</li>';
+        }).join('')
+      : '<li class="empty">' + (q ? 'Nobody matches “' + esc(q) + '”.' : 'Nobody has typed ' + esc(c.keyword) + ' yet.') + '</li>';
+  }
+  $('entSearch').oninput = () => { if (S) renderEntries(); };
+  $('entRows').onclick = e => {
+    const b = e.target.closest('.ent-x');
+    if (b) send('chat-remove?platform=' + encodeURIComponent(b.dataset.platform) + '&user=' + encodeURIComponent(b.dataset.user));
+  };
+
+  function offline() {
+    online = false;
+    document.body.classList.add('offline');
+    lit($('linkDot'), 'red'); $('linkText').textContent = 'Offline';
+    status('Server offline — is start-wheel-studio.bat running? Retrying…', 'err');
+    delete $('hero').dataset.live;
+    $('kicker').textContent = 'Not connected';
+    $('head').textContent = 'Server offline';
+    $('sub').textContent = 'Start Wheel Studio (start-wheel-studio.bat). This page reconnects on its own.';
+    document.querySelectorAll('.btn, .mode').forEach(b => { b.disabled = true; });
+    $('claimPop').hidden = true;
+    runClock();
+  }
+
+  const stream = new EventSource('/events');
+  stream.onmessage = ev => {
+    S = JSON.parse(ev.data);
+    skew = S.now - Date.now();
+    online = true;
+    document.body.classList.remove('offline');
+    render();
+  };
+  stream.onerror = offline;
+})();
+</script>
+</body>
+</html>

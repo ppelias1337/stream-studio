@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Wheel Studio — raffle entrants</title>
+<style>
+  /* OBS browser source: 750x750. Transparent outside the square.
+     Idle it lists who has joined; on a chat-wheel spin the list becomes a reel. */
+  html, body { margin: 0; background: transparent; overflow: hidden; }
+  .sq { --r: 84px; position: relative; width: 750px; height: 750px; box-sizing: border-box; padding: 36px 36px 0;
+        overflow: hidden; background: #0b0f17; color: #eaf1fb;
+        font-family: 'Bahnschrift', 'DIN Alternate', 'Segoe UI', Verdana, sans-serif;
+        -webkit-mask-image: linear-gradient(#000 84%, transparent); mask-image: linear-gradient(#000 84%, transparent); }
+  h1 { margin: 0 0 22px; font-size: 48px; line-height: 1.08; font-weight: 700; text-align: center;
+       text-transform: uppercase; color: #f0c33c; overflow-wrap: anywhere; }
+  h1 b { color: #ffe9b0; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  .name { display: flex; align-items: center; justify-content: center; gap: 16px; height: var(--r);
+          font-size: 54px; font-weight: 700; white-space: nowrap; }
+  .name span { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  li.pop { animation: pop .45s cubic-bezier(.16, 1, .3, 1); }
+  @keyframes pop { from { transform: scale(.4); opacity: 0; color: #f0c33c; } }
+
+  .pf { display: inline-flex; align-items: center; justify-content: center; flex: none;
+        width: 50px; height: 50px; border-radius: 8px; }
+  .pf svg { width: 32px; height: 32px; }
+  .pf-twitch { background: #9146ff; fill: #fff; }
+  .pf-kick   { background: #53fc18; fill: #000; }
+  .pf-youtube { background: #f00; fill: #fff; }
+
+  /* The reel: the same rows, positioned by the spin clock instead of the flow. */
+  .reel, .marks { display: none; }
+  .sq.spin ul { visibility: hidden; }
+  .sq.spin .reel { display: block; position: absolute; inset: 0;
+       -webkit-mask-image: linear-gradient(transparent, #000 14%); mask-image: linear-gradient(transparent, #000 14%); }
+  .reel .name { position: absolute; left: 36px; right: 36px; top: 0; will-change: transform; }
+  .reel .name.win { color: #ffe9b0; text-shadow: 0 0 24px rgba(240,195,60,.7); }
+  .sq.spin .marks { display: block; position: absolute; left: 0; right: 0; top: calc(375px - var(--r) / 2); height: var(--r);
+       border-top: 4px solid #f0c33c; border-bottom: 4px solid #f0c33c; margin-top: -4px;
+       box-shadow: 0 0 22px rgba(240,195,60,.45), inset 0 0 22px rgba(240,195,60,.25); pointer-events: none; }
+  /* Sheet wheels on air: nothing here, so the source can stay in the scene. */
+  .sq { transition: opacity .4s; }
+  .sq.off { opacity: 0; }
+  .sq.back h1, .sq.back ul { animation: fadein .5s ease-out; }
+  @keyframes fadein { from { opacity: 0; } }
+
+  /* Win panel — the same message the wheel's plate gives. */
+  #win { position: absolute; left: 50%; top: 50%; width: 640px; box-sizing: border-box; padding: 26px 28px 30px;
+         display: none; flex-direction: column; align-items: center; gap: 14px; text-align: center;
+         border-radius: 12px; background: linear-gradient(180deg, #0d2340, #061224);
+         box-shadow: 0 0 0 3px #b08d1e, 0 0 0 9999px rgba(3,6,12,.55), 0 20px 50px rgba(0,0,0,.7);
+         transform: translate(-50%, -50%); text-transform: uppercase; }
+  #win.on { display: flex; animation: winpop .5s cubic-bezier(.3, 1.5, .5, 1); }
+  @keyframes winpop { from { transform: translate(-50%, -50%) scale(.5); opacity: 0; } }
+  #win small { font-size: 26px; font-weight: 700; letter-spacing: .3em; color: #f0c33c; }
+  #win .name { height: auto; font-size: 64px; max-width: 100%; text-transform: none; color: #fff; }
+  #win p { margin: 0; font-size: 28px; font-weight: 700; letter-spacing: .1em; color: #ffe9b0; }
+  #win p b { color: #f0c33c; margin-left: 12px; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div class="sq off" id="sq">
+  <h1 id="title"></h1>
+  <ul id="names"></ul>
+  <div class="reel" id="reel"></div>
+  <div class="marks"></div>
+  <div id="win"></div>
+</div>
+<!-- Sound is off unless the URL has ?audio=1 — same rule as the studio page. -->
+<script src="sound.js"></script>
+<script>
+  const WS = window.WheelSound;
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  // Same glyphs as the studio page (Simple Icons paths).
+  const PF = {
+    twitch: 'M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z',
+    kick: 'M1.333 0h8v5.333H12V2.667h2.667V0h8v8H20v2.667h-2.667v2.666H20V16h2.667v8h-8v-2.667H12v-2.666H9.333V24h-8Z',
+    youtube: 'M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z'
+  };
+  const nameHtml = n => (PF[n.platform] ? '<i class="pf pf-' + n.platform + '"><svg viewBox="0 0 24 24"><path d="' + PF[n.platform] + '"/></svg></i>' : '') +
+                        '<span>' + esc(n.name) + '</span>';
+
+  const R = 84, MID = 375, SIZE = 750;           // row height, the lines' centre, the square
+  const MAX = 30;                                // idle rows kept; the square clips long before this
+  const sq = $('sq'), list = $('names'), reel = $('reel'), title = $('title');
+  sq.style.setProperty('--r', R + 'px');
+  let S = null, skew = 0;
+
+  /* ------------------------------------------------------------ idle list --- */
+
+  const key = n => n.platform + ':' + n.name;
+  function renderList() {
+    const c = S.chat;
+    title.innerHTML = 'Type <b>' + esc(c.keyword) + '</b> to join <b>' + esc(c.title) + '</b>';
+    const won = new Set(S.mode === 'chat' ? S.drawn.map(key) : []);
+    const old = new Map([...list.children].map(li => [li.dataset.k, li]));
+    list.replaceChildren(...c.names.slice().reverse().filter(n => !won.has(key(n))).slice(0, MAX).map(n => {
+      const k = key(n);
+      if (old.has(k)) return old.get(k);
+      const li = document.createElement('li');
+      li.className = 'name pop'; li.dataset.k = k; li.innerHTML = nameHtml(n);
+      li.onanimationend = () => li.classList.remove('pop');   // so re-ordering never replays it
+      return li;
+    }));
+  }
+
+  /* ----------------------------------------------------------------- reel --- */
+
+  // The wheel's curve, with a longer wind-up so the start reads as "gets faster".
+  const ACCEL_MS = 4000;
+  function ease(k, duration) {
+    const ramp = Math.min(0.5, ACCEL_MS / duration);
+    const vmax = 1 / (ramp / 2 + (1 - ramp) / 3);
+    return k < ramp ? vmax * k * k / (2 * ramp)
+      : vmax * ramp / 2 + vmax * (1 - ramp) / 3 * (1 - Math.pow(1 - (k - ramp) / (1 - ramp), 3));
+  }
+  const mod = (a, n) => ((a % n) + n) % n;
+
+  /* Row k of the strip: k >= 0 are the names under the title exactly as the idle
+     list had them (newest first); k < 0 loop the same order above the title,
+     so the title rolls away and names keep coming in from the top.
+     Everything is a function of the server's spin, so a reload mid-spin lands
+     in the same place. */
+  let plan = null;
+  function planFor(sp) {
+    if (plan && plan.at === sp.startedAt) return plan;
+    const N = S.pool.length, wi = N - 1 - sp.winnerIndex;
+    const top = list.offsetTop;
+    const travel = sp.duration * 0.8;                        // ~0.8px/ms average, ~2000px/s at the top
+    const base = Math.floor((MID - R / 2 - travel) / R);
+    const kw = base - mod(base - wi, N);                     // first row past `travel` that is the winner
+    const jitter = ((sp.seed % 997) / 997 * 2 - 1) * R * 0.35;  // not dead centre every time
+    return plan = { at: sp.startedAt, N, top, kw, end: MID + jitter - R / 2 - kw * R };
+  }
+
+  const rows = [];
+  function row(i) {
+    if (!rows[i]) { rows[i] = document.createElement('div'); rows[i].className = 'name'; reel.appendChild(rows[i]); }
+    return rows[i];
+  }
+
+  let spinning = false, lastOff = null, lastT = 0;
+  function frame() {
+    requestAnimationFrame(frame);
+    const up = !!(S && S.mode === 'chat' && S.spin && S.pool.length &&
+                  ['spinning', 'revealing', 'claiming'].includes(S.phase));
+    if (up !== spinning) {
+      spinning = up;
+      sq.classList.toggle('spin', up);
+      lastOff = null;
+      if (!up) { title.style.transform = ''; plan = null; sq.classList.remove('back'); void sq.offsetWidth; sq.classList.add('back'); }
+    }
+    if (!up) return;
+
+    const sp = S.spin, p = planFor(sp);
+    const off = p.end * ease(Math.min(1, (Date.now() + skew - sp.startedAt) / sp.duration), sp.duration);
+    title.style.transform = 'translateY(' + off + 'px)';
+
+    // One tick per name crossing the lines, the way a peg passes the flapper.
+    const now = performance.now();
+    if (lastOff !== null && S.phase === 'spinning') {
+      const n = Math.floor(off / R) - Math.floor(lastOff / R), dt = (now - lastT) / 1000;
+      if (n > 0 && dt > 0) WS.ticks(n, dt, (off - lastOff) / R / dt);
+    }
+    lastOff = off; lastT = now;
+
+    let used = 0;
+    const place = (k, y) => {
+      const el = row(used++), n = S.pool[p.N - 1 - mod(k, p.N)], id = key(n);
+      if (el.dataset.k !== id) { el.dataset.k = id; el.innerHTML = nameHtml(n); }
+      el.style.transform = 'translateY(' + y + 'px)';
+      el.style.display = '';
+      el.classList.toggle('win', k === p.kw && S.phase !== 'spinning');
+    };
+    for (let k = Math.ceil((-R - off) / R); k <= Math.min(-1, Math.floor((SIZE - off) / R)); k++) place(k, k * R + off);
+    for (let k = Math.max(0, Math.ceil((-R - p.top - off) / R)); k <= Math.min(p.N - 1, Math.floor((SIZE - p.top - off) / R)); k++) place(k, p.top + k * R + off);
+    for (let i = used; i < rows.length; i++) rows[i].style.display = 'none';
+  }
+  requestAnimationFrame(frame);
+
+  /* ------------------------------------------------------------ win panel --- */
+
+  let winSig = null;
+  function renderWin() {
+    const box = $('win');
+    const up = S && S.mode === 'chat' && S.spin && (S.phase === 'revealing' || S.phase === 'claiming');
+    const n = up && S.pool[S.spin.winnerIndex];
+    const c = up && S.claim;
+    const sig = n ? key(n) + (c ? (c.claimed ? '|claimed' : '|wait') : '') : '';
+    if (sig !== winSig) {
+      const was = winSig;
+      winSig = sig;
+      box.classList.toggle('on', !!sig);
+      if (sig) {
+        const pf = String(n.platform || '').toUpperCase();
+        box.innerHTML = '<small>Winner</small><div class="name">' + nameHtml(n) + '</div>' +
+          (!c ? '' : c.claimed ? '<p>Claimed on ' + esc(pf) + '</p>' : '<p>Type in ' + esc(pf) + ' chat to claim<b id="winSecs"></b></p>');
+        if (was && was.split('|')[0] === sig.split('|')[0]) box.style.animation = 'none';   // claimed: no second pop
+        else box.style.animation = '';
+      }
+    }
+    if (c && !c.claimed) $('winSecs').textContent = Math.max(0, Math.ceil((c.until - Date.now() - skew) / 1000)) + 's';
+  }
+  setInterval(renderWin, 250);
+
+  let soundRev = null;
+  new EventSource('/events').onmessage = ev => {
+    const prev = S && S.phase;
+    S = JSON.parse(ev.data);
+    skew = S.now - Date.now();
+    sq.classList.toggle('off', S.mode !== 'chat');
+    // Sound files reload live, like on the studio page.
+    if (WS.on && S.assetsRev !== soundRev) {
+      soundRev = S.assetsRev;
+      fetch('/api/sounds').then(r => r.json()).then(s => WS.init(s.files, s.levels)).catch(() => {});
+    }
+    if (prev === 'spinning' && S.phase === 'revealing' && S.mode === 'chat') WS.win();
+    renderList();
+    renderWin();
+  };
+</script>
+</body>
+</html>

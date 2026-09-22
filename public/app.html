@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stream Studio</title>
+<style>
+  /* The app window: a tab bar over two pages. Three tabs are the competitions
+     page (one instance, told which formats to list), the fourth is the wheel's
+     control page. Colours are the competitions page's tokens. */
+  :root{--ground:#070E1A;--slab:#12213A;--slab-2:#182B48;--line:#263A5C;--text:#F4F7FB;--muted:#9BACC6;--gold:#FDCE67;--gold-ink:#241A04;
+        --ui:"Bahnschrift","Segoe UI",system-ui,sans-serif}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{display:flex;flex-direction:column;background:var(--ground);color:var(--text);font:15px var(--ui);-webkit-font-smoothing:antialiased}
+  nav{display:flex;align-items:stretch;gap:2px;background:var(--slab);border-bottom:1px solid var(--line);padding:0 8px;flex:none}
+  nav button{font:inherit;font-size:15px;font-weight:600;color:var(--muted);background:none;border:none;cursor:pointer;
+             padding:14px 18px 12px;border-bottom:3px solid transparent}
+  nav button:hover{color:var(--text);background:var(--slab-2)}
+  nav button[aria-selected="true"]{color:var(--text);border-bottom-color:var(--gold)}
+  nav button:focus-visible,#links:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+  .spacer{flex:1}
+  #links{align-self:center;font:inherit;font-size:13px;color:var(--muted);background:var(--slab-2);border:1px solid var(--line);border-radius:3px;padding:6px 12px;cursor:pointer}
+  #links:hover{color:var(--text)}
+  #note{align-self:center;font-size:13px;color:var(--gold);margin-right:12px}
+  main{flex:1;position:relative;min-height:0}
+  iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--ground)}
+  iframe[hidden]{display:none}
+  dialog{margin:auto;background:var(--slab);color:var(--text);border:1px solid var(--line);border-radius:4px;padding:22px 24px;max-width:640px;width:calc(100% - 32px)}
+  dialog::backdrop{background:#000a}
+  dialog h2{font-size:18px;margin-bottom:6px}
+  dialog p{color:var(--muted);font-size:14px;margin-bottom:14px}
+  dialog dl{display:grid;grid-template-columns:auto 1fr;gap:8px 14px;font-size:14px}
+  dialog dt{color:var(--muted)}
+  dialog code{user-select:all;word-break:break-all}
+  dialog button{margin-top:18px;font:inherit;font-weight:600;background:var(--gold);color:var(--gold-ink);border:none;border-radius:3px;padding:8px 18px;cursor:pointer}
+</style>
+</head>
+<body>
+<nav role="tablist">
+  <button role="tab" data-tab="comp">Stream Competitions</button>
+  <button role="tab" data-tab="keyword">Keyword</button>
+  <button role="tab" data-tab="wheel">Wheel Studio</button>
+  <button role="tab" data-tab="special">Special Giveaways</button>
+  <span class="spacer"></span>
+  <span id="note"></span>
+  <button id="links" type="button">OBS links</button>
+</nav>
+<main>
+  <iframe id="comp" src="/comp/" title="Competitions"></iframe>
+  <iframe id="wheel" title="Wheel Studio" hidden></iframe>
+</main>
+<dialog id="linksDlg">
+  <h2>OBS browser sources</h2>
+  <p>Use these on the stream PC. From another PC, swap the address for the one below.</p>
+  <dl id="linksList"></dl>
+  <button type="button" onclick="linksDlg.close()">Close</button>
+</dialog>
+<script>
+const comp=document.getElementById("comp"), wheel=document.getElementById("wheel");
+let tab=null;
+function show(t, fromPage){
+  if(t===tab) return;
+  tab=t;
+  try{ localStorage.setItem("studio_tab", t); }catch(e){}
+  document.querySelectorAll("[data-tab]").forEach(b=>b.setAttribute("aria-selected", b.dataset.tab===t));
+  const isWheel=t==="wheel";
+  if(isWheel && !wheel.src) wheel.src="/control";   // loaded once, then kept alive
+  wheel.hidden=!isWheel; comp.hidden=isWheel;
+  if(!isWheel && !fromPage) comp.contentWindow.postMessage({studioTab:t}, "*");
+}
+document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>show(b.dataset.tab));
+// the competitions page says which tab its format belongs to; on Home it says nothing,
+// and gets told which tab it's under
+addEventListener("message", e=>{
+  if(e.source!==comp.contentWindow || !e.data || !("studioSection" in e.data)) return;
+  const sec=e.data.studioSection;
+  if(sec){ if(tab!=="wheel") show(sec, true); }
+  else comp.contentWindow.postMessage({studioTab: tab && tab!=="wheel" ? tab : "comp"}, "*");
+});
+let saved="comp"; try{ saved=localStorage.getItem("studio_tab")||"comp"; }catch(e){}
+if(saved==="wheel") show("wheel");
+else { tab=saved; document.querySelectorAll("[data-tab]").forEach(b=>b.setAttribute("aria-selected", b.dataset.tab===saved)); }
+
+document.getElementById("links").onclick=async()=>{
+  const d=document.getElementById("linksList");
+  let info={lan:[]}; try{ info=await (await fetch("/api/info")).json(); }catch(e){}
+  const here=location.origin, other=info.lan.map(ip=>`http://${ip}:${info.port}`);
+  d.innerHTML=[["Competitions box (450 × 450, or 1920 × 1080 for the full overlay)", here+"/comp/#display"],
+               ["Wheel Studio (1920 × 1080)", here+"/"],
+               ["This PC on the network", other.join("  ·  ")||"not on a network"]]
+    .map(([k,v])=>`<dt>${k}</dt><dd><code>${v}</code></dd>`).join("");
+  document.getElementById("linksDlg").showModal();
+};
+// the desktop app's preload reports updates; a browser tab has no window.studio
+if(window.studio) window.studio.onUpdate(msg=>{ document.getElementById("note").textContent=msg; });
+</script>
+</body>
+</html>
