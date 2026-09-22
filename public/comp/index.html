@@ -316,6 +316,24 @@
   .pw-now.swap b,.pw-now.swap span{animation:pwswap .55s cubic-bezier(.16,1,.3,1) both}
   .pw-now.swap span{animation-delay:.06s}
   @keyframes pwswap{from{opacity:0;transform:translateY(12px)}}
+  /* Challenge Board: 4x4 on the box, gold when full */
+  .cb-grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:6px}
+  .cb-cell{position:relative;display:flex;flex-direction:column;justify-content:space-between;min-height:0;padding:8px 8px 10px;background:var(--slab);border-radius:var(--rad);overflow:hidden;text-transform:uppercase;line-height:1}
+  .cb-lab{font-size:16px;line-height:1.05;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .cb-cell b{font-size:32px;font-weight:400;font-variant-numeric:tabular-nums}
+  .cb-cell b small{font-size:18px;color:var(--dim)}
+  .cb-cell i{position:absolute;left:0;bottom:0;height:4px;background:var(--gold);transition:width .4s}
+  .cb-cell.done{background:var(--gold);color:var(--gold-ink)}
+  .cb-cell.done .cb-lab,.cb-cell.done b small{color:var(--gold-ink)}
+  .cb-cell.done i{display:none}
+  .cb-edit{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
+  .cb-ed{display:flex;flex-direction:column;gap:8px;padding:10px;background:var(--panel);border-radius:var(--r-lg);box-shadow:inset 0 0 0 1px var(--edge)}
+  .cb-ed.done{box-shadow:inset 0 0 0 1.5px var(--ok)}
+  .cb-ed>input{width:100%;text-align:left}
+  .cb-ct{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--fg-2)}
+  .cb-ct b{margin-left:auto;min-width:2ch;text-align:right;font-size:22px;color:var(--fg);font-variant-numeric:tabular-nums}
+  .cb-ct input{width:46px;margin-right:auto}
+  .cb-ct .btn{flex:none;width:34px;padding:0;justify-content:center}
   .pw-nums{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
   .pw-nums .btn{flex-direction:column;justify-content:center;height:62px;padding:6px 4px;gap:2px}
   .pw-nums .btn b{font-size:24px;line-height:1}
@@ -388,6 +406,92 @@
   .display.tada .lt .tada-logo{width:100%;margin-bottom:10px}
   .display.tada .srow.first .splace,.display.tada .bug-phase.gold,.display.tada .elim.tk-gold .tk{background:linear-gradient(135deg,var(--gold-2),var(--gold))}
   .display.tada .rf-sq.spin .rf-marks{border-color:var(--gold)}
+
+  /* Dead Man's Crew (Slotmill): the game's tavern behind everything, ghost green and treasure gold */
+  .display.crew{
+    --box:#07130F; --card:#0E2019;
+    --slab:rgba(60,240,170,.1); --slab-2:rgba(60,240,170,.17); --slab-3:rgba(60,240,170,.26);
+    --line:rgba(90,255,190,.2); --line-2:rgba(90,255,190,.4);
+    --muted:#B9E6D2; --dim:#7FAE9A;
+    --gold:#FFC53A; --gold-2:#FFE08A; --gold-ink:#2A1600; --ghost:#5DFFC0;
+    background:linear-gradient(rgba(4,12,10,.55),rgba(4,12,10,.88)),url(crew/bg.webp) center/cover;border-color:rgba(93,255,192,.45);
+  }
+  .display.crew .bug-title{font-size:0;background:var(--slab-2)}
+  .display.crew .bug-title::before{content:"";width:180px;height:36px;background:url(crew/logo.webp) left center/contain no-repeat}
+  .display.crew .rf-sq.spin .rf-marks{border-color:var(--ghost)}
+  .rf-sq[data-mode="CREW"] + .rf-win small{background:var(--ghost);color:#032016}
+  .rf-sq[data-mode="CREW"] + .rf-win::before{content:"";order:1;height:64px;margin-top:14px;background:url(crew/skull1.webp) center/contain no-repeat}
+  .rf-sq[data-mode="CREW"] + .rf-win .rf-name{order:2;padding-top:6px}
+  .rf-sq[data-mode="CREW"] + .rf-win p{order:3}
+  .cr-logo{flex:none;height:92px;margin:2px 0 8px;background:url(crew/logo.webp) center/contain no-repeat;filter:drop-shadow(0 4px 10px rgba(0,0,0,.7));animation:crbob 4s ease-in-out infinite}
+  @keyframes crbob{50%{transform:translateY(-3px) rotate(-.6deg)}}
+  .cr-cta{flex:none;display:flex;align-items:center;gap:10px;margin-bottom:10px;border-radius:var(--rad);overflow:hidden;background:var(--slab-2);text-transform:uppercase;white-space:nowrap}
+  .cr-cta span{padding:8px 12px;background:linear-gradient(135deg,var(--gold-2),var(--gold));color:var(--gold-ink);font-size:26px;line-height:1}
+  .cr-cta em{font-style:normal;font-size:19px;letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis}
+  .cr-cta b{color:var(--ghost)}
+  .cr-seats{position:relative;z-index:1;flex:1;min-height:0;width:66%;display:grid;grid-template-rows:repeat(5,1fr);gap:6px}
+  .cr-seat{display:flex;align-items:center;gap:10px;min-height:0;padding-right:10px;border-radius:var(--rad);background:rgba(4,14,11,.72);box-shadow:inset 0 0 0 1px var(--line)}
+  .cr-seat i{flex:none;height:100%;aspect-ratio:1;background:center/86% no-repeat;filter:grayscale(1) brightness(.45)}
+  .cr-seat span{flex:1;min-width:0;font-size:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+  .cr-seat b{flex:none;font-size:20px;color:var(--dim);font-variant-numeric:tabular-nums}
+  .cr-seat.on{background:linear-gradient(90deg,rgba(93,255,192,.22),rgba(4,14,11,.8));box-shadow:inset 0 0 0 1px var(--line-2),0 0 14px rgba(93,255,192,.18)}
+  .cr-seat.on i{filter:drop-shadow(0 0 6px rgba(93,255,192,.6))}
+  .cr-seat.on span{color:#fff;text-transform:none;letter-spacing:0}
+  .cr-seat.on b{color:var(--gold)}
+  .cr-captain{position:absolute;right:-6px;bottom:0;width:168px;height:318px;background:url(crew/captain.webp) center bottom/contain no-repeat;filter:drop-shadow(0 0 18px rgba(93,255,192,.25))}
+  .cr-captain::after{content:"";position:absolute;right:14px;bottom:10px;width:120px;height:27px;background:url(crew/slotmill.webp) center/contain no-repeat;filter:drop-shadow(0 1px 3px #000)}
+  .elim.tk-crew .tk{background:linear-gradient(90deg,#06140F 45%,rgba(6,20,15,.2)),url(crew/captain-win.webp) right -30px bottom/auto 94% no-repeat,#06140F;color:#fff}
+  .elim.tk-crew .tk-label{color:var(--ghost)}
+  .elim.tk-crew .tk-name{padding-right:120px;color:var(--gold);text-shadow:0 3px 12px rgba(0,0,0,.8)}
+  .elim.tk-crew .tk-sub{background:rgba(93,255,192,.14);color:var(--gold)}
+
+  /* the Dead Man's Crew draw: the free spins scene, five reels (three in the box), the names in the middle */
+  .cr-draw{background:#04100C}
+  .cr-dbg{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,rgba(4,16,12,.35),rgba(4,16,12,.9) 75%),url(crew/bg-draw.webp) center/cover;animation:crzoom 30s linear both}
+  @keyframes crzoom{from{transform:scale(1.08)}}
+  .cr-dhead{position:absolute;top:34px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:10px;text-transform:uppercase;animation:pwhead .6s cubic-bezier(.16,1,.3,1) calc(.6s + var(--el,0s)) both}
+  .cr-dhead i{width:760px;height:172px;background:url(crew/logo.webp) center/contain no-repeat;filter:drop-shadow(0 6px 18px rgba(0,0,0,.8))}
+  .cr-dhead b{padding:8px 22px;border-radius:10px;background:rgba(4,16,12,.75);box-shadow:inset 0 0 0 1px rgba(93,255,192,.35);font-size:32px;letter-spacing:.1em;color:#B9E6D2;font-variant-numeric:tabular-nums}
+  .cr-dhead b em{font-style:normal;color:#FFC53A}
+  .cr-reels{position:absolute;left:50%;top:300px;display:flex;gap:12px;padding:14px;border-radius:26px;transform:translateX(-50%);
+    background:rgba(3,10,8,.78);box-shadow:inset 0 0 0 4px #C98A1E,inset 0 0 0 7px rgba(0,0,0,.6),0 0 0 3px #FFD76A,0 30px 80px rgba(0,0,0,.7),0 0 60px rgba(93,255,192,.18);
+    animation:crreels .7s cubic-bezier(.16,1,.3,1) calc(1.1s + var(--el,0s)) both}
+  @keyframes crreels{from{opacity:0;transform:translateX(-50%) translateY(60px) scale(.94)}}
+  .cr-reel{position:relative;height:600px;overflow:hidden;border-radius:14px;background:rgba(93,255,192,.05);
+    -webkit-mask-image:linear-gradient(transparent,#000 22%,#000 78%,transparent);mask-image:linear-gradient(transparent,#000 22%,#000 78%,transparent)}
+  .cr-reel.names{background:rgba(93,255,192,.09);transition:box-shadow .3s}
+  .cr-cell{position:absolute;left:0;right:0;top:0;height:200px;display:flex;align-items:center;justify-content:center;gap:16px;padding:0 18px;will-change:transform}
+  .syms .cr-cell i{width:180px;height:180px;background:center/contain no-repeat}
+  .names .cr-cell{font-size:60px;white-space:nowrap;color:#fff;text-shadow:0 3px 10px rgba(0,0,0,.8)}
+  .names .cr-cell span{overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .names .cr-cell .pf{width:.8em;height:.8em}
+  .cr-line{position:absolute;left:0;right:0;top:214px;height:200px;pointer-events:none;border-top:4px solid #5DFFC0;border-bottom:4px solid #5DFFC0;box-shadow:0 0 24px rgba(93,255,192,.5),inset 0 0 24px rgba(93,255,192,.25)}
+  /* anticipation: the symbols are down, the names still turn */
+  .cr-draw.tease .cr-line{animation:crtease .5s ease-in-out infinite alternate}
+  @keyframes crtease{to{border-color:#FFC53A;box-shadow:0 0 50px rgba(255,197,58,.8),inset 0 0 40px rgba(255,197,58,.35)}}
+  .cr-draw.landed .cr-line{border-color:#FFC53A}
+  .cr-draw.tease .cr-reel.syms,.cr-draw.landed .cr-reel.syms{filter:brightness(.4) saturate(.6);transition:filter .5s}
+  .names .cr-cell.win{color:#FFC53A;font-size:72px;animation:crwin .6s cubic-bezier(.3,1.6,.5,1)}
+  @keyframes crwin{from{scale:.7}}
+  /* the captain's win screen, a beat after the names land */
+  .cr-tier{position:absolute;inset:0;display:flex;align-items:center;opacity:0;pointer-events:none;background:linear-gradient(90deg,rgba(3,10,8,.94) 40%,rgba(3,10,8,.55))}
+  .cr-draw.landed .cr-tier{opacity:1;transition:opacity .5s 1.6s}
+  .cr-tier>i{position:absolute;right:40px;bottom:0;width:820px;height:1000px;background:right bottom/contain no-repeat;filter:drop-shadow(0 0 40px rgba(93,255,192,.35))}
+  .cr-draw.landed .cr-tier>i{animation:crcap .8s cubic-bezier(.16,1,.3,1) 1.6s both}
+  @keyframes crcap{from{transform:translateX(120px) scale(.85);opacity:0}}
+  .cr-tier>div{position:relative;margin-left:130px;max-width:1000px;display:flex;flex-direction:column;gap:18px;text-transform:uppercase}
+  .cr-tier>div>b{font-size:150px;line-height:.9;background:linear-gradient(#FFF6C8,#FFC53A 50%,#D86A00);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 6px 0 #3A1C00) drop-shadow(0 0 30px rgba(255,197,58,.5))}
+  .cr-draw.landed .cr-tier>div>b{animation:crslam .7s cubic-bezier(.3,1.5,.5,1) 1.8s both}
+  @keyframes crslam{from{transform:scale(2.2);opacity:0}}
+  .cr-tier b.t4,.cr-tier b.t5{font-size:180px}
+  .cr-tier b.t5{background-image:linear-gradient(#FFFFFF,#9FFFE0 40%,#FFC53A 60%,#D86A00)}
+  .cr-tname{font-size:96px;line-height:1;color:#fff;text-transform:none;overflow-wrap:anywhere;text-shadow:0 4px 16px rgba(0,0,0,.8)}
+  .cr-tclaim p{font-size:40px;letter-spacing:.06em;color:#B9E6D2}
+  .cr-tclaim p.ok{color:#5DFFC0}
+  .cr-tclaim b{display:inline-block;margin-top:6px;font-size:100px;line-height:1;color:#FFC53A;font-variant-numeric:tabular-nums}
+  /* the 1080 stage (the box, the panel monitor): the captain stands behind the words */
+  .cr-draw:not(.fixed) .cr-tier>i{right:-160px;opacity:.55}
+  .cr-draw:not(.fixed) .cr-tier>div{margin-left:80px}
   .rf-name{display:flex;align-items:center;justify-content:center;gap:12px;height:var(--r);font-size:30px;white-space:nowrap;color:var(--text)}
   .rf-name span{overflow:hidden;text-overflow:ellipsis;min-width:0}
   .rf-name .pf{width:.85em;height:.85em}
@@ -1090,7 +1194,7 @@ async function netProbe(){
 function netPush(fx){
   if(!NET.on || DISPLAY_ONLY) return;
   const keys={};
-  [KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,SHEET_KEY,SHEET_Q_KEY].forEach(k=>{ keys[k]=localStorage.getItem(k); });
+  [KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,CR_KEY,SHEET_KEY,SHEET_Q_KEY].forEach(k=>{ keys[k]=localStorage.getItem(k); });
   if(NET.synced) keys[HISTORY_KEY]=localStorage.getItem(HISTORY_KEY);
   fetch(NET.url,{method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({keys, fx: fx?[fx]:[], ctl:CTL_ID})}).then(r=>{ if(r.status===409) location.reload(); }).catch(()=>{});
@@ -1157,7 +1261,7 @@ if(!DISPLAY_ONLY){
 let state = load() || fresh();
 let appMode = loadMode();
 
-function loadMode(){ try{ const m=JSON.parse(localStorage.getItem(MODE_KEY)); return (m==="LMS"||m==="H2H"||m==="BRACKET"||m==="LEAGUE"||m==="WHEEL"||m==="TADA"||m==="PRAG"||m==="KEYWORD"||m==="BINGO")?m:null; }catch(e){ return null; } }
+function loadMode(){ try{ const m=JSON.parse(localStorage.getItem(MODE_KEY)); return (m==="LMS"||m==="H2H"||m==="BRACKET"||m==="LEAGUE"||m==="WHEEL"||m==="TADA"||m==="PRAG"||m==="KEYWORD"||m==="BINGO"||m==="BOARD"||m==="CREW")?m:null; }catch(e){ return null; } }
 function saveMode(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(MODE_KEY, JSON.stringify(appMode)); }catch(e){} bcast({type:"state"}); }
 
 function fresh(){
@@ -1439,9 +1543,10 @@ function clearWins(){ state.players.forEach(p=>{ if(!p.eliminated){ p.win=""; p.
 /* ---------------- animations ---------------- */
 /* Loud moments take the whole square: a solid colour field wipes in, holds, wipes out. */
 let elimToken=0;
+const ELIM_SOUNDS=["sfx/flush.mp3","sfx/trombone.mp3","sfx/ohno.mp3"]; // LMS knockouts cycle through these
 function playElimination(name){
   bcast({type:"fx", fx:"elim", name});
-  sfx("elim");
+  if(soundOn) new Audio(ELIM_SOUNDS[elimToken%ELIM_SOUNDS.length]).play().catch(()=>{});
   const my = ++elimToken;
   const content=$("#displayContent"); if(content) content.classList.add("dimmed");
   const el=$("#elim"), nameEl=$("#elimName"), sufEl=$("#elimSuffix");
@@ -1508,6 +1613,7 @@ function sfx(name){
   else if(name==="coin"){ for(let i=0;i<7;i++) tone(880+i*160,i*.09,.07,"square",.045); }
   else if(name==="match"){ tone(659,0,.12,"triangle",.14); tone(880,.12,.32,"triangle",.15); }
   else if(name==="tick"){ tone(2200,0,.03,"square",.03); }
+  else if(name==="stop"){ tone(150,0,.1,"square",.07); tone(95,.02,.18,"triangle",.14); }
   else if(name==="life"){ tone(494,0,.15,"triangle",.13); tone(659,.13,.16,"triangle",.14); tone(880,.28,.35,"triangle",.16); }
 }
 function updateSoundBtn(){ const b=$("#soundBtn"); if(b){ b.innerHTML=`<svg class="ic" aria-hidden="true"><use href="#i-${soundOn?"sound":"mute"}"/></svg>`; b.classList.toggle("off",!soundOn); b.title=soundOn?"Mute sounds":"Unmute sounds"; } }
@@ -1770,8 +1876,8 @@ function rotateFromId(list,id){
 
 /* ================= SHARED VIEW PIECES ================= */
 const ic=(n,cls)=>`<svg class="ic${cls?" "+cls:""}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
-const MODE_ICON={LMS:"lms", H2H:"h2h", BRACKET:"bracket", LEAGUE:"league", WHEEL:"reel", TADA:"gift", PRAG:"gift", KEYWORD:"bolt", BINGO:"gift"};
-const MODE_NAME={LMS:"Last Man Standing", H2H:"Showdown", BRACKET:"Bracket Tournament", LEAGUE:"Points League", WHEEL:"Slot Wheel", TADA:"TaDa Gaming Giveaway", PRAG:"Prag-Wheel", KEYWORD:"Keyword Giveaway", BINGO:"Relax Bingo"};
+const MODE_ICON={LMS:"lms", H2H:"h2h", BRACKET:"bracket", LEAGUE:"league", WHEEL:"reel", TADA:"gift", PRAG:"gift", KEYWORD:"bolt", BINGO:"gift", BOARD:"gift", CREW:"gift"};
+const MODE_NAME={LMS:"Last Man Standing", H2H:"Showdown", BRACKET:"Bracket Tournament", LEAGUE:"Points League", WHEEL:"Slot Wheel", TADA:"TaDa Gaming Giveaway", PRAG:"Prag-Wheel", KEYWORD:"Keyword Giveaway", BINGO:"Relax Bingo", BOARD:"Challenge Board", CREW:"Dead Man's Crew"};
 
 /* header bug on the stream box */
 function bugHtml(icon, title, phase, tone){
@@ -1896,7 +2002,7 @@ function focusNextWin(inp, sel){
 }
 function dispatchDisplay(){
   if(!appMode){ const mc=$("#displayContent"); if(!lbTakeover(mc)) mc.innerHTML=menuDisplayView(); return; }
-  ({LMS:renderDisplay, H2H:h2hRenderDisplay, BRACKET:bkRenderDisplay, LEAGUE:lgRenderDisplay, WHEEL:whRenderDisplay, TADA:tdRenderDisplay, PRAG:pwRenderDisplay, KEYWORD:kwRenderDisplay, BINGO:bgRenderDisplay})[appMode]();
+  ({LMS:renderDisplay, H2H:h2hRenderDisplay, BRACKET:bkRenderDisplay, LEAGUE:lgRenderDisplay, WHEEL:whRenderDisplay, TADA:tdRenderDisplay, PRAG:pwRenderDisplay, KEYWORD:kwRenderDisplay, BINGO:bgRenderDisplay, BOARD:bdRenderDisplay, CREW:crRenderDisplay})[appMode]();
 }
 let pageTick=Math.floor(Date.now()/PAGE_MS);
 setInterval(()=>{
@@ -2446,6 +2552,11 @@ const RF_MODES={
   // the Keyword tab: any keyword, any title, entries all show, every claim is a winner row
   KEYWORD:{icon:"bolt", get title(){ return kw.title||"Giveaway"; }, setup:()=>true, roster:()=>kw.winners, display:()=>kwRenderDisplay(), save:()=>kwSave(),
     add:()=>{ const p={id:uid(), name:""}; kw.winners.push(p); return p; }},
+  // the box shows the board, and the entries only while a full challenge is owed its winner
+  BOARD:{icon:"gift", get title(){ return bd.title||"Challenge Board"; }, setup:()=>!!rf.spin || bdDue().length>0, roster:()=>[], display:()=>bdRenderDisplay(), save:()=>bdSaveWin(),
+    add:()=>{ const p={id:uid(), name:"", cell:bdDue()[0]?.id||null}; bd.winners.push(p); return p; }},
+  // five fixed seats: the entries show until the first is taken, then the crew board; a claim fills the next open seat
+  CREW:{icon:"gift", title:"Dead Man's Crew", kw:"Crew", spinMs:()=>CR_DRAW_MS, setup:()=>!!rf.spin || !crTaken(), roster:()=>cr.winners, display:()=>crRenderDisplay(), save:()=>crSaveWin(), add:()=>null},
 };
 /* Slot entries ("!slot Gates of Olympus"): the words after the keyword are the entry.
    Frozen into rf.slots when entries open, so a format switching mid-entries can't mix them. */
@@ -2704,7 +2815,7 @@ const rfMod=(a,n)=>((a%n)+n)%n;
 let rfPlan=null, rfLastOff=null, rfWasSpinning=false;
 function rfFrame(){
   requestAnimationFrame(rfFrame);
-  if(rf.on && rf.mode==="PRAG" && appMode==="PRAG") return;   // pwDrawFrame() runs this draw
+  if(rf.on && (rf.mode==="PRAG" || rf.mode==="CREW") && appMode===rf.mode) return;   // pwDrawFrame() / crDrawFrame() run these draws
   const sq=document.getElementById("rfSq");
   if(!sq) return;
   const sp=rf.on ? rf.spin : null;
@@ -4544,11 +4655,11 @@ function pwDrawPlan(sp, W, H){
   const name=(c,r)=>{ if(c===mid && r===kw) return winner; let e=S[(c*step+r)%N]; if(e===winner && N>1) e=S[(c*step+r+1)%N]; return e; };
   return {at:sp.startedAt, W, H, cols, mid, kw, lead, end:kw+lead, move, name, N, redraw:rf.entries.some(e=>e.st==="missed")};
 }
-function pwDrawMount(){
+function pwDrawMount(id="pwDraw", cls="pw-draw"){
   const fixed=DISPLAY_ONLY && document.body.classList.contains("canvas");
   const W=fixed?1920:1080, H=1080;
   const ov=document.createElement("div");
-  ov.id="pwDraw"; ov.className="pw-draw"+(fixed?" fixed":""); ov.setAttribute("aria-hidden","true");
+  ov.id=id; ov.className=cls+(fixed?" fixed":""); ov.setAttribute("aria-hidden","true");
   ov.innerHTML=`<div class="pw-stage" style="width:${W}px;height:${H}px"></div>`;
   (fixed?document.body:$("#display")).appendChild(ov);
   return ov;
@@ -4626,10 +4737,10 @@ function pwPickPrize(i){
   pw.spin={at, from, to:base+((i-base)%PW_PRIZES.length+PW_PRIZES.length)%PW_PRIZES.length, idx:i, id:w.id, name:w.name};
   pwSave(); pwRender();
 }
-/* 1,400 made-up entrants, to show the draw off without a live chat. They're ordinary entries: New
-   Prag-Wheel clears them, and a test winner is claimed with Mark claimed. */
-function pwTestEntries(){
-  if(!pwLive()) rfOpenEntries();
+/* 1,400 made-up entrants, to show a draw off without a live chat (Prag-Wheel, Dead Man's Crew). They're
+   ordinary entries: the format's New clears them, and a test winner is claimed with Mark claimed. */
+function rfTestEntries(){
+  if(!(rf.on && rf.mode===appMode)) rfOpenEntries();
   const rnd=pwRng(1400), pick=a=>a[Math.floor(rnd()*a.length)], cap=w=>w[0].toUpperCase()+w.slice(1);
   const A=["lucky","nordic","reel","slot","bonus","max","wild","ice","gold","dark","big","mega","fast","sly","epic","royal","crazy","silent","neon","iron"];
   const B=["wolf","king","queen","hunter","spin","fox","viking","bear","tiger","raven","shark","ninja","gambler","joker","ace","storm","dragon","falcon","rider","ghost"];
@@ -4641,7 +4752,7 @@ function pwTestEntries(){
     const e={platform:pick(pfs), user:"test"+i, name};
     if(!have.has(rfId(e))) rf.entries.push(e);
   }
-  rfFlush(); pwRender(); toast("1,400 test entries in the draw");
+  rfFlush(); renderApp(); toast("1,400 test entries in the draw");
 }
 function pwConfirmReset(){
   const go=()=>{ rfStop("PRAG"); pw=pwFresh(); pwSave(); pwRender(); };
@@ -4688,7 +4799,7 @@ function pwRenderControl(){
     ${nums}
     <div class="actionbar"><button class="btn" id="pwNewBtn">${ic("new")}New Prag-Wheel</button><button class="btn" id="pwTestBtn">${ic("bolt")}Load 1,400 test entries</button></div>`;
   const b=$("#pwNewBtn"); if(b) b.onclick=pwConfirmReset;
-  const tb=$("#pwTestBtn"); if(tb) tb.onclick=pwTestEntries;
+  const tb=$("#pwTestBtn"); if(tb) tb.onclick=rfTestEntries;
   document.querySelectorAll("[data-pw-prize]").forEach(x=>{ x.onclick=()=>pwPickPrize(+x.dataset.pwPrize); });
   rfWire();
 }
@@ -4733,12 +4844,241 @@ function kwRenderControl(){
   rfWire();
 }
 
+/* ================= CHALLENGE BOARD =================
+   16 challenges, each with a count ("Bonus" x5). The operator ticks them as they
+   happen; a full one owes chat a giveaway. Keyword entries run all show, and the
+   box shows the board until a giveaway is due (RF_MODES.BOARD.setup). */
+const BD_KEY="board_state_v1";
+const BD_START=[["Bonus",5],["100x win",3],["250x win",2],["500x win",1],["Special symbol",5],["Retrigger",3],["Dead bonus",3],["50x win",5],
+  ["Big hit in base",2],["Max multiplier",1],["Full screen",1],["Bonus in 10 spins",1],["Chat's pick",3],["Playtech's pick",3],["Streamer's pick",3],["1000x win",1]];
+function bdFresh(){ return {title:"Challenge Board", cells:BD_START.map(([label,target])=>({id:uid(), label, target, n:0})), winners:[]}; }
+function bdLoad(){ try{ const s=JSON.parse(localStorage.getItem(BD_KEY)); if(s && Array.isArray(s.cells) && Array.isArray(s.winners)) return s; }catch(e){} return null; }
+function bdSave(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(BD_KEY, JSON.stringify(bd)); }catch(e){} bcast({type:"state"}); }
+let bd=bdLoad()||bdFresh();
+const bdFull=c=>c.n>=c.target;
+/* full challenges nobody has won yet, in board order */
+const bdDue=()=>bd.cells.filter(c=>bdFull(c) && !bd.winners.some(w=>w.cell===c.id));
+const bdCell=id=>bd.cells.find(c=>c.id===id);
+function bdPlay(m){ sfx("winner"); takeover("tk-gold", m.icon, m.label, m.name, m.sub, 3400); }
+function bdFx(icon, label, name, sub){ const m={type:"fx", fx:"board", icon, label, name, sub}; bcast(m); bdPlay(m); }
+/* a claim names the row after add(), so the winner is announced on save */
+function bdSaveWin(){
+  const w=bd.winners[bd.winners.length-1];
+  if(w && w.name && !w.shown){ w.shown=true; bdFx("crown", "Giveaway winner", w.name, bdCell(w.cell)?.label||""); }
+  bdSave();
+}
+function bdTick(id, d){
+  const c=bdCell(id); if(!c) return;
+  const was=bdFull(c);
+  c.n=Math.max(0, Math.min(c.target, c.n+d));
+  bdSave(); bdRender();
+  if(!was && bdFull(c)) bdFx("gift", "Challenge complete", c.label, "Giveaway time");
+}
+function bdUndo(){
+  const w=bd.winners.pop();
+  if(!w){ toast("Nothing to undo"); return; }
+  bdSave(); bdRender(); toast(`Took ${w.name||"the last winner"} off the list`);
+}
+function bdConfirmReset(){
+  const go=()=>{ rfStop("BOARD"); bd.cells.forEach(c=>{ c.n=0; }); bd.winners=[]; bdSave(); bdRender(); };
+  if(!bd.winners.length && !bd.cells.some(c=>c.n)) return go();
+  showConfirm("Start a new board? Counts and winners go back to zero. The challenges stay.","Start new",go);
+}
+function bdRender(){ bdRenderDisplay(); if(!DISPLAY_ONLY) bdRenderControl(); }
+function bdRenderDisplay(){
+  const c=$("#displayContent");
+  if(lbTakeover(c) || rfTakeover(c)) return;
+  const due=bdDue().length, done=bd.cells.filter(bdFull).length;
+  c.innerHTML=bugHtml("gift", bd.title||"Challenge Board", due ? "Giveaway!" : `${done} / ${bd.cells.length}`, due?"gold":"")
+    +`<div class="cb-grid">${bd.cells.map(x=>`<div class="cb-cell${bdFull(x)?" done":""}"><span class="cb-lab">${escapeHtml(x.label)}</span><b>${x.n}<small>/${x.target}</small></b><i style="width:${100*x.n/x.target}%"></i></div>`).join("")}</div>`;
+}
+function bdRenderControl(){
+  $("#undoBtn").disabled=!bd.winners.length;
+  const cells=bd.cells.map(x=>`<div class="cb-ed${bdFull(x)?" done":""}">
+      <input class="tier-in" data-bd-lab="${x.id}" maxlength="30" spellcheck="false" value="${escapeHtml(x.label)}" aria-label="Challenge">
+      <div class="cb-ct"><button class="btn" data-bd-tick="${x.id}" data-d="-1" aria-label="One less">−</button><b>${x.n}</b><span>of</span><input class="tier-in" type="number" min="1" max="99" data-bd-tgt="${x.id}" value="${x.target}" aria-label="Count needed"><button class="btn" data-bd-tick="${x.id}" data-d="1" aria-label="One more">${ic("plus")}</button></div>
+    </div>`).join("");
+  const due=bdDue().length;
+  const rows=bd.winners.map((p,i)=>`<div class="crow"><div class="idx">${i+1}</div>${rfLogo(p.chat?.platform)}<span class="clab">${escapeHtml(p.name)}</span><span class="chint">${escapeHtml(bdCell(p.cell)?.label||"")}</span></div>`).join("");
+  $("#controlBody").innerHTML=`<div class="page-h">Challenge Board</div>
+    <div class="crow plain"><span class="clab sm">Title on stream</span><input class="tier-in" id="bdTitle" style="width:260px;text-align:left" maxlength="40" spellcheck="false" value="${escapeHtml(bd.title)}" aria-label="Title on stream"></div>
+    <div class="cb-edit">${cells}</div>
+    <div class="two-col">${rfSection()}
+    <div class="section"><div class="section-h">Winners · ${bd.winners.length}${due?` · ${due} due`:""}</div>${rows ? `<div class="crows">${rows}</div>` : `<div class="chint">Nobody drawn yet.</div>`}</div></div>
+    <div class="actionbar"><button class="btn" id="bdNewBtn">${ic("new")}New board</button></div>`;
+  const t=$("#bdTitle"); t.onchange=()=>{ bd.title=t.value.trim()||"Challenge Board"; bdSave(); bdRenderDisplay(); };
+  document.querySelectorAll("[data-bd-tick]").forEach(b=>{ b.onclick=()=>bdTick(b.dataset.bdTick, +b.dataset.d); });
+  document.querySelectorAll("[data-bd-lab]").forEach(i=>{ i.onchange=()=>{ const x=bdCell(i.dataset.bdLab); x.label=i.value.trim()||x.label; bdSave(); bdRender(); }; });
+  document.querySelectorAll("[data-bd-tgt]").forEach(i=>{ i.onchange=()=>{ const x=bdCell(i.dataset.bdTgt), v=Math.round(+i.value);
+    if(v>=1 && v<=99){ x.target=v; x.n=Math.min(x.n, v); bdSave(); } bdRender(); }; });
+  $("#bdNewBtn").onclick=bdConfirmReset;
+  rfWire();
+}
+
+/* ================= DEAD MAN'S CREW (Slotmill visit) =================
+   A keyword raffle in the game's own art: five seats on the crew, €100 each.
+   Chat types the keyword; each claim fills the next seat and the captain
+   announces them. The box shows the entries until the first seat is taken,
+   then the crew board (RF_MODES.CREW.setup), with the reel on top of it for a draw.
+   Art is public/comp/crew/, cut down from the Slotmill pack. */
+const CR_KEY="crew_state_v1", CR_KW=RF_MODES.CREW.kw, CR_N=5, CR_PRIZE=100;
+function crFresh(){ return {winners:Array.from({length:CR_N},()=>({id:uid(), name:""}))}; }
+function crLoad(){ try{ const s=JSON.parse(localStorage.getItem(CR_KEY)); if(s && Array.isArray(s.winners)) return s; }catch(e){} return null; }
+function crSave(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(CR_KEY, JSON.stringify(cr)); }catch(e){} bcast({type:"state"}); }
+let cr=crLoad()||crFresh();
+const crTaken=()=>cr.winners.filter(p=>p.name.trim()).length;
+function crPlay(m){ sfx("winner"); takeover("tk-crew", "crown", "Joins the crew", m.name, m.sub, 4200); }
+/* a claim names the row, so the seat is announced on save */
+function crSaveWin(){
+  cr.winners.forEach((w,i)=>{ if(w.name.trim() && !w.shown){ w.shown=true;
+    const m={type:"fx", fx:"crew", name:w.name, sub:`€${CR_PRIZE} · Seat ${i+1} of ${CR_N}`}; bcast(m); crPlay(m); } });
+  if(crTaken()===CR_N) rfStop("CREW");   // all seats taken: entries are done
+  crSave();
+}
+function crUndo(){
+  const w=[...cr.winners].reverse().find(p=>p.name.trim());
+  if(!w){ toast("Nothing to undo"); return; }
+  const was=w.name; w.name=""; delete w.chat; delete w.shown;
+  crSave(); crRender(); toast(`Took ${was} off the crew`);
+}
+function crConfirmReset(){
+  const go=()=>{ rfStop("CREW"); cr=crFresh(); crSave(); crRender(); };
+  if(!(rf.on && rf.mode==="CREW") && !crTaken()) return go();
+  showConfirm("Start a new crew? This stops entries and clears the five seats.","Start new",go);
+}
+function crRender(){ crRenderDisplay(); if(!DISPLAY_ONLY) crRenderControl(); }
+function crRenderDisplay(){
+  const c=$("#displayContent");
+  if(lbTakeover(c) || rfTakeover(c)) return;
+  const n=crTaken(), open=rf.on && rf.mode==="CREW" && rf.open;
+  const cta = n===CR_N ? "The crew is complete" : open ? `Type <b>${escapeHtml(CR_KW)}</b> in chat` : "Entries open soon";
+  c.innerHTML=`<div class="cr-logo" role="img" aria-label="Dead Man's Crew"></div>
+    <div class="cr-cta"><span>${CR_N} × €${CR_PRIZE}</span><em>${cta}</em></div>
+    <div class="cr-seats">${cr.winners.map((p,i)=>`<div class="cr-seat${p.name.trim()?" on":""}"><i style="background-image:url(crew/skull${i+1}.webp)"></i>
+      <span>${p.name.trim() ? escapeHtml(p.name) : "Wanted"}</span><b>€${CR_PRIZE}</b></div>`).join("")}</div>
+    <div class="cr-captain" role="img" aria-label="Slotmill"></div>`;
+}
+function crRenderControl(){
+  $("#undoBtn").disabled=!crTaken();
+  const rows=cr.winners.map((p,i)=>`<div class="crow"><div class="idx">${i+1}</div>${rfLogo(p.chat?.platform)}<span class="clab">${p.name.trim() ? escapeHtml(p.name) : `<span class="chint">Open seat</span>`}</span><span class="choose-tag${p.name.trim()?" ok":""}">€${CR_PRIZE}</span></div>`).join("");
+  $("#controlBody").innerHTML=`<div class="page-h">Dead Man's Crew</div>
+    ${summaryHtml([["Keyword",CR_KW], ["Prizes",`${CR_N} × €${CR_PRIZE}`], ["Guest","Slotmill"]])}
+    <div class="two-col">${rfSection()}
+    <div class="section"><div class="section-h">The crew · ${crTaken()} of ${CR_N}</div><div class="crows">${rows}</div></div></div>
+    <div class="actionbar"><button class="btn" id="crNewBtn">${ic("new")}New crew</button><button class="btn" id="crTestBtn">${ic("bolt")}Load 1,400 test entries</button></div>`;
+  $("#crNewBtn").onclick=crConfirmReset;
+  $("#crTestBtn").onclick=rfTestEntries;
+  rfWire();
+}
+/* ---- The draw is a spin of the game: the whole screen (like the Prag-Wheel draw) becomes the free spins
+   scene with five reels. The four outer reels spin the game's symbols and stop left to right; the middle
+   reel is the names, and it stops last, alone, on the winner. Then the captain's win screen for that
+   seat, one tier bigger each seat: Big win up to Max win. Built from rf.spin in both windows (a 1080
+   stage in the box, three reels). Timing, like a slot: every reel spins up and runs at full speed; the
+   symbol reels stop crisply one beat apart (a small overshoot, the symbols only, never the frame), and only
+   after the last one does the name reel start its long slowdown onto the winner. */
+const CR_DRAW_MS=[19000,20000], CR_FADE_MS=2200, CR_ROW=200, CR_SYM_W=200, CR_NAME_W=620;
+const CR_SYMS=["l1","l2","l3","l4","m1","m2","m3","m4","h1","w"];
+const CR_TIERS=["Big win","Mega win","Super mega win","Ultra win","Max win"];
+const CR_RAMP=.8, CR_BEAT=.85, CR_SYM_DEC=.3, CR_NAME_DEC=5.5, CR_BOUNCE=.28;
+let crPlan=null, crLast=null;
+/* rows travelled by time t: spin up, full speed V, then the speed falls steadily to 0 at `stop`
+   over `dec` seconds (0.3s for a symbol reel's snap, 5.5s for the names' slowdown) */
+function crDist(t, V, stop, dec){
+  if(t<=0) return 0;
+  if(t<CR_RAMP) return V*t*t/(2*CR_RAMP);
+  const c=stop-dec, f=V*(CR_RAMP/2+Math.min(t,c)-CR_RAMP);
+  if(t<=c) return f;
+  const x=Math.min(1,(t-c)/dec);
+  return f + V*dec*(x-x*x/2);
+}
+function crDrawPlan(sp, W){
+  const pool=rfSpinPool(sp), N=pool.length, winner=pool.find(e=>rfId(e)===sp.winner);
+  if(!winner) return null;
+  const S=pool.slice(), rnd=pwRng(sp.seed);
+  for(let i=N-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [S[i],S[j]]=[S[j],S[i]]; }
+  const move=(sp.duration-CR_FADE_MS)/1000, wide=W>=1920;
+  // reel kinds left to right; the symbol reels stop left to right, a beat apart, the last one just
+  // before the names start slowing; the names stop at the end of the draw
+  const kinds = wide ? ["s","s","n","s","s"] : ["s","n","s"];
+  const nSym=kinds.length-1, lastSym=move-CR_NAME_DEC-.2;
+  let j=0;
+  const reels=kinds.map(k=>{
+    const names=k==="n", V=names?11:16, stop=names ? move : lastSym-(nSym-1-j++)*CR_BEAT, dec=names?CR_NAME_DEC:CR_SYM_DEC;
+    const F=crDist(stop, V, stop, dec), end=Math.max(3, Math.round(F));
+    return {k, V, stop, dec, end, scale:end/F, sym:Array.from({length:64},()=>CR_SYMS[Math.floor(rnd()*CR_SYMS.length)])}; });
+  const nr=reels.find(r=>r.k==="n");
+  const name=r=>{ if(r===nr.end) return winner; let e=S[rfMod(r,N)]; if(e===winner && N>1) e=S[rfMod(r+1,N)]; return e; };
+  const seat=Math.min(CR_N, crTaken()+1);
+  return {at:sp.startedAt, W, move, reels, name, N, seat, redraw:rf.entries.some(e=>e.st==="missed")};
+}
+function crDrawFrame(){
+  requestAnimationFrame(crDrawFrame);
+  const sp = rf.on && rf.mode==="CREW" && appMode==="CREW" ? rf.spin : null;
+  let ov=document.getElementById("crDraw");
+  if(!sp){
+    if(ov && !ov.classList.contains("out")){ ov.classList.add("out"); ov.id=""; setTimeout(()=>ov.remove(),900); }
+    crPlan=null; crLast=null; return;
+  }
+  if(ov && ov.classList.contains("fixed")!==(DISPLAY_ONLY && document.body.classList.contains("canvas"))){ ov.remove(); ov=null; }
+  if(!ov) ov=pwDrawMount("crDraw", "pw-draw cr-draw");
+  const stage=ov.firstChild, W=parseFloat(stage.style.width), H=parseFloat(stage.style.height);
+  const hw=ov.offsetWidth, hh=ov.offsetHeight, kk=Math.min(hw/W, hh/H);
+  stage.style.transform=`translate(${(hw-W*kk)/2}px,${(hh-H*kk)/2}px) scale(${kk})`;
+  if(!crPlan || crPlan.at!==sp.startedAt || crPlan.W!==W){
+    crPlan=crDrawPlan(sp, W); if(!crPlan) return;
+    ov.style.setProperty("--el", -Math.max(0, Date.now()-sp.startedAt)/1000+"s");
+    const t=crPlan.seat-1;
+    stage.innerHTML=`<div class="cr-dbg"></div>
+      <div class="cr-dhead"><i></i><b>${crPlan.redraw?"<em>Redraw</em> · ":""}Seat ${crPlan.seat} of ${CR_N} · €${CR_PRIZE} · ${crPlan.N.toLocaleString("en-US")} in the draw</b></div>
+      <div class="cr-reels">${crPlan.reels.map(r=>`<div class="cr-reel ${r.k==="n"?"names":"syms"}" style="width:${r.k==="n"?CR_NAME_W:CR_SYM_W}px"></div>`).join("")}<div class="cr-line"></div></div>
+      <div class="cr-tier"><i style="background-image:url(crew/tier${t+1}.webp)"></i><div><b class="t${t+1}">${CR_TIERS[t]}</b><span class="cr-tname"></span><div class="cr-tclaim"></div></div></div>`;
+  }
+  const p=crPlan, now=Date.now(), t=(now-sp.startedAt-CR_FADE_MS)/1000, landed=now>=rfSpinEnd(sp);
+  const reelEls=stage.querySelectorAll(".cr-reel"), R=CR_ROW;
+  let stopped=0, nameD=0;
+  p.reels.forEach((r,i)=>{
+    const done=r.k==="n" ? landed : t>=r.stop, el=reelEls[i];
+    const b=(t-r.stop)/CR_BOUNCE;   // the symbols run a touch past the line and settle back
+    const d=r.k==="n" ? (landed ? r.end : r.scale*crDist(t, r.V, r.stop, r.dec))
+          : done ? r.end + (b<1 ? .14*Math.sin(Math.PI*b) : 0) : r.scale*crDist(t, r.V, r.stop, r.dec);
+    if(done && !el.classList.contains("stop")){ el.classList.add("stop"); if(crLast!==null && r.k==="s") sfx("stop"); }
+    if(r.k==="s" && done) stopped++;
+    if(r.k==="n") nameD=d;
+    // rows come down from above: row k sits on the line when d===k. Each row keeps its own element
+    // while in view, so nothing is rewritten under the eye as rows pass.
+    const cells=el.cells||(el.cells=new Map()), seen=new Set();
+    for(let k=Math.ceil(d-2); k<=Math.floor(d+2); k++){
+      seen.add(k);
+      let c=cells.get(k);
+      if(!c){ c=document.createElement("div"); c.className="cr-cell"; c.innerHTML = r.k==="n" ? rfNameHtml(p.name(k)) : `<i style="background-image:url(crew/sym-${r.sym[rfMod(k,64)]}.webp)"></i>`; el.appendChild(c); cells.set(k,c); }
+      c.style.transform=`translateY(${(d-k)*R+R}px)`;
+      c.classList.toggle("win", done && k===r.end);
+    }
+    cells.forEach((c,k)=>{ if(!seen.has(k)){ c.remove(); cells.delete(k); } });
+  });
+  // the others are down and only the names still turn: the slot's anticipation
+  ov.classList.toggle("tease", stopped===p.reels.length-1 && !landed);
+  ov.classList.toggle("landed", landed);
+  if(!landed && crLast!==null && Math.floor(nameD)>Math.floor(crLast)) sfx("tick");
+  if(landed && crLast!==null && crLast>=0) sfx("winner");
+  crLast = landed ? -1 : nameD;   // -1: this window saw it land, so the win sound plays once
+  if(landed){
+    const e=rfWinner(sp), pf=(e&&e.platform||"").toUpperCase();
+    const nm=stage.querySelector(".cr-tname"), cl=stage.querySelector(".cr-tclaim");
+    if(e && nm.textContent!==e.name) nm.textContent=e.name;
+    const html = sp.claimed ? `<p class="ok">Claimed on ${pf}</p>` : `<p>Type in ${pf} chat to claim</p><b>${rfSecs(rfClaimEnd(sp))}</b>`;
+    if(cl.innerHTML!==html) cl.innerHTML=html;
+  }
+}
+requestAnimationFrame(crDrawFrame);
+
 /* ================= STREAM STUDIO TABS =================
    The desktop app shows this page under three of its tabs (the fourth is the
    wheel). There is one stream box, so a tab switch is the Home button with a
    filter: the stream follows the panel, Home lists only that tab's formats, and
    coming back to a tab reopens the format it was on. Leaving a live format asks. */
-const SECTION={LMS:"comp", H2H:"comp", BRACKET:"comp", LEAGUE:"comp", WHEEL:"comp", TADA:"special", PRAG:"special", KEYWORD:"keyword", BINGO:"special"};
+const SECTION={LMS:"comp", H2H:"comp", BRACKET:"comp", LEAGUE:"comp", WHEEL:"comp", TADA:"special", PRAG:"special", KEYWORD:"keyword", BINGO:"special", BOARD:"special", CREW:"special"};
 let homeSection=null;   // null in a plain browser tab: everything
 const lastIn={};        // tab -> the format it was last on
 window.addEventListener("message", e=>{
@@ -4771,6 +5111,7 @@ function renderApp(){
   }
   $("#display").classList.toggle("tada", appMode==="TADA");
   $("#display").classList.toggle("prag", appMode==="PRAG");
+  $("#display").classList.toggle("crew", appMode==="CREW");
   $("#display").classList.toggle("bingo", appMode==="BINGO");
   tellShell();
   if(!appMode){
@@ -4791,6 +5132,8 @@ function renderApp(){
   if(appMode==="PRAG") return pwRender();
   if(appMode==="KEYWORD") return kwRender();
   if(appMode==="BINGO") return bgRender();
+  if(appMode==="BOARD") return bdRender();
+  if(appMode==="CREW") return crRender();
 }
 /* Relax Bingo is its own page (/bingo/, own relay and lock). As a format here it only
    puts that page's board in this stream box, so OBS keeps the one competitions source. */
@@ -4822,6 +5165,8 @@ function modeStatus(m){
           : m==="TADA" ? {started:td.started, done:td.over, round:null, names:named(td.players)}
           : m==="PRAG" ? {started:rf.on && rf.mode==="PRAG", done:false, round:null, names:!!pw.winners.length}
           : m==="KEYWORD" ? {started:rf.on && rf.mode==="KEYWORD", done:false, round:null, names:!!kw.winners.length}
+          : m==="CREW" ? {started:(rf.on && rf.mode==="CREW") || crTaken()>0, done:crTaken()===CR_N, round:null, names:crTaken()>0}
+          : m==="BOARD" ? {started:bd.cells.some(c=>c.n>0), done:false, round:null, names:!!bd.winners.length}
           : {started:lg.started, done:!!lg.winnerId, round:lg.round, names:named(lg.players)};
   if(s.started) return s.done ? {cls:"done", text:"Finished"} : {cls:"live", text:s.round?`Live · Round ${s.round}`:"Live"};
   return s.names ? {cls:"setup", text:"Setting up"} : null;
@@ -4846,6 +5191,8 @@ function menuControlView(){
       ${card("TADA","Chat types TaDa, draw 10 viewers, one bonus buy each. The top 2 wins take €50 each from the €100 pool.")}
       ${card("KEYWORD","Pick any keyword and title. Chat types it, draw winners one at a time, each one claims in chat.")}
       ${card("PRAG","Pragmatic Play Friday. Chat types Pragmatic, draw winners one at a time, and each one gets a spin on the wheel. The prizes scroll on stream.")}
+      ${card("BOARD","4x4 challenges, each with a count. Tick them as they happen on stream. A full challenge is a giveaway: chat types the keyword, draw a winner.")}
+      ${card("CREW","Slotmill visit: Dead Man's Crew. Chat types Crew, draw 5 winners of €100 each. Themed in the game's art.")}
       ${card("BINGO","Money Train 5 Bingo. Its board shows in the stream box, run from its own panel.")}
     </div>`;
 }
@@ -4975,6 +5322,8 @@ $("#undoBtn").onclick=()=>{
   else if(appMode==="TADA") tdUndo();
   else if(appMode==="PRAG") pwUndo();
   else if(appMode==="KEYWORD") kwUndo();
+  else if(appMode==="BOARD") bdUndo();
+  else if(appMode==="CREW") crUndo();
 };
 $("#resetBtn").onclick=()=>{
   if(appMode==="LMS") confirmReset();
@@ -4985,6 +5334,8 @@ $("#resetBtn").onclick=()=>{
   else if(appMode==="TADA") tdConfirmReset();
   else if(appMode==="PRAG") pwConfirmReset();
   else if(appMode==="KEYWORD") kwConfirmReset();
+  else if(appMode==="BOARD") bdConfirmReset();
+  else if(appMode==="CREW") crConfirmReset();
 };
 fetch("/api/info").then(r=>r.json()).then(j=>{ VERSION=j.version; $("#verLabel").textContent="v"+VERSION; }).catch(()=>{});   // every mode, not just LMS
 $("#soundBtn").onclick=toggleSound; updateSoundBtn();
@@ -5018,7 +5369,7 @@ if(DISPLAY_ONLY){
   fitBox(); addEventListener("resize", fitBox);
   const refreshFromStorage=()=>{
     state=load()||fresh(); h2h=h2hLoad()||h2hFresh();
-    bk=bkLoad()||bkFresh(); lg=lgLoad()||lgFresh(); wh=whLoad()||whFresh(); td=tdLoad()||tdFresh(); pw=pwLoad()||pwFresh(); kw=kwLoad()||kwFresh();
+    bk=bkLoad()||bkFresh(); lg=lgLoad()||lgFresh(); wh=whLoad()||whFresh(); td=tdLoad()||tdFresh(); pw=pwLoad()||pwFresh(); kw=kwLoad()||kwFresh(); bd=bdLoad()||bdFresh(); cr=crLoad()||crFresh();
     appMode=loadMode(); lb=lbLoad(); rf=rfLoad();
     renderApp();
   };
@@ -5030,7 +5381,9 @@ if(DISPLAY_ONLY){
     else if(m.fx==="coin") bkPlayCoinFlipNames(m.front, m.back, m.winner);
     else if(m.fx==="life") playLifeSaved(m.name);
     else if(m.fx==="wheel") whPlayResult(m);
+    else if(m.fx==="board") bdPlay(m);
     else if(m.fx==="tada") tdPlayWin(m);
+    else if(m.fx==="crew") crPlay(m);
   };
   if(syncBC) syncBC.onmessage=e=>{
     const m=e.data||{};
@@ -5045,7 +5398,7 @@ if(DISPLAY_ONLY){
   setInterval(()=>{
     let raw="";
     try{
-      raw=[KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY].map(k=>localStorage.getItem(k)||"").join("");
+      raw=[KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,CR_KEY].map(k=>localStorage.getItem(k)||"").join("");
     }catch(e){ return; }
     if(raw!==lastRaw){ lastRaw=raw; refreshFromStorage(); }
   },1000);
