@@ -61,7 +61,7 @@ npm run release                    # bump + commit package.json version first; n
 ```
 
 Clients check GitHub Releases on start and hourly, download in the background, and install when
-the app is closed, never mid-show. Publishing the release is shipping the update.
+the app is closed or **Update** in the tab bar is pressed (it asks first if a wheel giveaway is in progress), never by themselves mid-show. Publishing the release is shipping the update.
 The installer isn't code-signed, so SmartScreen shows "unknown publisher" once. It installs per user, with no admin prompt.
 
 ## The two apps' own notes

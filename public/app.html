@@ -36,6 +36,9 @@
   #links:hover{color:var(--fg);background:var(--well-2)}
   #note{font-size:13px;color:var(--accent-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
   #note:not(:empty){padding:5px 11px;border-radius:999px;background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent-line)}
+  #install{height:34px;padding:0 14px;font:inherit;font-weight:600;color:#fff;background:var(--accent);border:none;border-radius:8px;cursor:pointer}
+  #install:hover{filter:brightness(1.1)}
+  #install[hidden]{display:none}
   main{flex:1;position:relative;min-height:0}
   iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:var(--bg)}
   iframe[hidden]{display:none}
@@ -64,6 +67,7 @@
   </div>
   <span class="spacer"></span>
   <span id="note"></span>
+  <button id="install" type="button" hidden title="Closes Stream Studio, installs the update and opens it again">Update</button>
   <button id="links" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg>OBS links</button>
 </nav>
 <main>
@@ -113,7 +117,10 @@ document.getElementById("links").onclick=async()=>{
   document.getElementById("linksDlg").showModal();
 };
 // the desktop app's preload reports updates; a browser tab has no window.studio
-if(window.studio) window.studio.onUpdate(msg=>{ document.getElementById("note").textContent=msg; });
+if(window.studio){
+  window.studio.onUpdate((msg, ready)=>{ document.getElementById("note").textContent=msg; document.getElementById("install").hidden=!ready; });
+  document.getElementById("install").onclick=()=>window.studio.installUpdate();
+}
 </script>
 </body>
 </html>

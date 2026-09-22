@@ -9,9 +9,9 @@
  * Everything written at runtime lives in %APPDATA%\Stream Studio\data, outside
  * the install folder, so updates never touch it. Updates come from GitHub
  * Releases (electron-updater), download in the background and install when the
- * app is closed — never in the middle of a show.
+ * app is closed or Update is pressed — never by themselves in the middle of a show.
  */
-const { app, BrowserWindow, dialog, shell } = require('electron');
+const { app, BrowserWindow, dialog, shell, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -20,7 +20,17 @@ if (!app.requestSingleInstanceLock()) { app.quit(); return; }
 
 const DATA = path.join(app.getPath('userData'), 'data');
 process.env.STUDIO_DATA = DATA;
-let win = null;
+let win = null, srv = null, leaving = false;
+
+// The wheel's session (who has been drawn) lives only in memory: closing loses it.
+// Competitions are on disk and survive. True when it's fine to close.
+function okToClose() {
+  const s = srv.state();
+  if (!((s.drawn || []).length || s.phase !== 'ready')) return true;
+  return dialog.showMessageBoxSync(win, { type: 'warning', buttons: ['Close anyway', 'Keep open'], defaultId: 1, cancelId: 1,
+    title: 'Stream Studio', message: 'A Wheel Studio giveaway is in progress.',
+    detail: `${(s.drawn || []).length} winner(s) drawn. Closing puts them all back in the pool. Draws already sent to the sheet are safe.` }) === 0;
+}
 
 /* First start on a PC that ran the old Wheel Studio: bring its config.json (the
    sheet link and results token) and its cache (the last feed, and draws that
@@ -62,9 +72,11 @@ function startServer() {
 function checkUpdates() {
   if (!app.isPackaged) return;
   const { autoUpdater } = require('electron-updater');
-  const say = msg => win && win.webContents.send('update', msg);
+  const say = (msg, ready) => win && win.webContents.send('update', msg, !!ready);
   autoUpdater.on('download-progress', p => say(`Downloading update… ${Math.round(p.percent)}%`));
-  autoUpdater.on('update-downloaded', i => say(`Update ${i.version} ready. It installs when you close Stream Studio.`));
+  autoUpdater.on('update-downloaded', i => say(`Update ${i.version} ready`, true));
+  // quitAndInstall starts the installer before the window closes, so the wheel check comes first
+  ipcMain.on('install-update', () => { if (okToClose()) { leaving = true; autoUpdater.quitAndInstall(true, true); } });   // silent, reopens after
   autoUpdater.on('error', () => {});   // offline, GitHub down: try again next hour
   const check = () => autoUpdater.checkForUpdates().catch(() => {});
   check();
@@ -73,7 +85,7 @@ function checkUpdates() {
 
 app.whenReady().then(async () => {
   importOldWheel();
-  const srv = await startServer();
+  srv = await startServer();
   win = new BrowserWindow({
     width: 1400, height: 900, minWidth: 900, minHeight: 600, backgroundColor: '#070E1A',
     title: 'Stream Studio', autoHideMenuBar: true,
@@ -83,16 +95,7 @@ app.whenReady().then(async () => {
   // Twitch/Kick sign-in pages and any other link open in the normal browser
   win.webContents.setWindowOpenHandler(({ url }) => { shell.openExternal(url); return { action: 'deny' }; });
 
-  // The wheel's session (who has been drawn) lives only in memory: closing loses it.
-  // Competitions are on disk and survive.
-  win.on('close', e => {
-    const s = srv.state();
-    if (!((s.drawn || []).length || s.phase !== 'ready')) return;
-    const n = dialog.showMessageBoxSync(win, { type: 'warning', buttons: ['Close anyway', 'Keep open'], defaultId: 1, cancelId: 1,
-      title: 'Stream Studio', message: 'A Wheel Studio giveaway is in progress.',
-      detail: `${(s.drawn || []).length} winner(s) drawn. Closing puts them all back in the pool. Draws already sent to the sheet are safe.` });
-    if (n === 1) e.preventDefault();
-  });
+  win.on('close', e => { if (!leaving && !okToClose()) e.preventDefault(); });
   win.on('closed', () => app.quit());
   checkUpdates();
 });
