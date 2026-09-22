@@ -1,7 +1,7 @@
 {
   "name": "stream-studio",
   "productName": "Stream Studio",
-  "version": "4.0.2",
+  "version": "4.0.3",
   "description": "Stream competitions, keyword giveaways and Wheel Studio in one app",
   "author": "Joelsson Media",
   "main": "main.js",
