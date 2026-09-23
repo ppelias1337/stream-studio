@@ -1211,7 +1211,7 @@ async function netProbe(){
 function netPush(fx){
   if(!NET.on || DISPLAY_ONLY) return;
   const keys={};
-  [KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,CR_KEY,SHEET_KEY,SHEET_Q_KEY].forEach(k=>{ keys[k]=localStorage.getItem(k); });
+  [KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,CR_KEY,SHEET_Q_KEY].forEach(k=>{ keys[k]=localStorage.getItem(k); });
   if(NET.synced) keys[HISTORY_KEY]=localStorage.getItem(HISTORY_KEY);
   fetch(NET.url,{method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({keys, fx: fx?[fx]:[], ctl:CTL_ID})}).then(r=>{ if(r.status===409) location.reload(); }).catch(()=>{});
@@ -1649,7 +1649,6 @@ function entriesBody(list){ return list.map(p=>`${p.name||"?"} ${fmt(parseWin(p.
 
 /* --------------- persistent past-winners history (all modes) --------------- */
 const HISTORY_KEY="comp_history_v1";
-const SHEET_KEY="comp_sheet_url_v1";
 function loadCompHistory(){
   try{
     // "1v1 Showdown" is what that format was called before it grew to 5 players
@@ -1672,67 +1671,43 @@ function recordResult(rec){
   bcast({type:"state"});   // history rides the sync layer like every other key
 }
 
-/* Optional Google Sheet link — paste an Apps Script Web App URL (see
-   sheet-webhook.gs) into the field on the menu and every result is POSTed
-   there as it happens. Google hosts the script, so nothing new is hosted
-   here. no-cors + text/plain avoids a preflight; the response is opaque, so
-   this is fire-and-forget and the in-page history stays the source of truth. */
-/* Results wait in a local queue until the sheet answers "ok", and retry every
-   minute and after a reload — it used to be fire-and-forget (no-cors), so a wrong
-   link or a deployment that isn't "Anyone" failed without a word. Apps Script's
-   reply is readable cross-origin, so success is known. The script skips an id it
-   has already written, so a retry can't double a row. */
-// The link and the queue ride the sync, so whichever screen is in control sends results
-// (the script skips an id it already wrote, so a queue handed between screens cannot double a row).
+/* Every result goes to the server, which sends it to the wheel's sheet (_Results tab)
+   with the wheel's draws, so the whole stream's winners are in one place. Results wait
+   in this queue until the server has them, retried every minute and after a reload. */
+// The queue rides the sync, so whichever screen is in control sends it (the sheet skips a
+// draw_id it already has, so a queue handed between screens cannot double a row).
 const SHEET_Q_KEY="comp_sheet_queue_v1", SHEET_ST_KEY="comp_sheet_status_v1";   // status is per screen
 const sheetGet=k=>{ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } };
 const sheetSet=(k,v)=>{ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} };
-const sheetUrl=()=>{ try{ return (localStorage.getItem(SHEET_KEY)||"").trim(); }catch(e){ return ""; } };
-/** "" when the link looks like a web app's /exec address, else what's wrong with it. */
-function sheetUrlWhy(u){
-  if(!u) return "";
-  if(!/^https:\/\/script\.google(usercontent)?\.com\/.+/.test(u)) return "That isn't an Apps Script link. It should start with https://script.google.com/macros/s/";
-  if(/\/dev(\?|$)/.test(u)) return "That's the /dev test link, which only works for you while logged in. Use the /exec link from Deploy → Manage deployments";
-  if(!/\/exec(\?|$)/.test(u)) return "The link should end in /exec (Deploy → Manage deployments → Web app URL)";
-  return "";
-}
 function sheetPush(row){
-  if(!sheetUrl() || DISPLAY_ONLY) return;
+  if(DISPLAY_ONLY) return;
   sheetSet(SHEET_Q_KEY, [...(sheetGet(SHEET_Q_KEY)||[]), row]);
   sheetFlush();
 }
-const sheetCall=(init)=>fetch(sheetUrl(), {...init, signal:AbortSignal.timeout(20000)}).then(async r=>{
-  const t=(await r.text()).trim();
-  if(r.ok && t==="ok") return;
-  throw new Error(/doGet|doPost|not found/i.test(t) ? "The sheet runs an old copy of sheet-webhook.gs. Paste the new one and deploy a new version"
-    : r.ok ? "The link answered, but not like sheet-webhook.gs does" : "Google answered HTTP "+r.status);
-}).catch(e=>{ throw e.name==="TypeError" ? new Error("Google refused it. In Apps Script, Deploy → Manage deployments: it must be a Web app with access Anyone, deployed as a new version of the latest sheet-webhook.gs") : e; });
 let sheetBusy=false;
 async function sheetFlush(){
-  if(sheetBusy || DISPLAY_ONLY || !sheetUrl() || sheetUrlWhy(sheetUrl()) || !(sheetGet(SHEET_Q_KEY)||[]).length) return;
+  if(sheetBusy || DISPLAY_ONLY || !(sheetGet(SHEET_Q_KEY)||[]).length) return;
   sheetBusy=true;
   let q;
   try{
     while((q=sheetGet(SHEET_Q_KEY)||[]).length){
       const row=q[0];
-      await sheetCall({method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(row)});
+      const r=await fetch("/api/result", {method:"POST", body:JSON.stringify(row), signal:AbortSignal.timeout(10000)});
+      if(!r.ok) throw new Error("The server answered HTTP "+r.status);
       sheetSet(SHEET_Q_KEY, (sheetGet(SHEET_Q_KEY)||[]).filter(x=>x.id!==row.id));
       sheetSet(SHEET_ST_KEY, {at:Date.now(), ok:true, msg:`Sent ${row.mode}, won by ${row.winner}`});
     }
-  }catch(e){ sheetSet(SHEET_ST_KEY, {at:Date.now(), ok:false, msg:e.message}); }
+  }catch(e){ sheetSet(SHEET_ST_KEY, {at:Date.now(), ok:false, msg:e.name==="TypeError"?"Can't reach the server":e.message}); }
   sheetBusy=false;
   bcast({type:"state"});   // the drained queue goes back to the server
   if(!appMode && homeTab==="results") renderApp();
 }
 if(!DISPLAY_ONLY){ setInterval(sheetFlush, 60000); setTimeout(sheetFlush, 3000); }
 function sheetStatusHtml(){
-  const u=sheetUrl(), why=sheetUrlWhy(u), st=sheetGet(SHEET_ST_KEY), n=(sheetGet(SHEET_Q_KEY)||[]).length;
-  if(!u) return `<div class="chint">No sheet linked.</div>`;
+  const st=sheetGet(SHEET_ST_KEY), n=(sheetGet(SHEET_Q_KEY)||[]).length;
   const when=st ? new Date(st.at).toLocaleString("en-GB",{dateStyle:"short",timeStyle:"short"}) : "";
-  return `${why ? `<div class="cbanner">${ic("alert")}<span>${escapeHtml(why)}</span></div>` : ""}
-    ${st ? `<div class="cbanner${st.ok?" ok":""}">${ic(st.ok?"check":"alert")}<span>${when} · ${escapeHtml(st.msg)}</span></div>` : ""}
-    <div class="crow plain"><span class="chint">${n ? `${n} result${n>1?"s":""} waiting to reach the sheet, retried every minute.` : "Sheet linked."}</span>
-      <button class="btn" id="sheetTest">Test link</button></div>`;
+  return `${st ? `<div class="cbanner${st.ok?" ok":""}">${ic(st.ok?"check":"alert")}<span>${when} · ${escapeHtml(st.msg)}</span></div>` : ""}
+    <div class="chint">${n ? `${n} result${n>1?"s":""} waiting for the server, retried every minute.` : "Results go to the wheel's sheet, _Results tab."}</div>`;
 }
 
 /* Every machine keeps its own copy of the history, so the relay has to union
@@ -2572,16 +2547,16 @@ const RF_MODES={
   // fixed keyword and ten fixed rows: a claim only fills a blank one
   TADA:{icon:"gift", title:"TaDa Gaming Giveaway", kw:"TaDa", setup:()=>!td.started, roster:()=>td.players, display:()=>tdRenderDisplay(), save:()=>tdSave(), add:()=>null},
   // entries run all show; every claim is a new winner row
-  PRAG:{icon:"gift", title:"Prag-Wheel", kw:"Pragmatic", spinMs:()=>PW_DRAW_MS, setup:()=>true, roster:()=>pw.winners, display:()=>pwRenderDisplay(), save:()=>pwSave(),
+  PRAG:{icon:"gift", title:"Prag-Wheel", kw:"Pragmatic", log:()=>"", spinMs:()=>PW_DRAW_MS, setup:()=>true, roster:()=>pw.winners, display:()=>pwRenderDisplay(), save:()=>pwSave(),
     add:()=>{ const p={id:uid(), name:""}; pw.winners.push(p); return p; }},
   // the Keyword tab: any keyword, any title, entries all show, every claim is a winner row
-  KEYWORD:{icon:"bolt", get title(){ return kw.title||"Giveaway"; }, setup:()=>true, roster:()=>kw.winners, display:()=>kwRenderDisplay(), save:()=>kwSave(),
+  KEYWORD:{icon:"bolt", get title(){ return kw.title||"Giveaway"; }, log:()=>"", setup:()=>true, roster:()=>kw.winners, display:()=>kwRenderDisplay(), save:()=>kwSave(),
     add:()=>{ const p={id:uid(), name:""}; kw.winners.push(p); return p; }},
   // the box shows the board, and the entries only while a full challenge is owed its winner
-  BOARD:{icon:"gift", get title(){ return bd.title||"Challenge Board"; }, setup:()=>!!rf.spin || bdDue().length>0, roster:()=>[], display:()=>bdRenderDisplay(), save:()=>bdSaveWin(),
+  BOARD:{icon:"gift", get title(){ return bd.title||"Challenge Board"; }, log:row=>bd.cells.find(c=>c.id===(row?.cell||bdDue()[0]?.id))?.label||"", setup:()=>!!rf.spin || bdDue().length>0, roster:()=>[], display:()=>bdRenderDisplay(), save:()=>bdSaveWin(),
     add:()=>{ const p={id:uid(), name:"", cell:bdDue()[0]?.id||null}; bd.winners.push(p); return p; }},
   // five fixed seats: the entries show until the first is taken, then the crew board; a claim fills the next open seat
-  CREW:{icon:"gift", title:"Dead Man's Crew", kw:"Slotmill", spinMs:()=>CR_DRAW_MS, setup:()=>!!rf.spin || !crTaken(), roster:()=>cr.winners, display:()=>crRenderDisplay(), save:()=>crSaveWin(), add:()=>null},
+  CREW:{icon:"gift", title:"Dead Man's Crew", kw:"Slotmill", log:()=>"€100 seat", spinMs:()=>CR_DRAW_MS, setup:()=>!!rf.spin || !crTaken(), roster:()=>cr.winners, display:()=>crRenderDisplay(), save:()=>crSaveWin(), add:()=>null},
 };
 /* Slot entries ("!slot Gates of Olympus"): the words after the keyword are the entry.
    Frozen into rf.slots when entries open, so a format switching mid-entries can't mix them. */
@@ -2771,17 +2746,20 @@ function rfCommit(claimed){
   if(e){
     e.st = claimed ? "won" : "missed";
     const M=RF_MODES[rf.mode], label=e.slot||e.name;
-    let full=false;
+    let full=false, row=null;
     if(claimed){
       if(M.take) M.take(e);
       else {
         const list=M.roster();
-        const row=list.find(p=>p.name.trim().toLowerCase()===label.toLowerCase()) || list.find(p=>p.name.trim()==="") || M.add();
+        row=list.find(p=>p.name.trim().toLowerCase()===label.toLowerCase()) || list.find(p=>p.name.trim()==="") || M.add();
         // chat remembers who it came from, for paying out points; renaming the row voids it
         if(row){ row.name=label; row.chat={platform:e.platform, name:e.name}; if(e.slot) row.chat.slot=e.slot; } else full=true;
       }
       M.save();   // the operator may be on another screen, so render won't save it
     }
+    // giveaway draws go to the sheet, misses too: a true record of every draw on stream
+    if(M.log && !e.test) sheetPush({id:sp.startedAt+"-"+sp.seed, mode:M.title, winner:`${e.name} (${e.platform})${claimed?"":" did not claim"}`,
+      count:sp.count, seed:sp.seed, detail:[`keyword ${rfKw()}`, M.log(row)].filter(Boolean).join(" · ")});
     toast(!claimed ? `${e.name} didn't claim` : full ? `${label} drawn, but it's full` : M.take ? `Up next: ${label}` : `${label} is in`, !claimed||full);
   }
   rfSave(); renderApp();
@@ -4774,7 +4752,7 @@ function rfTestEntries(){
   for(let i=0;i<1400;i++){
     const a=pick(A), b=pick(B), n=Math.floor(rnd()*1000), f=Math.floor(rnd()*4);
     const name = f===0 ? cap(a)+cap(b) : f===1 ? a+"_"+b : f===2 ? cap(a)+cap(b)+n : a+b+(n%100);
-    const e={platform:pick(pfs), user:"test"+i, name};
+    const e={platform:pick(pfs), user:"test"+i, name, test:true};   // test:true keeps a test draw out of the sheet
     if(!have.has(rfId(e))) rf.entries.push(e);
   }
   rfFlush(); renderApp(); toast("1,400 test entries in the draw");
@@ -5232,7 +5210,6 @@ function menuLeaderboardView(){
   const rows=lbRows();
   const news=rows.filter(r=>r.isNew).length;
   const opt=(sel,list)=>list.map(([v,l])=>`<option value="${v}"${v===sel?" selected":""}>${l}</option>`).join("");
-  let url=""; try{ url=localStorage.getItem(SHEET_KEY)||""; }catch(e){}
   const body = rows.length ? `
     <div class="lb-row head"><span class="lb-rank"></span><span class="lb-name">Player</span><span class="lb-pts">Wins</span><span class="lb-played">Played</span><span class="lb-played">Win %</span></div>`
     + rows.slice(0,25).map((r,i)=>`
@@ -5256,7 +5233,6 @@ function menuLeaderboardView(){
     <div class="lb-list">${body}</div>
     <div class="chint">${rows.length} player${rows.length===1?"":"s"} · ${news} new${news===1?" face":" faces"} this period</div></div>
     <div class="section"><div class="section-h">Google Sheet</div>
-      <input class="sheet-in" id="sheetUrl" type="password" autocomplete="off" placeholder="Webhook URL (optional, see sheet-webhook.gs)" value="${escapeHtml(url)}">
       ${sheetStatusHtml()}
       <details class="log-box"><summary>Restore from a sheet</summary>
         <div class="chint" style="margin-bottom:8px">Paste rows from the sheet.</div>
@@ -5299,21 +5275,6 @@ function wireMenu(){
   const lc=$("#lbCopy");
   if(lc) lc.onclick=()=>navigator.clipboard.writeText(lbTsv())
     .then(()=>toast("Copied. Paste straight into a sheet"),()=>toast("Clipboard blocked by the browser",true));
-  const su=$("#sheetUrl");
-  if(su) su.onchange=e=>{
-    const v=e.target.value.trim();
-    try{ localStorage.setItem(SHEET_KEY,v); localStorage.removeItem(SHEET_ST_KEY); }catch(err){}
-    toast(v?"Sheet link saved":"Sheet link cleared");
-    bcast({type:"state"});   // the link lives on the server, for every screen
-    renderApp(); sheetFlush();
-  };
-  const stt=$("#sheetTest");
-  if(stt) stt.onclick=async()=>{   // a GET: doGet answers "ok" and writes nothing
-    stt.disabled=true; stt.textContent="Testing…";
-    try{ await sheetCall({method:"GET"}); sheetSet(SHEET_ST_KEY, {at:Date.now(), ok:true, msg:"Link works"}); sheetFlush(); }
-    catch(e){ sheetSet(SHEET_ST_KEY, {at:Date.now(), ok:false, msg:e.message}); }
-    renderApp();
-  };
   const rb=$("#lbRestoreBtn");
   if(rb) rb.onclick=()=>{
     const ta=$("#lbRestoreIn"); if(!ta) return;

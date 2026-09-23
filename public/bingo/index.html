@@ -758,7 +758,7 @@ function testEntries(){
   const have=new Set(S.rf.entries.map(eid));
   for(let i=0;i<1400;i++){
     const a=pick(A), b=pick(B), n=Math.floor(Math.random()*1000), f=i%4;
-    const e={platform:Math.random()<.5?"twitch":"kick", user:"test"+i,
+    const e={platform:Math.random()<.5?"twitch":"kick", user:"test"+i, test:true,
       name:f===0?cap(a)+cap(b):f===1?a+"_"+b:f===2?cap(a)+cap(b)+n:a+b+(n%100)};
     if(!have.has(eid(e))) S.rf.entries.push(e);
   }
@@ -787,9 +787,17 @@ function commit(claimed){
       S.winnerLog.push({name:e.name, platform:e.platform, user:e.user, stage:R.stage});
       if(R.stage) S.winners[R.stage]={name:e.name, platform:e.platform};
     }
+    if(!e.test) logResult({id:sp.startedAt+"-"+sp.winner, mode:"Relax Bingo", winner:`${e.name} (${e.platform})${claimed?"":" did not claim"}`,
+      count:sp.count, detail:raffleTitle(R.stage)});
     toast(claimed?`${e.name} won ${raffleTitle(R.stage).toLowerCase()}`:`${e.name} didn't claim. Draw again.`);
   }
   save(); renderAll();
+}
+/* The draw goes to the wheel's sheet (_Results) with every other result from the stream.
+   The server keeps it on disk once it answers; until then, retry for half an hour. */
+function logResult(row, n=0){
+  fetch("/api/result",{method:"POST", body:JSON.stringify(row)}).then(r=>{ if(!r.ok) throw 0; })
+    .catch(()=>{ if(n<60) setTimeout(()=>logResult(row, n+1), 30000); });
 }
 let toastT=0;
 function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("on"),3500); }

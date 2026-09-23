@@ -1035,6 +1035,27 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/api/sha256' && req.method === 'POST')
     return sendJson(res, { ok: true, hash: crypto.createHash('sha256').update(await readBody(req)).digest('base64url') });
 
+  // Competitions, raffle and bingo results join the wheel's draws in the sheet's _Results
+  // tab. The page keeps its own queue until this answers, and the sheet skips a draw_id it
+  // already has, so a result sent twice (two screens, a retry) is still one row.
+  if (pathname === '/api/result' && req.method === 'POST') {
+    let r;
+    try { r = JSON.parse(await readBody(req)); } catch (e) { return sendJson(res, { ok: false, error: 'bad json' }, 400); }
+    if (!r || !r.id || !r.winner) return sendJson(res, { ok: false, error: 'id and winner required' }, 400);
+    const s = v => v == null ? '' : String(v).slice(0, 500);
+    const players = Array.isArray(r.players) ? r.players.map(s) : [];
+    let snap = players.length ? JSON.stringify(players) : '';
+    if (snap.length > 49000) snap = snap.slice(0, 49000) + '…(truncated)';
+    queueResult({
+      type: 'draw', drawId: 'c-' + s(r.id), timestamp: new Date().toISOString(),
+      wheelTab: s(r.mode), slot: s(r.detail), prize: s(r.total), winner: s(r.winner),
+      winnerWeight: '', totalWeight: '', entriesBefore: r.count || players.length || '',
+      seed: s(r.seed), snapshot: snap
+    });
+    flushResults();
+    return sendJson(res, { ok: true });
+  }
+
   if (pathname.startsWith('/api/')) {
     const cmd = pathname.slice(5);
     let out;

@@ -49,7 +49,9 @@ Two things fall out of the layout with no extra flags:
 `_Queue` column A lists tab names in the order they go to stream. A tab must be **in the
 queue AND status READY** to reach the overlay.
 
-`_Results` is the draw log, written by the local server through `doPost`. Columns:
+`_Results` is the stream's whole draw log, written by the local server through `doPost`: wheel
+draws, and (draw_id `c-…`) every competition result, keyword / special-giveaway draw and bingo
+draw, with the format in `wheel_tab`, the detail in `slot` and the entry count in `entries_before`. Columns:
 `draw_id`, `timestamp`, `wheel_tab`, `slot`, `prize`, `winner`, `winner_weight`,
 `total_weight`, `entries_before`, `seed`, `entries_snapshot`, `undone`.
 

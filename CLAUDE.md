@@ -59,8 +59,9 @@ five fixed €100 seats; its draw is a full-canvas slot spin (`crDrawFrame`, lik
   `server\config.json` + cache (`importOldWheel()`).
 - **Public repo, no secrets.** `config.json` is never committed or bundled. `apps-script/Code.gs`
   ships with `RESULTS_TOKEN = ''`; the real one lives only in the sheet's script editor. Twitch/Kick
-  tokens stay in the app's localStorage (not synced keys). The results sheet's /exec link and its send
-  queue ARE synced keys, so whichever screen controls sends results; the server only serves them on the LAN.
+  tokens stay in the app's localStorage (not synced keys). Every result (wheel draws, competitions,
+  keyword and special-giveaway draws, bingo) goes to the wheel sheet's `_Results` tab through the server
+  (`/api/result` queues it with the wheel's rows). The page's send queue is a synced key, so whichever screen controls sends it.
 - The wheel's session (drawn list) is in memory; closing the app asks if one is in progress.
   Competitions are on disk and survive.
 - YouTube chat goes through the server's `/yt/*` passthrough (youtubei only answers a `file://`
