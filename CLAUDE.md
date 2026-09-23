@@ -8,11 +8,14 @@ Those folders are the originals, still used live until this ships. Don't edit th
 ## Shape
 
 ```
-main.js            Electron: runs server/index.js in-process, opens one window on /app, auto-update
+main.js            Electron: on the stream PC runs server/index.js in-process and opens /app; on a playing
+                   PC (<data>emote.json) it skips the server and opens the stream PC's /app. Auto-update.
 preload.js         window.studio.onUpdate, for the tab bar's update note
 server/index.js    Wheel Studio server (zero npm deps) + /comp/sync, /yt/*, /api/info, /app
 server/comp-sync.js  competitions relay: the old 3-line sync contract + the one-controller lock
 public/app.html    the window: 4 tabs over two iframes
+public/connect.html  the playing PC's first screen: the stream PC's address
+moved.html         hand-out page for the old Stream Competitions bookmark
 public/comp/index.html  Stream Competitions (the old index.html, see its own notes below)
 public/bingo/index.html  Relax Bingo (copied from C:\Users\elias\Relax Bingo), synced via /bingo/sync
 public/*           Wheel Studio pages (index.html = OBS studio, control.html = operator)

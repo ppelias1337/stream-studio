@@ -1,9 +1,13 @@
 /**
  * Stream Studio — the desktop app.
  *
- * Runs the server (server/index.js: Wheel Studio + the competitions relay) inside
- * this process, so there is no Node to install and no terminal, then opens one
- * window on /app. OBS and the Stream Deck talk to the same server over HTTP,
+ * On the stream PC it runs the server (server/index.js: Wheel Studio + the competitions
+ * relay) inside this process, so there is no Node to install and no terminal, then opens
+ * one window on /app. On a playing PC it runs no server: it is the same window pointed at
+ * the stream PC (the address is in <data>\remote.json, asked for on first start). That is
+ * for a PC whose browser cannot reach the stream PC — a VPN with split tunnelling sends
+ * the browser through the tunnel, where the home network does not exist; this app is not
+ * the browser, so it goes direct. OBS and the Stream Deck talk to the same server over HTTP,
  * exactly as they did to the old start-wheel-studio.bat server.
  *
  * Everything written at runtime lives in %APPDATA%\Stream Studio\data, outside
@@ -25,6 +29,7 @@ let win = null, srv = null, leaving = false;
 // The wheel's session (who has been drawn) lives only in memory: closing loses it.
 // Competitions are on disk and survive. True when it's fine to close.
 function okToClose() {
+  if (!srv) return true;             // a playing PC holds no session; the stream PC does
   const s = srv.state();
   if (!((s.drawn || []).length || s.phase !== 'ready')) return true;
   return dialog.showMessageBoxSync(win, { type: 'warning', buttons: ['Close anyway', 'Keep open'], defaultId: 1, cancelId: 1,
@@ -53,6 +58,28 @@ function importOldWheel() {
   const oldCache = path.join(path.dirname(file), '..', 'cache');
   for (const f of ['feed.json', 'pending-results.jsonl'])
     if (fs.existsSync(path.join(oldCache, f))) fs.copyFileSync(path.join(oldCache, f), path.join(DATA, 'cache', f));
+}
+
+/* Which PC is this? Asked once, then kept in <data>emote.json:
+   {host:null} runs the show here, {host:'192.168.1.254'} connects to the stream PC
+   ('' until an address is typed into connect.html). */
+const REMOTE = path.join(DATA, 'remote.json');
+function role() {
+  try { return JSON.parse(fs.readFileSync(REMOTE, 'utf8')); } catch (e) {}
+  const pick = dialog.showMessageBoxSync({ type: 'question', buttons: ['This PC runs the show', 'Connect to the stream PC'], defaultId: 0, cancelId: 0,
+    title: 'Stream Studio', message: 'Which PC is this?',
+    detail: 'The stream PC runs the show, OBS and the Stream Deck. A playing PC connects to it over your network and shows the same panel.' });
+  const r = { host: pick === 1 ? '' : null };
+  fs.mkdirSync(DATA, { recursive: true });
+  fs.writeFileSync(REMOTE, JSON.stringify(r));
+  return r;
+}
+// no address yet, or the stream PC isn't answering: ask for it in the window itself
+const askHost = why => win.loadFile(path.join(__dirname, 'public', 'connect.html'), { search: why ? 'why=' + encodeURIComponent(why) : '' });
+function connectTo(host) {
+  fs.writeFileSync(REMOTE, JSON.stringify({ host }));
+  if (host) win.loadURL('http://' + host + ':8787/app');
+  else askHost('');
 }
 
 function startServer() {
@@ -84,14 +111,20 @@ function checkUpdates() {
 }
 
 app.whenReady().then(async () => {
-  importOldWheel();
-  srv = await startServer();
+  const r = role();
+  if (r.host === null) { importOldWheel(); srv = await startServer(); }
   win = new BrowserWindow({
     width: 1400, height: 900, minWidth: 900, minHeight: 600, backgroundColor: '#070E1A',
     title: 'Stream Studio', autoHideMenuBar: true,
     webPreferences: { preload: path.join(__dirname, 'preload.js') }
   });
-  win.loadURL(`http://127.0.0.1:${srv.port}/app`);
+  if (srv) win.loadURL(`http://127.0.0.1:${srv.port}/app`);
+  else {
+    ipcMain.on('connect-to', (_e, host) => connectTo(String(host || '').trim()));
+    // the stream PC is off, asleep or on another address: back to the address screen, with the reason
+    win.webContents.on('did-fail-load', (_e, code, desc, url) => { if (url.startsWith('http')) askHost(desc || 'Could not reach it'); });
+    connectTo(r.host);
+  }
   // Twitch/Kick sign-in pages and any other link open in the normal browser
   win.webContents.setWindowOpenHandler(({ url }) => { shell.openExternal(url); return { action: 'deny' }; });
 
