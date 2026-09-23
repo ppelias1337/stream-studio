@@ -105,8 +105,22 @@ function checkUpdates() {
   autoUpdater.on('download-progress', p => say(`Downloading update… ${Math.round(p.percent)}%`));
   autoUpdater.on('update-downloaded', i => say(`Update ${i.version} ready`, true));
   // quitAndInstall starts the installer before the window closes, so the wheel check comes first
-  ipcMain.on('install-update', () => { if (okToClose()) { leaving = true; autoUpdater.quitAndInstall(true, true); } });   // silent, reopens after
-  autoUpdater.on('error', () => {});   // offline, GitHub down: try again next hour
+  ipcMain.on('install-update', () => {
+    if (!okToClose()) return;
+    leaving = true;
+    autoUpdater.quitAndInstall(true, true);   // silent, reopens after
+    // Silent install can be refused without a word (antivirus, a half-downloaded file). If we are
+    // still here after it, say so and offer the download page rather than leaving a dead button.
+    setTimeout(() => {
+      leaving = false;
+      const pick = dialog.showMessageBoxSync(win, { type: 'warning', buttons: ['Open the download page', 'Not now'], defaultId: 0, cancelId: 1,
+        title: 'Stream Studio', message: "The update didn't install by itself.",
+        detail: 'Antivirus can block it. Download the installer and run it, or close Stream Studio and it will try again.' });
+      if (pick === 0) shell.openExternal('https://github.com/ppelias1337/stream-studio/releases/latest');
+    }, 8000);
+  });
+  // offline, GitHub down: try again next hour. An error while installing is worth showing.
+  autoUpdater.on('error', e => { if (leaving) { leaving = false; dialog.showErrorBox('Stream Studio update', String(e && e.message || e)); } });
   const check = () => autoUpdater.checkForUpdates().catch(() => {});
   check();
   setInterval(check, 60 * 60 * 1000);
