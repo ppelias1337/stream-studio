@@ -18,6 +18,8 @@ public/connect.html  the playing PC's first screen: the stream PC's address
 moved.html         hand-out page for the old Stream Competitions bookmark
 public/comp/index.html  Stream Competitions (the old index.html, see its own notes below)
 public/bingo/index.html  Relax Bingo (copied from C:\Users\elias\Relax Bingo), synced via /bingo/sync
+public/bingo/assets/  MT5 art, cut down from the Money Train 5 asset pack in Downloads (not in the repo);
+                   the draw is its Extra Graphics\Train with Blank Reels.png, names roll in the reel window
 public/*           Wheel Studio pages (index.html = OBS studio, control.html = operator)
 ```
 
@@ -40,8 +42,11 @@ five fixed €100 seats; its draw is a full-canvas slot spin (`crDrawFrame`, lik
 - **The stream PC hosts.** OBS there uses `http://127.0.0.1:8787/comp/#display` and `http://127.0.0.1:8787/`.
   Stream Deck URLs are unchanged (`/api/spin` etc). The play PC needs nothing installed:
   `http://<stream-pc-ip>:8787/app` in a browser works (**OBS links** in the tab bar lists the addresses).
-  Over plain http on another IP, `navigator.clipboard` is unavailable (not a secure context), so the
-  copy buttons only work in the app itself.
+  Reaching the server by IP over plain http is not a secure context — in the app on a playing PC as
+  much as in a browser, since that window loads the same LAN address. Only the stream PC's own
+  `127.0.0.1` gets the free pass. So `navigator.clipboard` is missing there (the copy buttons only
+  work on the stream PC), and so is `crypto.subtle`, which is why Kick's PKCE hash goes through
+  `/api/sha256` instead. Anything else needing a secure-context API has to go the same way.
 - **One controller.** `comp-sync.js` gives the lock to one panel id (`CTL_ID`, per tab via
   sessionStorage). Others show "Use it here". A panel's POST without the lock gets a 409, and it reloads into standby.
   Two panels would overwrite each other, both read chat and **both pay out points**. Don't weaken this.

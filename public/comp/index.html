@@ -304,6 +304,8 @@
     box-shadow:0 0 0 2px rgba(160,200,255,.45),inset 0 0 0 2px var(--prag-orange)}
   .pw-slot,.pw-peg{position:absolute;left:calc(var(--R) - 12px);top:calc(var(--R) - 12px)}
   .pw-slot{width:132px;height:88px;margin:-44px 0 0 -66px;transform:rotate(calc(var(--i) * 18deg)) translateY(calc(70px - var(--R)))}
+  .pw-num{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);min-width:20px;height:20px;padding:0 5px;border-radius:10px;
+    background:rgba(0,0,0,.55);color:#fff;font:700 13px/20px system-ui,sans-serif;text-align:center}
   .pw-peg{width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:#EAF1FF;box-shadow:0 1px 2px rgba(0,0,0,.5);
     transform:rotate(calc(var(--i) * 18deg + 9deg)) translateY(calc(6px - var(--R)))}
   /* the pointer: Pragmatic's crown over an orange tip that touches the rim; it flicks as a peg passes */
@@ -546,6 +548,7 @@
   .help-btn .ic{width:17px;height:17px}
   .help-btn:hover{background:var(--well-2);color:var(--fg)}
   .help-btn.off{color:var(--live-fg)}
+  .help-btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
 
   /* the one next action: white, so it is the brightest thing on the panel */
   .primary{display:flex;align-items:center;justify-content:center;gap:10px;height:56px;padding:0 26px;border-radius:var(--r-lg);
@@ -899,6 +902,8 @@
   <div class="control-top">
     <div class="ctitle"><span id="ctitleText">Stream Competitions</span><span class="ver" id="verLabel"></span></div>
     <div class="ctop-btns">
+      <button class="help-btn" id="navBackBtn" title="Back" aria-label="Back"><svg class="ic"><use href="#i-back"/></svg></button>
+      <button class="help-btn" id="navFwdBtn" title="Forward" aria-label="Forward"><svg class="ic"><use href="#i-arrow"/></svg></button>
       <button class="top-btn" id="menuBtn" title="Back to all formats. Progress is kept."><svg class="ic"><use href="#i-home"/></svg>Home</button>
       <button class="top-btn" id="undoBtn" title="Undo the last action"><svg class="ic"><use href="#i-undo"/></svg>Undo</button>
       <button class="top-btn danger" id="resetBtn" title="Clear this format and start over"><svg class="ic"><use href="#i-new"/></svg>New</button>
@@ -1273,6 +1278,7 @@ if(!DISPLAY_ONLY){
 
 let state = load() || fresh();
 let appMode = loadMode();
+let navHist=[appMode], navAt=0;   // browser-style back/forward over the formats this panel has visited
 
 function loadMode(){ try{ const m=JSON.parse(localStorage.getItem(MODE_KEY)); return (m==="LMS"||m==="H2H"||m==="BRACKET"||m==="LEAGUE"||m==="WHEEL"||m==="TADA"||m==="PRAG"||m==="KEYWORD"||m==="BINGO"||m==="BOARD"||m==="CREW")?m:null; }catch(e){ return null; } }
 function saveMode(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(MODE_KEY, JSON.stringify(appMode)); }catch(e){} bcast({type:"state"}); }
@@ -2324,11 +2330,16 @@ function kkConnHtml(){
   return row(`<span class="clab sm">Kick points are copied by hand until connected</span><button class="btn" id="kkConnect">Connect Kick</button><button class="btn" id="kkForget">Change app</button>`);
 }
 async function kkConnect(){
-  const verifier=b64url(crypto.getRandomValues(new Uint8Array(32))), st=b64url(crypto.getRandomValues(new Uint8Array(12)));
-  const challenge=b64url(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier)));
-  kk.pending={verifier, state:st}; kkSave(); payRefresh();
-  window.open("https://id.kick.com/oauth/authorize?"+new URLSearchParams({response_type:"code", client_id:kk.clientId, redirect_uri:KK_REDIRECT,
-    scope:"chat:write user:read channel:read", code_challenge:challenge, code_challenge_method:"S256", state:st}), "_blank", "noopener");
+  try{
+    const verifier=b64url(crypto.getRandomValues(new Uint8Array(32))), st=b64url(crypto.getRandomValues(new Uint8Array(12)));
+    // the server hashes it: crypto.subtle is missing on a playing PC, which reaches this page
+    // by IP over http and so is not a secure origin. getRandomValues above is there either way.
+    const challenge=await fetch("/api/sha256",{method:"POST", body:verifier}).then(r=>r.json()).then(j=>j.hash);
+    if(!challenge) throw new Error("Couldn't reach the stream PC to start the Kick sign-in");
+    kk.pending={verifier, state:st}; kkSave(); payRefresh();
+    window.open("https://id.kick.com/oauth/authorize?"+new URLSearchParams({response_type:"code", client_id:kk.clientId, redirect_uri:KK_REDIRECT,
+      scope:"chat:write user:read channel:read", code_challenge:challenge, code_challenge_method:"S256", state:st}), "_blank", "noopener");
+  }catch(e){ toast(e.message, true); }
 }
 async function kkFinish(){
   try{
@@ -4779,7 +4790,7 @@ function pwWheel(){
   let w=document.getElementById("pwWheel");
   if(w) return w;
   w=document.createElement("div"); w.id="pwWheel"; w.setAttribute("aria-hidden","true");
-  w.innerHTML=`<div class="pw-disc">${PW_PRIZES.map((_,i)=>`<i class="pw-slot pw-img" style="--i:${i}"></i><i class="pw-peg" style="--i:${i}"></i>`).join("")}</div><div class="pw-pointer"></div>`;
+  w.innerHTML=`<div class="pw-disc">${PW_PRIZES.map((_,i)=>`<i class="pw-slot pw-img" style="--i:${i}"><b class="pw-num">${i+1}</b></i><i class="pw-peg" style="--i:${i}"></i>`).join("")}</div><div class="pw-pointer"></div>`;
   $("#display").insertBefore(w, $("#displayContent"));
   return w;
 }
@@ -5115,6 +5126,8 @@ function tellShell(){ if(parent!==window && !DISPLAY_ONLY) parent.postMessage({s
 let homeTab="formats";
 function renderApp(){
   if(!DISPLAY_ONLY){
+    $("#navBackBtn").disabled = navAt<=0;
+    $("#navFwdBtn").disabled = navAt>=navHist.length-1;
     $("#menuBtn").style.display = appMode ? "" : "none";
     $("#undoBtn").style.display = appMode && appMode!=="BINGO" ? "" : "none";
     $("#resetBtn").style.display = appMode && appMode!=="BINGO" ? "" : "none";
@@ -5163,8 +5176,13 @@ function bgRender(){
   $("#bgOpen").onclick=openBingo;
 }
 function openBingo(){ if(parent!==window) parent.postMessage({studioOpen:"bingo"}, "*"); else window.open("/bingo/"); }
-function goToMenu(){ appMode=null; saveMode(); renderApp(); window.scrollTo(0,0); }
-function selectMode(m){ appMode=m; saveMode(); renderApp(); window.scrollTo(0,0); }
+function navSync(){ if(!DISPLAY_ONLY){ $("#navBackBtn").disabled=navAt<=0; $("#navFwdBtn").disabled=navAt>=navHist.length-1; } }
+function navApply(m){ appMode=m; saveMode(); renderApp(); window.scrollTo(0,0); }
+// renderApp() (inside navApply) runs before the history below is updated, so its own button sync is one step stale; this corrects it after
+function navPush(){ if(navHist[navAt]!==appMode){ navHist=navHist.slice(0,navAt+1); navHist.push(appMode); navAt=navHist.length-1; } navSync(); }
+function navGo(dir){ const at=navAt+dir; if(at<0||at>=navHist.length) return; navAt=at; navApply(navHist[navAt]); navSync(); }
+function goToMenu(){ navApply(null); navPush(); }
+function selectMode(m){ navApply(m); navPush(); }
 function menuDisplayView(){
   return `<div class="lobby"><div class="lt">Stream<br>Competitions</div><div class="ls">Next competition starts soon</div></div>`;
 }
@@ -5354,6 +5372,8 @@ $("#resetBtn").onclick=()=>{
 fetch("/api/info").then(r=>r.json()).then(j=>{ VERSION=j.version; $("#verLabel").textContent="v"+VERSION; }).catch(()=>{});   // every mode, not just LMS
 $("#soundBtn").onclick=toggleSound; updateSoundBtn();
 $("#menuBtn").onclick=goToMenu;
+$("#navBackBtn").onclick=()=>navGo(-1);
+$("#navFwdBtn").onclick=()=>navGo(1);
 $("#lbBtn").onclick=()=>{ lb.show=!lb.show; lbSave(); renderApp(); };
 $("#helpBtn").onclick=openHelp;
 $("#helpClose").onclick=closeHelp;

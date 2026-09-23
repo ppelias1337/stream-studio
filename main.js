@@ -131,7 +131,7 @@ app.whenReady().then(async () => {
   if (r.host === null) { importOldWheel(); srv = await startServer(); }
   win = new BrowserWindow({
     width: 1400, height: 900, minWidth: 900, minHeight: 600, backgroundColor: '#070E1A',
-    title: 'Stream Studio', autoHideMenuBar: true,
+    title: 'Stream Studio', autoHideMenuBar: true, icon: path.join(__dirname, 'build', 'icon.ico'),
     webPreferences: { preload: path.join(__dirname, 'preload.js') }
   });
   if (srv) win.loadURL(`http://127.0.0.1:${srv.port}/app`);

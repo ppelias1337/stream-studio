@@ -29,10 +29,12 @@
       "server/**",
       "public/**",
       "logos/**",
+      "build/icon.ico",
       "!server/test-*.js"
     ],
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "build/icon.ico"
     },
     "nsis": {
       "oneClick": true,

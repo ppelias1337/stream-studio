@@ -26,7 +26,8 @@ button,input,textarea,select{font:inherit;color:inherit}
 /* ---------- the stream box (600×600) ---------- */
 .box{position:relative;width:600px;height:600px;overflow:hidden;border-radius:10px;
   font-family:var(--cond);font-weight:700;text-transform:uppercase;color:#fff;
-  background:linear-gradient(180deg,rgba(10,8,6,.05) 0%,rgba(10,8,6,.2) 45%,rgba(10,8,6,.6) 100%),url(assets/bg.jpg) center 20%/cover #1b222c;
+  --station:url(assets/station1.webp);   /* renderBox() moves it on as lines complete */
+  background:linear-gradient(180deg,rgba(10,8,6,.05) 0%,rgba(10,8,6,.2) 45%,rgba(10,8,6,.6) 100%),var(--station) center 20%/cover #1b222c;
   box-shadow:inset 0 0 0 2px #15191f,inset 0 0 0 4px #5b6470}
 
 .steel-t{background:linear-gradient(180deg,#fdfeff 0%,#d5dbe3 42%,#7c8796 50%,#b9c2cd 72%,#f1f4f7 100%);
@@ -109,13 +110,6 @@ button,input,textarea,select{font:inherit;color:inherit}
 .names li span,.reel div span,.wname span{overflow:hidden;text-overflow:ellipsis;min-width:0}
 .names li{height:48px;font-size:30px}
 .names li:first-child{color:var(--gold)}
-.reelwrap{position:relative;flex:1}
-.reel{position:absolute;inset:0;overflow:hidden;-webkit-mask-image:linear-gradient(transparent,#000 25%,#000 75%,transparent);mask-image:linear-gradient(transparent,#000 25%,#000 75%,transparent)}
-.reel div{position:absolute;left:14px;right:14px;top:0;height:76px;font-size:46px;will-change:transform}
-.reel div.win{color:var(--gold)}
-.marks{position:absolute;left:0;right:0;top:calc(50% - 41px);height:82px;pointer-events:none;
-  border-top:3px solid var(--gold);border-bottom:3px solid var(--gold);box-shadow:0 0 14px rgba(247,201,72,.45),inset 0 0 14px rgba(247,201,72,.25)}
-.rv.dim .reelwrap,.rv.dim .cta-big,.rv.dim .rule,.rv.dim .names{opacity:.3}
 .win{position:absolute;left:22px;right:22px;top:56%;z-index:3;transform:translateY(-50%);overflow:hidden;border-radius:6px;background:#0e1219;
   box-shadow:0 0 0 3px var(--gold),0 0 34px rgba(247,201,72,.45),0 24px 60px rgba(0,0,0,.8)}
 .win.pop{animation:pop .5s cubic-bezier(.16,1,.3,1)}
@@ -125,6 +119,29 @@ button,input,textarea,select{font:inherit;color:inherit}
 .win p{display:flex;flex-direction:column;align-items:center;gap:6px;padding:0 12px 18px;font-size:24px;letter-spacing:.05em;color:#b7c1d0}
 .win p b{color:var(--gold);font-size:72px;line-height:1;font-variant-numeric:tabular-nums;text-shadow:0 3px 0 #3b2600}
 .win p.ok{font-size:30px;color:var(--green)}
+
+/* fullscreen takeover for the raffle draw: the game's own train rolls into the
+   station and the entries run through its reel window (the art's blank reels) */
+.drawfx{position:absolute;inset:0;z-index:19;display:none;overflow:hidden;
+  background:radial-gradient(130% 70% at 50% 0,rgba(255,138,61,.18),transparent 62%),linear-gradient(180deg,rgba(8,6,4,.42),rgba(8,6,4,.78)),var(--station) center 34%/cover}
+.drawfx.on{display:block}
+.trainwrap{position:absolute;left:50%;top:94px;width:900px;height:479px;margin-left:-450px;
+  transition:filter .5s;animation:pullin 1.6s cubic-bezier(.1,.74,.2,1) both}
+.trainwrap.done{filter:brightness(.62) saturate(.9)}
+.trainwrap img{width:100%;height:100%;filter:drop-shadow(0 20px 34px rgba(0,0,0,.8))}
+@keyframes pullin{from{transform:translateX(115%)}}
+/* the reel window, measured off the art (1500x799: x 415, y 80, 648x532) */
+.tw{position:absolute;left:27.67%;top:10.01%;width:43.2%;height:66.58%;overflow:hidden}
+.tw::before,.tw::after{content:"";position:absolute;top:50%;margin-top:-11px;z-index:2;
+  border:11px solid transparent;filter:drop-shadow(0 0 6px rgba(247,201,72,.8))}
+.tw::before{left:0;border-left-color:var(--gold)}
+.tw::after{right:0;border-right-color:var(--gold)}
+.reel{position:absolute;inset:0;
+  -webkit-mask-image:linear-gradient(transparent,#000 20%,#000 80%,transparent);mask-image:linear-gradient(transparent,#000 20%,#000 80%,transparent)}
+.reel div{position:absolute;left:10px;right:10px;top:0;height:88px;font-size:32px;color:#e9f1fc;text-shadow:0 2px 0 #05080d;will-change:transform}
+.reel div.lit{color:var(--gold-ink);text-shadow:0 1px 0 rgba(255,255,255,.45);border-radius:5px;
+  background:linear-gradient(180deg,#fff0a8 0%,#f7c948 38%,#d99a22 72%,#b8781a 100%);
+  box-shadow:inset 0 0 0 2px #6b4508,inset 0 3px 0 rgba(255,255,255,.5),0 0 30px rgba(247,201,72,.65)}
 
 .pf{position:relative;top:-.075em;display:inline-grid;place-items:center;flex:none;width:.9em;height:.9em;border-radius:.18em;font-style:normal}   /* centred on the capitals, not the line box */
 .pf svg{width:62%;height:62%}
@@ -156,6 +173,16 @@ button,input,textarea,select{font:inherit;color:inherit}
 .tk.full .sub{font-size:36px;color:var(--gold-ink);text-shadow:none}
 .tk .prize{margin-top:12px;padding:6px 22px;border-radius:5px;background:rgba(12,8,6,.8);color:var(--gold);font-size:48px;line-height:1.1;text-shadow:0 3px 0 #3b2600;overflow-wrap:anywhere}
 .tk.full .prize{margin-top:6px}
+
+.tz{position:absolute;inset:0;z-index:18;display:flex;flex-direction:column;align-items:center;text-align:center;
+  background:radial-gradient(120% 60% at 50% 45%,rgba(255,110,30,.28),transparent 70%),linear-gradient(180deg,rgba(8,6,4,.3),rgba(8,6,4,.85)),var(--station) center 34%/cover}
+.tz .crew{width:430px;margin:-14px 0 -79px;   /* the art's transparent top and bottom, as .tk .crew */filter:drop-shadow(0 8px 18px rgba(0,0,0,.7));animation:charIn .6s cubic-bezier(.16,1,.3,1) both}
+.tz .prize{position:relative;line-height:.9;filter:drop-shadow(0 4px 0 #3b2600) drop-shadow(0 0 22px rgba(255,150,40,.55))}
+.tz .give{font-size:66px;line-height:.95;letter-spacing:.03em}
+.tz .when{margin-top:6px;padding:4px 18px;border-radius:5px;background:#1c0d05;font-size:30px;letter-spacing:.05em;color:#fff1e0;
+  box-shadow:inset 0 0 0 2px var(--neon),0 0 16px rgba(255,138,61,.55)}
+.tz .cd{margin-top:8px;font-size:22px;letter-spacing:.14em;color:#e6ebf2;text-shadow:0 2px 0 #11151b}
+.tz .cd b{margin-left:10px;font-size:40px;letter-spacing:.02em;color:var(--gold);font-variant-numeric:tabular-nums;text-shadow:0 3px 0 #3b2600}
 
 /* OBS window: only the box, scaled to fill any square source */
 body.display{background:transparent;overflow:hidden}
@@ -241,7 +268,7 @@ body.display .box{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%)
 <body>
 <div class="desk">
   <div class="monitor">
-    <div class="box" id="box"><div id="boxInner"></div><div class="tk" id="tk"></div></div>
+    <div class="box" id="box"><div id="boxInner"></div><div class="tk" id="tk"></div><div class="drawfx" id="drawfx"></div></div>
     <p class="monitor-label"><b>On stream</b> · OBS Browser Source: this page with <code>#display</code> on the end, any square size (600×600 is 1:1)</p>
   </div>
   <main class="panel">
@@ -251,6 +278,14 @@ body.display .box{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%)
       <div class="card-h"><h2>Board</h2><span class="hint" id="lineCount"></span><button class="btn danger" id="resetBoard">Reset board</button></div>
       <div class="cells" id="cells"></div>
       <p class="hint">Edit a challenge any time and the stream updates as you type. Lines and the full board are detected automatically.</p>
+    </section>
+
+    <section class="card">
+      <div class="card-h"><h2>Teaser</h2><div class="seg"><button class="btn" data-teaser="1">On stream</button><button class="btn" data-teaser="0">Off</button></div></div>
+      <div class="row">
+        <label class="lab">Prize <input class="in" id="tzPrize" maxlength="12" spellcheck="false" style="width:120px"></label>
+        <label class="lab">Starts <input class="in" id="tzAt" type="datetime-local"></label>
+      </div>
     </section>
 
     <section class="card">
@@ -300,7 +335,8 @@ const KEY="mt5_bingo_v1";   // don't rename mid-show: a running board lives unde
 const LINES={r0:[0,1,2],r1:[3,4,5],r2:[6,7,8],c0:[0,3,6],c1:[1,4,7],c2:[2,5,8],d0:[0,4,8],d1:[2,4,6]};
 const LINE_NAME={r0:"Top row",r1:"Middle row",r2:"Bottom row",c0:"Left column",c1:"Middle column",c2:"Right column",d0:"Diagonal ↘",d1:"Diagonal ↙"};
 const BEAM={r0:[18,49,282,49],r1:[18,150,282,150],r2:[18,251,282,251],c0:[49,18,49,282],c1:[150,18,150,282],c2:[251,18,251,282],d0:[26,26,274,274],d1:[274,26,26,274]};
-const FX_MS=5000, REVEAL_MS=3000, ROW=76, STAMP_MS=600, RESULT_MS=6000;
+const FX_MS=5000, REVEAL_MS=3000, ROW=88, STAMP_MS=600, RESULT_MS=6000;   // ROW: a name's row in the train's reel window
+const ARRIVE=1700, STEPS=330;   // the train is in before the reel moves, and 330 names run past however many entered
 const WILD=4;   // the centre is free: always marked, shown as the wild symbol
 const DEFAULT_CELLS=["Basegame Bonus","10000x win","Reach Station 20",
   "Bonus ends with every position filled","Wild","100x win from Base",
@@ -312,7 +348,8 @@ const rfFresh=(keyword="MT5",claimSecs=60,stage=0)=>({on:false,open:false,keywor
 const fresh=()=>({cells:DEFAULT_CELLS.map(t=>({t,d:false})), lines:[], prizes:[...Array(8).fill("€50"),"€100"], winners:{}, winnerLog:[], fx:null,
   view:"board", chat:{twitch:"casinodaddy",kickRoom:"4534770"}, rf:rfFresh(),
   guess:{on:false, picks:{}, bonus:{}, last:null},   // picks: eid→cell this round; bonus: eid→extra raffle tickets
-  sound:{on:true, vol:70}});
+  sound:{on:true, vol:70},
+  teaser:{on:false, prize:"€500", at:Date.parse("2026-09-24T14:00:00+02:00"), shownAt:0}});
 function load(raw){
   let s=fresh();
   try{ const v=JSON.parse(raw===undefined?localStorage.getItem(KEY):raw); if(v&&Array.isArray(v.cells)) s=Object.assign(s,v); }catch(e){}
@@ -413,7 +450,9 @@ const nextStage=()=>{ for(let n=1;n<=9;n++) if(stageDone(n)&&!S.winners[n]) retu
 const header=()=>`<div class="hd"><img class="logo" src="assets/logo.webp" alt="Money Train 5"><div class="bingo">Bingo</div></div>`;
 // one per line, in completion order; full board gets the logo with the crew
 const CHARS=["collector","necromancer","sniper","payer","arms-dealer","bomber","pyro","ticketmaster"];
-[...CHARS,"logo","logo-crew"].forEach(n=>{ new Image().src=`assets/${n}.webp`; });   // warm the cache so a takeover never pops in late
+[...CHARS,"logo","logo-crew","train",1,2,3,4,5].forEach(n=>{ new Image().src=`assets/${typeof n==="number"?"station"+n:n}.webp`; });   // warm the cache so a takeover never pops in late
+// the game's five stations, one step further along the line every two lines
+const stationNo=()=>Math.min(5,1+Math.floor(S.lines.length/2));
 // one tile short of a line: the tile chat should be rooting for
 const hot=i=>!S.cells[i].d&&Object.values(LINES).some(l=>l.includes(i)&&l.every(j=>j===i||S.cells[j].d));
 function boardView(){
@@ -465,19 +504,59 @@ function winCard(){
 function raffleView(){
   const R=S.rf, pool=poolOf(), prize=R.stage?S.prizes[R.stage-1]:"";
   const kwSize=R.keyword.length<=5?96:R.keyword.length<=9?72:R.keyword.length<=14?52:40;
+  // during a draw the fullscreen takeover (#drawfx) covers this; a live winner card would double-fire winCard()'s pop state
   const body=R.spin
-    ? `<div class="reelwrap"><div class="reel" id="reel"></div><div class="marks"></div></div>`
+    ? `<div class="cta-big"><span class="closed">Drawing…</span></div>`
     : `<div class="cta-big">${R.open?`<span>Type</span><b class="gold-t" style="font-size:${kwSize}px">${esc(R.keyword)}</b><span>in chat to enter</span>`:`<span class="closed">Entries closed</span>`}</div>
        <div class="rule"><span>${pool.length} ${pool.length===1?"entry":"entries"}</span></div>
        <ul class="names">${pool.slice(-3).reverse().map(e=>`<li>${nameHtml(e)}</li>`).join("")}</ul>`;
-  const w=winCard();
   const prizeSize=prize.length<=16?52:prize.length<=24?38:28;
-  return `<div class="frame rv${w?" dim":""}"><div class="band${prize?" slim":""}">${raffleTitle(R.stage)}</div>${prize?`<div class="rv-prize" style="font-size:${prizeSize}px">${esc(prize)}</div>`:""}${body}${w}</div>`;
+  return `<div class="frame rv"><div class="band${prize?" slim":""}">${raffleTitle(R.stage)}</div>${prize?`<div class="rv-prize" style="font-size:${prizeSize}px">${esc(prize)}</div>`:""}${body}</div>`;
+}
+/* The fullscreen takeover for an active draw: the train pulls into the station
+   and the entries run through its reel window (#reel, laid out by frame()), then
+   winCard() pops on top once it stops, same as CREW's tiered reveal. The arrival
+   runs on a negative delay, so a reload mid-draw finds the train already in. */
+function drawFxHtml(){
+  const R=S.rf, sp=R.spin, spinning=sp && Date.now()<spinEnd(sp);
+  const w=winCard();
+  const train=sp ? `<div class="trainwrap${spinning?"":" done"}" style="animation-delay:${-(Date.now()-sp.startedAt)}ms">
+      <img src="assets/train.webp" alt="">
+      <div class="tw"><div class="reel" id="reel"></div></div>
+    </div>` : "";
+  return train+w;
+}
+function updateDrawFx(){
+  const dfx=$("#drawfx"), R=S.rf, showing=R.on && S.view==="raffle" && (R.spin || R.won);
+  dfx.classList.toggle("on", showing);
+  if(!showing){ dfx._html=""; dfx.innerHTML=""; return; }
+  const html=drawFxHtml();
+  if(dfx._html!==html){ dfx._html=html; dfx.innerHTML=html; }
+}
+/* Teaser: the giveaway ahead of time, poster-style: logo with the crew, the prize, a countdown.
+   The countdown ticks in the boot interval ([data-cd]), so the box isn't rebuilt every second. */
+const TZ="Europe/Stockholm";
+const whenText=at=>{ const f=o=>new Intl.DateTimeFormat("en-GB",{timeZone:TZ,...o}).format(at);
+  return `${f({weekday:"long"})} ${f({day:"numeric"})}/${f({month:"numeric"})} · ${f({hour:"2-digit",minute:"2-digit",hour12:false})} ${f({timeZoneName:"short"}).split(" ").pop()}`; };
+function countdown(at){
+  const t=Math.max(0,Math.ceil((at-Date.now())/1000)); if(!t) return "Starting now";
+  const d=Math.floor(t/86400), p=n=>String(n).padStart(2,"0");
+  return (d?d+"d ":"")+`${p(Math.floor(t/3600)%24)}:${p(Math.floor(t/60)%60)}:${p(t%60)}`;
+}
+function teaserView(){
+  const T=S.teaser;
+  return `<div class="tz"><img class="crew" src="assets/logo-crew.webp" alt="Money Train 5" style="animation-delay:${-(Date.now()-T.shownAt)}ms">
+    <b class="prize gold-t" style="font-size:${T.prize.length<=5?120:T.prize.length<=8?84:56}px">${esc(T.prize)}</b>
+    <div class="give steel-t">Giveaway</div><div class="when">${esc(whenText(T.at))}</div>
+    <div class="cd">Starts in<b data-cd="${T.at}">${countdown(T.at)}</b></div></div>`;
 }
 function renderBox(){
   const raffle=S.rf.on&&S.view==="raffle";
+  if(S.teaser.on){ $("#boxInner").innerHTML=teaserView(); updateDrawFx(); checkFx(); return; }   // the crew logo is the header
+  $("#box").style.setProperty("--station",`url(assets/station${stationNo()}.webp)`);
   $("#boxInner").style.setProperty("--ph",-(Date.now()%12000)+"ms");   // loop periods divide 12s
   $("#boxInner").innerHTML=header()+(raffle?raffleView():boardView()+footer());
+  updateDrawFx();
   checkFx();
 }
 
@@ -512,9 +591,17 @@ function playTk(f, full, age){
   clearTimeout(tkTimer); tkTimer=setTimeout(()=>tk.classList.remove("on"),FX_MS-age);
 }
 
-/* The reel, both windows, straight from S.rf.spin: rows scroll down and ease out
-   so the winner stops between the gold lines. A reload mid-spin lands the same. */
+/* The names in the train's window, both windows, straight from S.rf.spin: they
+   roll down and ease out so the winner stops on the middle row, between the gold
+   ticks. A reload mid-spin lands the same. */
 let plan=null;
+/* A train's pace, not a slot's: pulls away for the first seventh, runs flat out
+   to two thirds, then brakes the rest of the way in. It's the area under that
+   trapezoid of speed, so the three pieces meet without a jolt. */
+const RAMP=.14, CRUISE=.68, WHOLE=CRUISE-RAMP/2+(1-CRUISE)/3;
+const roll=p=>(p<RAMP ? p*p/(2*RAMP)
+  : p<CRUISE ? RAMP/2+p-RAMP
+  : CRUISE-RAMP/2+(1-CRUISE)*(1-Math.pow(1-(p-CRUISE)/(1-CRUISE),3))/3)/WHOLE;
 function frame(){
   requestAnimationFrame(frame);
   const reel=document.getElementById("reel"), sp=S.rf.spin;
@@ -522,17 +609,18 @@ function frame(){
   if(!plan||plan.at!==sp.startedAt){
     const pool=spinPool(sp), N=pool.length, wi=pool.findIndex(e=>eid(e)===sp.winner);
     if(wi<0) return;
-    plan={at:sp.startedAt, pool, N, steps:40+mod(wi-40,N)};   // at least 40 rows, ending on the winner
+    // the run is always STEPS long: shift reads the pool so the winner sits at the end of it
+    plan={at:sp.startedAt, pool, N, steps:STEPS, shift:mod(wi-STEPS,N)};
   }
-  const p=Math.min(1,(Date.now()-sp.startedAt)/sp.duration), off=plan.steps*(1-Math.pow(1-p,4));
+  const p=Math.max(0,Math.min(1,(Date.now()-sp.startedAt-ARRIVE)/(sp.duration-ARRIVE))), off=plan.steps*roll(p);
   const mid=reel.clientHeight/2, base=Math.floor(off);
-  if(base!==plan.base){ plan.base=base; if(p<1) sfx("tick"); }
+  if(base!==plan.base){ plan.base=base; if(p>0&&p<1&&base%4===0) sfx("tick"); }   // every fourth row: at full pace a tick each one is a machine gun
   while(reel.children.length<6) reel.appendChild(document.createElement("div"));
   for(let j=0;j<6;j++){
-    const i=base-2+j, el=reel.children[j], e=plan.pool[mod(i,plan.N)];
+    const i=base-2+j, el=reel.children[j], e=plan.pool[mod(i+plan.shift,plan.N)];
     if(el.dataset.k!==eid(e)){ el.dataset.k=eid(e); el.innerHTML=nameHtml(e); }
     el.style.transform=`translateY(${mid+(off-i)*ROW-ROW/2}px)`;
-    el.classList.toggle("win", p>=1&&i===plan.steps);
+    el.classList.toggle("lit", p>=1&&i===plan.steps);
   }
 }
 requestAnimationFrame(frame);
@@ -572,6 +660,7 @@ function renderPanel(){
     S.guess.on=b.dataset.guess==="1"; if(!S.guess.on) S.guess.picks={}; save(); renderAll();
   }));
   document.querySelectorAll("[data-sound]").forEach(b=>b.classList.toggle("on",(b.dataset.sound==="1")===S.sound.on));
+  document.querySelectorAll("[data-teaser]").forEach(b=>b.classList.toggle("on",(b.dataset.teaser==="1")===S.teaser.on));
   patch("#stages",stagesHtml(),el=>el.querySelectorAll("[data-prize]").forEach(inp=>{
     inp.oninput=()=>{ S.prizes[+inp.dataset.prize]=inp.value; save(); renderBox(); };
   }));
@@ -616,6 +705,7 @@ function raffleHtml(){
     <div class="row">
       <button class="btn primary" id="drawBtn"${sp||!poolOf().length?" disabled":""}>Draw a winner</button>
       <button class="btn" id="toggleBtn">${R.open?"Close entries":"Reopen entries"}</button>
+      <button class="btn" id="testBtn">Load 1,400 test entries</button>
       <button class="btn" id="nextBtn">Back to board</button>
       <button class="btn danger" id="finishBtn">End raffle</button>
     </div>`;
@@ -646,6 +736,7 @@ function wireRaffle(el){
   on("#claimBtn",()=>{ const sp=S.rf.spin; if(sp&&!sp.claimed){ sp.claimed=true; sp.claimedAt=Date.now(); save(); renderAll(); } });
   on("#missBtn",()=>commit(false));
   on("#toggleBtn",()=>{ R.open=!R.open; save(); renderAll(); });
+  on("#testBtn",testEntries);
   on("#nextBtn",()=>{   // entries carry over to the next line; the winner leaves, a no-show gets another go
     if(R.spin) return toast("Finish the draw first");
     R.entries=R.entries.filter(e=>e.st!=="won").map(({st,...e})=>e); R.won=null; R.stage=nextStage(); S.view="board"; save(); renderAll();
@@ -657,6 +748,22 @@ function wireRaffle(el){
   });
   el.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>{ S.view=b.dataset.view; save(); renderAll(); });
 }
+/* 1,400 made-up entrants, to show the draw off without a live chat, same as the
+   competitions page's Prag-Wheel and Dead Man's Crew. Ordinary entries: Back to
+   board or End raffle clears them, a test winner is closed with Mark claimed. */
+function testEntries(){
+  const A=["lucky","nordic","reel","slot","bonus","max","wild","ice","gold","dark","big","mega","fast","sly","epic","royal","crazy","silent","neon","iron"];
+  const B=["wolf","king","queen","hunter","spin","fox","viking","bear","tiger","raven","shark","ninja","gambler","joker","ace","storm","dragon","falcon","rider","ghost"];
+  const pick=a=>a[Math.floor(Math.random()*a.length)], cap=w=>w[0].toUpperCase()+w.slice(1);
+  const have=new Set(S.rf.entries.map(eid));
+  for(let i=0;i<1400;i++){
+    const a=pick(A), b=pick(B), n=Math.floor(Math.random()*1000), f=i%4;
+    const e={platform:Math.random()<.5?"twitch":"kick", user:"test"+i,
+      name:f===0?cap(a)+cap(b):f===1?a+"_"+b:f===2?cap(a)+cap(b)+n:a+b+(n%100)};
+    if(!have.has(eid(e))) S.rf.entries.push(e);
+  }
+  save(); renderAll(); toast("1,400 test entries in the draw");
+}
 function draw(){
   const R=S.rf, pool=poolOf();
   if(R.spin) return;
@@ -664,7 +771,7 @@ function draw(){
   const r=crypto.getRandomValues(new Uint32Array(2));
   let x=r[0]%pool.reduce((n,e)=>n+tickets(e),0);   // weighted by guess tickets
   R.won=null;
-  R.spin={startedAt:Date.now(), duration:9000+r[1]%2000, winner:eid(pool.find(e=>(x-=tickets(e))<0)), count:R.entries.length, claimed:false, claimMs:R.claimSecs*1000};
+  R.spin={startedAt:Date.now(), duration:25000+r[1]%4000, winner:eid(pool.find(e=>(x-=tickets(e))<0)), count:R.entries.length, claimed:false, claimMs:R.claimSecs*1000};
   S.view="raffle"; save(); renderAll();
 }
 /* The claim resolves: a claim wins the stage, a miss leaves the draw for a redraw. */
@@ -808,8 +915,9 @@ setInterval(()=>{
   else if(!DISPLAY&&panelDirty){ panelDirty=false; renderPanel(); }
   // the winner card appears at spin end without any state changing, so watch for it
   const s=S.rf.spin, ph=!s?"":now<spinEnd(s)?"spin":s.claimed?"claimed":"claim";
-  if(ph!==phase){ if(ph==="claimed"&&phase==="claim") sfx("coin"); phase=ph; renderAll(); }
+  if(ph!==phase){ if(ph==="claim"&&phase==="spin") sfx("whistle"); else if(ph==="claimed"&&phase==="claim") sfx("coin"); phase=ph; renderAll(); }
   document.querySelectorAll("[data-until]").forEach(el=>el.textContent=secs(+el.dataset.until));
+  document.querySelectorAll("[data-cd]").forEach(el=>el.textContent=countdown(+el.dataset.cd));
 },250);
 
 if(DISPLAY){
@@ -845,6 +953,12 @@ if(DISPLAY){
   vol.oninput=()=>{ S.sound.vol=+vol.value; save(); };
   document.querySelectorAll("[data-sound]").forEach(b=>b.onclick=()=>{ S.sound.on=b.dataset.sound==="1"; save(); renderPanel(); });
   document.querySelectorAll("[data-sfx]").forEach(b=>b.onclick=()=>sfx(b.dataset.sfx));
+  document.querySelectorAll("[data-teaser]").forEach(b=>b.onclick=()=>{ S.teaser.on=b.dataset.teaser==="1"; if(S.teaser.on) S.teaser.shownAt=Date.now(); save(); renderAll(); });
+  const tzP=$("#tzPrize"), tzA=$("#tzAt"), T=S.teaser;
+  const localIso=at=>new Date(at-new Date(at).getTimezoneOffset()*60000).toISOString().slice(0,16);   // datetime-local is this PC's time
+  tzP.value=T.prize; tzA.value=localIso(T.at);
+  tzP.oninput=()=>{ T.prize=tzP.value; save(); renderBox(); };
+  tzA.onchange=()=>{ const v=new Date(tzA.value).getTime(); if(v) T.at=v; save(); renderBox(); };
   S.lines.push(...Object.keys(LINES).filter(id=>lineDone(id)&&!S.lines.includes(id)));   // a board saved before the free centre
   save();
   startChat();

@@ -1029,6 +1029,12 @@ const server = http.createServer(async (req, res) => {
     } catch (e) { return sendJson(res, { error: e.message }, 502); }
   }
 
+  // Kick's sign-in needs a SHA-256 PKCE challenge, and crypto.subtle only exists on a secure
+  // origin — which a playing PC reaching this server by IP is not, app or browser. Hashing it
+  // here works the same from every panel. The verifier is one-use and never leaves the LAN.
+  if (pathname === '/api/sha256' && req.method === 'POST')
+    return sendJson(res, { ok: true, hash: crypto.createHash('sha256').update(await readBody(req)).digest('base64url') });
+
   if (pathname.startsWith('/api/')) {
     const cmd = pathname.slice(5);
     let out;
