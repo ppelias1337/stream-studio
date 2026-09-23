@@ -1162,6 +1162,14 @@ try{ syncBC=new BroadcastChannel("comp_sync_v1"); }catch(e){}
      GET  ?seq=N&fx=M     -> {seq, fx:[events with id>M], keys?}
      POST {keys, fx:[…]}  -> merge, bump seq if keys changed; {ok:true, seq} */
 const SYNC_CANDIDATES=["sync"];
+/* THE SHOW RUNS ON THE SERVER'S CLOCK. A draw is animated from the timestamp the panel that
+   started it wrote, so two PCs whose clocks differ by seconds would play it seconds apart —
+   the OBS display sat black while the operator already saw the winner. Every sync answer
+   carries the server's time; netNow() is that clock, wherever this window is running. */
+let NET_SKEW=0;
+const netNow=()=>Date.now()+NET_SKEW;
+// only a real difference moves it: re-reading it every poll would jitter a running reel
+const netClock=j=>{ if(j && typeof j.now==="number"){ const d=j.now-Date.now(); if(!NET_SKEW || Math.abs(d-NET_SKEW)>200) NET_SKEW=d; } };
 const NET={on:false, seq:0, fxSeq:0, postT:null, url:null, synced:false};
 async function netProbe(){
   if(!/^https?:$/.test(location.protocol)) return;
@@ -1171,6 +1179,7 @@ async function netProbe(){
       if(!r.ok) continue;
       const j=await r.json();
       if(j && j.comp==="sync"){
+        netClock(j);
         NET.on=true; NET.url=cand;
         // display: seq=-1 forces the first poll to pull the CURRENT state, while
         // fxSeq starts at the server's counter so stale animations don't replay
@@ -1207,6 +1216,7 @@ async function netPoll(playFxMsg){
     try{
       const r=await fetch(`${NET.url}?seq=${NET.seq}&fx=${NET.fxSeq}`,{cache:"no-store"});
       const j=await r.json();
+      netClock(j);
       if(j.keys){
         for(const [k,v0] of Object.entries(j.keys)){
           const v = (k===HISTORY_KEY && v0) ? mergeHistory(v0) : v0;
@@ -1246,7 +1256,7 @@ if(!DISPLAY_ONLY){
     let take=false; try{ take=sessionStorage.getItem("studio_take")==="1"; sessionStorage.removeItem("studio_take"); }catch(e){}
     const x=new XMLHttpRequest();   // synchronous on purpose: everything below reads localStorage as it loads
     x.open("GET",`sync?hb=${CTL_ID}&pull=1${take?"&take=1":""}`,false); x.send();
-    if(x.status===200) j=JSON.parse(x.responseText);
+    if(x.status===200){ j=JSON.parse(x.responseText); netClock(j); }
   }catch(e){}
   if(j && j.owner===false){
     document.body.innerHTML=`<div style="min-height:100vh;display:grid;place-items:center;text-align:center;padding:24px"><div>
@@ -1898,7 +1908,7 @@ function fitRows(n){
 }
 function pageOf(list){
   if(list.length<=PAGE) return {items:list, page:0, pages:1};
-  const pages=Math.ceil(list.length/PAGE), page=Math.floor(Date.now()/PAGE_MS)%pages;
+  const pages=Math.ceil(list.length/PAGE), page=Math.floor(netNow()/PAGE_MS)%pages;
   return {items:list.slice(page*PAGE,(page+1)*PAGE), page, pages};
 }
 function gridStyle(n, f){
@@ -2008,9 +2018,9 @@ function dispatchDisplay(){
   if(!appMode){ const mc=$("#displayContent"); if(!lbTakeover(mc)) mc.innerHTML=menuDisplayView(); return; }
   ({LMS:renderDisplay, H2H:h2hRenderDisplay, BRACKET:bkRenderDisplay, LEAGUE:lgRenderDisplay, WHEEL:whRenderDisplay, TADA:tdRenderDisplay, PRAG:pwRenderDisplay, KEYWORD:kwRenderDisplay, BINGO:bgRenderDisplay, BOARD:bdRenderDisplay, CREW:crRenderDisplay})[appMode]();
 }
-let pageTick=Math.floor(Date.now()/PAGE_MS);
+let pageTick=Math.floor(netNow()/PAGE_MS);
 setInterval(()=>{
-  const t=Math.floor(Date.now()/PAGE_MS);
+  const t=Math.floor(netNow()/PAGE_MS);
   if(t===pageTick) return;
   pageTick=t;
   if(document.querySelector("#displayContent [data-paged]")) dispatchDisplay();
@@ -2592,7 +2602,7 @@ const rfLogo=p=>RF_PF[p]?`<i class="pf pf-${p}"><svg viewBox="0 0 24 24"><path d
 const rfNameHtml=e=>rfLogo(e.platform)+(e.slot ? `<span>${escapeHtml(e.slot)}</span><em>${escapeHtml(e.name)}</em>` : `<span>${escapeHtml(e.name)}</span>`);
 // per-platform count of who is in the draw; a platform shows only once someone entered from it
 const rfPfCounts=pool=>Object.keys(RF_PF).map(p=>[p, pool.filter(e=>e.platform===p).length]).filter(([,n])=>n).map(([p,n])=>`<span>${rfLogo(p)}${n}</span>`).join("");
-const rfSecs=until=>Math.max(0,Math.ceil((until-Date.now())/1000))+"s";
+const rfSecs=until=>Math.max(0,Math.ceil((until-netNow())/1000))+"s";
 const rfSpinEnd=sp=>sp.startedAt+sp.duration;
 const rfClaimEnd=sp=>rfSpinEnd(sp)+(sp.claimMs||RF_CLAIM_MS);
 const rfPool=()=>rf.entries.filter(e=>!e.st);          // not won, not missed
@@ -2606,8 +2616,8 @@ function rfChatMsg(platform, user, name, text){
   if(!rf.on) return;
   const sp=rf.spin;
   // Anything the winner says counts as claiming, on the platform they entered from.
-  if(sp && !sp.claimed && sp.winner===platform+":"+user && Date.now()>=rfSpinEnd(sp)){
-    sp.claimed=true; sp.claimedAt=Date.now(); rfDirty=true; return;
+  if(sp && !sp.claimed && sp.winner===platform+":"+user && netNow()>=rfSpinEnd(sp)){
+    sp.claimed=true; sp.claimedAt=netNow(); rfDirty=true; return;
   }
   if(!rf.open || rf.entries.some(x=>x.platform===platform && x.user===user)) return;
   const kw=rfKw();
@@ -2733,14 +2743,14 @@ function rfDrawOne(){
   if(!pool.length){ toast("Nobody left to draw", true); return; }
   const r=crypto.getRandomValues(new Uint32Array(3));
   const ms=RF_MODES[rf.mode].spinMs?.()||RF_SPIN_MS;   // a format can run its own, longer draw
-  rf.spin={ startedAt:Date.now(), duration:ms[0]+r[1]%(ms[1]-ms[0]), seed:r[2],
+  rf.spin={ startedAt:netNow(), duration:ms[0]+r[1]%(ms[1]-ms[0]), seed:r[2],
             winner:rfId(pool[r[0]%pool.length]), count:rf.entries.length, claimed:false, claimMs:rf.claimSecs*1000 };
   if(rf.slots){ rf.spin.claimed=true; rf.spin.claimedAt=rf.spin.startedAt; }   // a slot has nobody to claim it
   rfFlush();
 }
 function rfClaim(){
   const sp=rf.spin; if(!sp || sp.claimed) return;
-  sp.claimed=true; sp.claimedAt=Date.now(); rfFlush();
+  sp.claimed=true; sp.claimedAt=netNow(); rfFlush();
 }
 /* The claim resolves: a claim takes a roster spot, a miss just leaves the draw. */
 function rfCommit(claimed){
@@ -2842,7 +2852,7 @@ function rfFrame(){
     const jitter=((sp.seed%997)/997*2-1)*R*0.35;         // not dead centre every time
     rfPlan={at:sp.startedAt, pool, N, kw, end:MID+jitter-R/2-kw*R};
   }
-  const p=rfPlan, now=Date.now(), spinning=now<rfSpinEnd(sp);
+  const p=rfPlan, now=netNow(), spinning=now<rfSpinEnd(sp);
   const off=p.end*rfEase(Math.min(1,(now-sp.startedAt)/sp.duration), sp.duration);
   title.style.transform=`translateY(${off}px)`;
   // one tick per name crossing the lines; the win sound only if this window saw it land
@@ -2870,7 +2880,7 @@ requestAnimationFrame(rfFrame);
 function rfRenderWin(sp){
   const box=document.getElementById("rfWin");
   if(!box) return;
-  const e=sp && Date.now()>=rfSpinEnd(sp) && rfWinner(sp);
+  const e=sp && netNow()>=rfSpinEnd(sp) && rfWinner(sp);
   const sig=e ? sp.winner+(sp.claimed?"|claimed":"|wait") : "";
   if(sig===(box.dataset.sig||"")) return;
   const was=box.dataset.sig||"";
@@ -2907,7 +2917,7 @@ function rfPanelHtml(){
   let draw="";
   if(sp){
     const e=rfWinner(sp)||{name:"?", platform:""}, until=rfClaimEnd(sp);
-    draw = Date.now()<rfSpinEnd(sp)
+    draw = netNow()<rfSpinEnd(sp)
       ? `<div class="crow plain"><span class="clab">Drawing…</span></div>`
       : `<div class="crow${sp.claimed?" chooser-row":""}">${rfLogo(e.platform)}<span class="clab">${escapeHtml(e.slot||e.name)}</span>
           ${e.slot ? `<span class="choose-tag ok">Picked by ${escapeHtml(e.name)}</span>` : sp.claimed ? '<span class="choose-tag ok">Claimed</span>' : `<span class="chint">Claim time</span><span class="rf-secs" data-until="${until}">${rfSecs(until)}</span>`}
@@ -2967,7 +2977,7 @@ function rfWire(){
 if(!DISPLAY_ONLY){
   let shown="";
   setInterval(()=>{
-    const sp=rf.on && rf.spin, now=Date.now();
+    const sp=rf.on && rf.spin, now=netNow();
     if(sp){
       const end=rfSpinEnd(sp);
       if(sp.claimed ? now>=Math.max(end+RF_REVEAL_MS, sp.claimedAt+2500) : now>=rfClaimEnd(sp)) return rfCommit(!!sp.claimed);
@@ -4571,7 +4581,7 @@ function pwSave(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(PW_KEY, JS
 let pw=pwLoad()||pwFresh();
 const pwLive=()=>rf.on && rf.mode==="PRAG";
 // prizes whenever entries aren't running, and never mid-draw
-const pwPrizesNow=()=>!!pwResult(Date.now()) || !pwLive() || (!rf.spin && Date.now()%(PW_ENT_MS+PW_PRZ_MS)>=PW_ENT_MS);
+const pwPrizesNow=()=>!!pwResult(netNow()) || !pwLive() || (!rf.spin && netNow()%(PW_ENT_MS+PW_PRZ_MS)>=PW_ENT_MS);
 /* Prize time so far: the wheel only turns while prizes show, so each prize phase picks up where the
    last stopped. Each prize holds under the crown, then the wheel turns one slot in the last PW_TURN_MS. */
 const PW_TURN_MS=1100;
@@ -4601,13 +4611,13 @@ function pwPos(now){
   return pwTurn(now);
 }
 const pwSlot=pos=>(Math.round(pos)%PW_PRIZES.length+PW_PRIZES.length)%PW_PRIZES.length;
-const pwUnder=()=>pwSlot(pwPos(Date.now()).pos);
+const pwUnder=()=>pwSlot(pwPos(netNow()).pos);
 let pwSig="", pwLastPos=null, pwSpinSeen=false, pwHadRes=false;
 function pwFrame(){
   requestAnimationFrame(pwFrame);
   if(appMode!=="PRAG") return;
   const w=document.getElementById("pwWheel"); if(!w) return;
-  const {pos,k,res,landed}=pwPos(Date.now());
+  const {pos,k,res,landed}=pwPos(netNow());
   w.firstChild.style.transform=`rotate(${-pos*18}deg)`;
   const flick = res ? (landed ? 0 : -Math.sin((pos%1)*Math.PI)*10) : (k>0 && k<1 ? -Math.sin(k*Math.PI)*14 : 0);
   w.lastChild.style.setProperty("--flick", flick+"deg");
@@ -4685,13 +4695,13 @@ function pwDrawFrame(){
   stage.style.transform=`translate(${(hw-W*kk)/2}px,${(hh-H*kk)/2}px) scale(${kk})`;
   if(!pwPlan || pwPlan.at!==sp.startedAt || pwPlan.W!==W){
     pwPlan=pwDrawPlan(sp, W, H); if(!pwPlan) return;
-    ov.style.setProperty("--el", -Math.max(0, Date.now()-sp.startedAt)/1000+"s");   // a reroll replays the intro
+    ov.style.setProperty("--el", -Math.max(0, netNow()-sp.startedAt)/1000+"s");   // a reroll replays the intro
     const x=(W-PW_REEL_W)/2;
     stage.innerHTML=`<div class="pw-col" style="left:${x}px;width:${PW_REEL_W}px"></div>`
       +`<div class="pw-band"></div><div class="pw-dcrown"></div>`
       +`<div class="pw-dhead"><i class="pw-dlogo"></i><b>${pwPlan.redraw?"<em>Redraw</em> · ":""}${pwPlan.N.toLocaleString("en-US")} in the draw</b></div><div class="pw-dwin"></div>`;
   }
-  const p=pwPlan, now=Date.now(), t=(now-sp.startedAt-PW_FADE_MS)/1000;
+  const p=pwPlan, now=netNow(), t=(now-sp.startedAt-PW_FADE_MS)/1000;
   const landed=now>=rfSpinEnd(sp), u=Math.min(1, Math.max(0, t/p.move));
   const d=landed ? p.end : p.end*pwDist(u)/pwDist(1);
   ov.classList.toggle("landed", landed);
@@ -4736,7 +4746,7 @@ function pwUndo(){
    another number corrects it and spins again. */
 function pwPickPrize(i){
   const w=pw.winners[pw.winners.length-1]; if(!w) return;
-  const at=Date.now(), from=pwPos(at).pos, base=Math.ceil(from)+2*PW_PRIZES.length;   // at least two full turns
+  const at=netNow(), from=pwPos(at).pos, base=Math.ceil(from)+2*PW_PRIZES.length;   // at least two full turns
   w.prize=i;
   pw.spin={at, from, to:base+((i-base)%PW_PRIZES.length+PW_PRIZES.length)%PW_PRIZES.length, idx:i, id:w.id, name:w.name};
   pwSave(); pwRender();
@@ -4784,7 +4794,7 @@ function pwRenderDisplay(){
   // chat keeps re-rendering: only the footer changes, so the reel never restarts
   const phase = !pwLive() ? "Soon" : rf.open ? "Entries open" : "Entries closed";
   const old=c.querySelector("#pwCta");
-  if(old){ if(!pwResult(Date.now()) && old.innerHTML!==cta) old.innerHTML=cta; const ph=c.querySelector("#pwPhase"); ph.textContent=phase; ph.classList.toggle("on", pwLive() && !!rf.open); return; }
+  if(old){ if(!pwResult(netNow()) && old.innerHTML!==cta) old.innerHTML=cta; const ph=c.querySelector("#pwPhase"); ph.textContent=phase; ph.classList.toggle("on", pwLive() && !!rf.open); return; }
   const [name,eur]=PW_PRIZES[pwUnder()]; pwSig="";
   c.innerHTML=`<div class="pw" data-mode="PRAG"><div class="bug"><span class="bug-title">Prag-Wheel</span><span class="bug-phase rf-phase${pwLive() && rf.open?" on":""}" id="pwPhase">${phase}</span></div>
       <div class="pw-now" id="pwNow"><b>${name}</b><span>€${eur}</span></div>
@@ -5031,14 +5041,14 @@ function crDrawFrame(){
   stage.style.transform=`translate(${(hw-W*kk)/2}px,${(hh-H*kk)/2}px) scale(${kk})`;
   if(!crPlan || crPlan.at!==sp.startedAt || crPlan.W!==W){
     crPlan=crDrawPlan(sp, W); if(!crPlan) return;
-    ov.style.setProperty("--el", -Math.max(0, Date.now()-sp.startedAt)/1000+"s");
+    ov.style.setProperty("--el", -Math.max(0, netNow()-sp.startedAt)/1000+"s");
     const t=crPlan.seat-1;
     stage.innerHTML=`<div class="cr-dbg"></div>
       <div class="cr-dhead"><i></i><b>${crPlan.redraw?"<em>Redraw</em> · ":""}Seat ${crPlan.seat} of ${CR_N} · €${CR_PRIZE} · ${crPlan.N.toLocaleString("en-US")} in the draw</b></div>
       <div class="cr-reels">${crPlan.reels.map(r=>`<div class="cr-reel ${r.k==="n"?"names":"syms"}" style="width:${r.k==="n"?CR_NAME_W:CR_SYM_W}px"></div>`).join("")}<div class="cr-line"></div></div>
       <div class="cr-tier"><i style="background-image:url(crew/tier${t+1}.webp)"></i><div><b class="t${t+1}">${CR_TIERS[t]}</b><span class="cr-tname"></span><div class="cr-tclaim"></div></div></div>`;
   }
-  const p=crPlan, now=Date.now(), t=(now-sp.startedAt-CR_FADE_MS)/1000, landed=now>=rfSpinEnd(sp);
+  const p=crPlan, now=netNow(), t=(now-sp.startedAt-CR_FADE_MS)/1000, landed=now>=rfSpinEnd(sp);
   const reelEls=stage.querySelectorAll(".cr-reel"), R=CR_ROW;
   let stopped=0, nameD=0;
   p.reels.forEach((r,i)=>{
@@ -5413,7 +5423,7 @@ if(DISPLAY_ONLY){
   if(bootHistory) try{ localStorage.setItem(HISTORY_KEY, mergeHistory(bootHistory)); }catch(e){}
   netProbe();   // feed the server
   // keep the lock; losing it (someone pressed "Use it here" elsewhere) drops this panel to standby
-  setInterval(()=>fetch(`sync?hb=${CTL_ID}`,{cache:"no-store"}).then(r=>r.json()).then(j=>{ if(j.owner===false) location.reload(); }).catch(()=>{}),3000);
+  setInterval(()=>fetch(`sync?hb=${CTL_ID}`,{cache:"no-store"}).then(r=>r.json()).then(j=>{ netClock(j); if(j.owner===false) location.reload(); }).catch(()=>{}),3000);
 }
 renderApp();
 </script>

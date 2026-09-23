@@ -44,17 +44,17 @@ module.exports = function compSync(dataDir, file = 'comp-state.json') {
   const holds = id => !lease.id || Date.now() - lease.at > LEASE_MS || lease.id === id;
 
   function get(q) {
-    if (q.has('probe')) return { comp: 'sync', seq: st.seq, fxSeq: st.fxSeq };
+    if (q.has('probe')) return { comp: 'sync', seq: st.seq, fxSeq: st.fxSeq, now: Date.now() };
     const hb = q.get('hb');
     if (hb) {
       if (q.has('take') || holds(hb)) { lease.id = hb; lease.at = Date.now(); }
-      const out = { owner: lease.id === hb, seq: st.seq, fxSeq: st.fxSeq };
+      const out = { owner: lease.id === hb, seq: st.seq, fxSeq: st.fxSeq, now: Date.now() };
       if (q.has('pull')) out.keys = st.keys;
       return out;
     }
     const seq = parseInt(q.get('seq') || '0', 10) || 0;
     const fxAfter = parseInt(q.get('fx') || '0', 10) || 0;
-    const out = { seq: st.seq, fx: st.fx.filter(f => f.id > fxAfter) };
+    const out = { seq: st.seq, fx: st.fx.filter(f => f.id > fxAfter), now: Date.now() };
     if (st.seq !== seq) out.keys = st.keys;
     return out;
   }
