@@ -66,6 +66,8 @@ function importOldWheel() {
 const REMOTE = path.join(DATA, 'remote.json');
 function role() {
   try { return JSON.parse(fs.readFileSync(REMOTE, 'utf8')); } catch (e) {}
+  // a PC that already ran the show keeps running it — don't ask an existing install
+  if (['config.json', 'comp-state.json'].some(f => fs.existsSync(path.join(DATA, f)))) return { host: null };
   const pick = dialog.showMessageBoxSync({ type: 'question', buttons: ['This PC runs the show', 'Connect to the stream PC'], defaultId: 0, cancelId: 0,
     title: 'Stream Studio', message: 'Which PC is this?',
     detail: 'The stream PC runs the show, OBS and the Stream Deck. A playing PC connects to it over your network and shows the same panel.' });
