@@ -9,7 +9,7 @@ Those folders are the originals, still used live until this ships. Don't edit th
 
 ```
 main.js            Electron: on the stream PC runs server/index.js in-process and opens /app; on a playing
-                   PC (<data>emote.json) it skips the server and opens the stream PC's /app. Auto-update.
+                   PC (<data>\remote.json) it skips the server and opens the stream PC's /app. Auto-update.
 preload.js         window.studio.onUpdate, for the tab bar's update note
 server/index.js    Wheel Studio server (zero npm deps) + /comp/sync, /yt/*, /api/info, /app
 server/comp-sync.js  competitions relay: the old 3-line sync contract + the one-controller lock
