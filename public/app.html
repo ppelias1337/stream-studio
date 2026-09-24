@@ -110,6 +110,7 @@ document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>show(b.dataset.
 // and gets told which tab it's under
 addEventListener("message", e=>{
   if(e.source===comp.contentWindow && e.data && e.data.studioOpen==="bingo") return showBingo();
+  if(e.source===bingo.contentWindow && e.data && e.data.studioBack==="bingo") return show("special");
   if(e.source!==comp.contentWindow || !e.data || !("studioSection" in e.data)) return;
   const sec=e.data.studioSection;
   if(sec){ if(tab!=="wheel") show(sec, true); }

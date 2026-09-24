@@ -10,18 +10,36 @@
   --sans:Bahnschrift,"Segoe UI",system-ui,sans-serif;
   --gold:#f7c948; --gold-ink:#2b1c00; --neon:#ff8a3d; --green:#4be08f; --red:#ff5a6e;
   --ground:#0f1319; --slab:#1a2029; --slab2:#232b37; --slab3:#2e3846; --line:#343f4e; --text:#eef2f7; --muted:#9aa6b8;
+  /* Studio Graphite: the operator panel, same tokens as app.html, comp/index.html and /control.
+     The stream box never reads these; it keeps the game's own look above. */
+  --bg:#0C0D10; --panel:#141519; --panel-2:#1A1B20;
+  --well:rgba(255,255,255,.035); --well-2:rgba(255,255,255,.07);
+  --edge:rgba(255,255,255,.07); --edge-2:rgba(255,255,255,.11); --edge-3:rgba(255,255,255,.2);
+  --fg:#EDEDF0; --fg-2:#A3A4AD; --fg-3:#7F808A;
+  --accent:#6A58F0; --accent-fg:#AFA3FF; --accent-soft:rgba(122,104,255,.13); --accent-line:rgba(140,124,255,.45);
+  --go:#F2F2F4; --go-hover:#FFFFFF; --go-ink:#0C0D10;
+  --live:#E5484D; --live-hover:#EE5A5F; --live-fg:#FF9592; --live-line:rgba(229,72,77,.45); --red-soft-bg:rgba(229,72,77,.12);
+  --ok:#3DD68C; --ok-ink:#04220F; --ok-soft:rgba(61,214,140,.13); --warn:#F5A524;
+  --r-sm:6px; --r:8px; --r-lg:10px; --r-xl:14px;
+  --ui:"Segoe UI Variable Text","Segoe UI Variable","Segoe UI",system-ui,sans-serif;
+  --ui-display:"Segoe UI Variable Display","Segoe UI Variable","Segoe UI",system-ui,sans-serif;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--ground);color:var(--text);font:15px/1.45 var(--sans)}
+body{background:var(--bg);color:var(--fg);font:15px/1.45 var(--ui);-webkit-font-smoothing:antialiased}
 button,input,textarea,select{font:inherit;color:inherit}
-:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+button{cursor:pointer;border:none;background:none}
+:focus-visible{outline:2px solid var(--accent-fg);outline-offset:2px}
+::selection{background:var(--accent);color:#fff}
+*{scrollbar-color:rgba(255,255,255,.16) transparent;scrollbar-width:thin}
+.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 
-/* ---------- desk: stream box top-left at real size, controls beside it ---------- */
-.desk{display:grid;grid-template-columns:600px minmax(0,900px);gap:24px;padding:20px;align-items:start}
-.monitor{position:sticky;top:20px}
-.monitor-label{margin-top:10px;color:var(--muted);font-size:13px}
-.monitor-label b{color:var(--red);text-transform:uppercase;letter-spacing:.08em}
-@media (max-width:1300px){ .desk{grid-template-columns:600px} .monitor{position:static} }
+/* ---------- desk: as the competitions page. The 600px box is shown at 450, top-left, the tally
+   under it, the controls beside it. ---------- */
+.monitor{position:fixed;left:24px;top:24px;width:450px;height:450px;z-index:5}
+body:not(.display) .monitor .box{transform:scale(.75);transform-origin:0 0}
+.monitor-label{position:fixed;left:24px;top:490px;z-index:5;display:flex;align-items:center;gap:10px}
+.tally{display:inline-flex;align-items:center;gap:7px;padding:4px 10px 4px 8px;border-radius:999px;background:var(--live);color:#fff;font-weight:600;letter-spacing:.02em;font-size:12px}
+.tally::before{content:"";width:7px;height:7px;border-radius:50%;background:#fff}
 
 /* ---------- the stream box (600×600) ---------- */
 .box{position:relative;width:600px;height:600px;overflow:hidden;border-radius:10px;
@@ -147,6 +165,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 .pf svg{width:62%;height:62%}
 .pf-twitch{background:#9146ff;fill:#fff}
 .pf-kick{background:#53fc18;fill:#000}
+.pf-youtube{background:#f00;fill:#fff}
 
 /* line / full board takeover: a train-car wipe across the square */
 .tk{position:absolute;inset:0;z-index:20;display:none;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;padding:0 0 0 32px;overflow:hidden;
@@ -184,145 +203,274 @@ button,input,textarea,select{font:inherit;color:inherit}
 .tz .cd{margin-top:8px;font-size:22px;letter-spacing:.14em;color:#e6ebf2;text-shadow:0 2px 0 #11151b}
 .tz .cd b{margin-left:10px;font-size:40px;letter-spacing:.02em;color:var(--gold);font-variant-numeric:tabular-nums;text-shadow:0 3px 0 #3b2600}
 
+/* ---------- The Racaroon 2: the patisserie hall, purple reels in gold frames, macaron pink for the neon ---------- */
+.g-rr2{--neon:#ff4fa3}
+.g-rr2 .box{box-shadow:inset 0 0 0 2px #1a0626,inset 0 0 0 4px #d9a53a}
+.g-rr2 .logo{width:auto;height:100px;margin-top:-8px}
+.g-rr2 .bingo{color:#fff0f8;text-shadow:0 0 6px var(--neon),0 0 16px var(--neon),0 0 32px #c2127a}
+.g-rr2 .frame{background:rgba(34,8,48,.66);box-shadow:inset 0 0 0 2px #14041f,0 0 0 3px #d9a53a,0 0 0 5px #3a1450}
+.g-rr2 .frame::before,.g-rr2 .frame::after{background:#ffd0ea;box-shadow:0 0 8px var(--neon),0 0 18px #c2127a}
+.g-rr2 .tile{background:linear-gradient(180deg,#7a36ad 0%,#4a1873 55%,#33104f 100%);
+  box-shadow:inset 0 0 0 2px #1a0626,inset 0 0 0 3px rgba(247,201,72,.55),inset 0 3px 0 rgba(255,255,255,.14),inset 0 -4px 0 rgba(0,0,0,.35)}
+.g-rr2 .tile.done{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 12.5l5 5L20 6.5' fill='none' stroke='%23a06a10' stroke-opacity='.4' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/64% auto no-repeat,
+    linear-gradient(180deg,#fff0a8 0%,#f7c948 38%,#d99a22 72%,#b8781a 100%)}
+.g-rr2 .tile.hot{color:#ffe0f0}
+.g-rr2 .tile.hot::after{box-shadow:inset 0 0 0 2px #ff9ccf,inset 0 0 26px rgba(255,79,163,.5),0 0 18px rgba(255,79,163,.7)}
+.g-rr2 .tile.wild{background:#0b2a8a}
+.g-rr2 .tile.wild img{top:0;height:100%;width:100%;object-fit:cover}
+.g-rr2 .beams{filter:drop-shadow(0 0 5px var(--neon)) drop-shadow(0 0 12px #c2127a)}
+.g-rr2 .beams line{stroke:#ff3d96}
+.g-rr2 .pip:not(.on){background:#200a30;box-shadow:inset 0 0 0 2px #12041c}
+.g-rr2 .pip.on:not(.full){box-shadow:inset 0 0 0 2px #ffd0ea,0 0 10px var(--neon)}
+.g-rr2 .ft.cta,.g-rr2 .tz .when{background:#24062e;box-shadow:inset 0 0 0 2px var(--neon),0 0 16px rgba(255,79,163,.55);color:#fff0f8}
+.g-rr2 .rv{background:rgba(30,6,42,.9)}
+.g-rr2 .rv .band{background:linear-gradient(180deg,#ff5fae,#b3166e);text-shadow:0 2px 0 #4a0630}
+.g-rr2 .rv-prize{background:#1c0828}
+.g-rr2 .rule::before,.g-rr2 .rule::after{background:#5a2a78}
+/* the draw: the raccoon peeks over a gold-framed reel window, which drops in from the top */
+.g-rr2 .drawfx{background:radial-gradient(130% 70% at 50% 0,rgba(255,79,163,.2),transparent 62%),linear-gradient(180deg,rgba(20,4,28,.35),rgba(20,4,28,.8)),var(--station) center/cover}
+.g-rr2 .trainwrap{top:170px;width:500px;height:400px;margin-left:-250px;animation-name:rrin}
+@keyframes rrin{from{transform:translateY(-140%)}}
+.g-rr2 .trainwrap.done{filter:brightness(.62) saturate(.9)}
+.g-rr2 .trainwrap img{position:absolute;left:50%;top:-138px;width:150px;height:auto;margin-left:-75px;filter:drop-shadow(0 6px 12px rgba(0,0,0,.6))}
+.g-rr2 .tw{left:0;top:0;width:100%;height:100%;border-radius:14px;background:linear-gradient(180deg,#4a1873,#26083d);
+  box-shadow:inset 0 0 0 3px #14041f,0 0 0 4px #d9a53a,0 0 0 8px #7a4a0a,0 0 0 10px #f7c948,0 18px 40px rgba(0,0,0,.7),0 0 40px rgba(255,79,163,.4)}
+.g-rr2 .tk{background:repeating-linear-gradient(-45deg,rgba(255,255,255,.07) 0 26px,transparent 26px 52px),linear-gradient(180deg,#ff5fae 0%,#b3166e 55%,#4a0a4a 100%)}
+.g-rr2 .tk .rail{height:18px;background:repeating-linear-gradient(90deg,#f7c948 0 22px,#b8781a 22px 26px)}
+.g-rr2 .tk .char{left:auto;right:6px;translate:none;bottom:40px;height:330px}
+.g-rr2 .tk .crew,.g-rr2 .tz .crew{width:420px;margin:0 0 6px}
+.g-rr2 .tz{background:radial-gradient(120% 60% at 50% 45%,rgba(255,79,163,.28),transparent 70%),linear-gradient(180deg,rgba(20,4,28,.3),rgba(20,4,28,.85)),var(--station) center/cover;justify-content:center}
+
 /* OBS window: only the box, scaled to fill any square source */
 body.display{background:transparent;overflow:hidden}
-body.display .panel,body.display .monitor-label{display:none}
+body.display .control,body.display .monitor-label{display:none}
 body.display .box{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%) scale(var(--fit,1))}
 
-/* ---------- control panel ---------- */
-.top{display:flex;align-items:baseline;gap:12px;margin-bottom:16px}
-.top h1{font:700 30px/1 var(--cond);text-transform:uppercase;letter-spacing:.03em}
-.top h1 em{font-style:normal;color:var(--neon)}
-.ver{color:var(--muted);font-size:13px}
-.card{background:var(--slab);border:1px solid var(--line);border-radius:6px;padding:16px;margin-bottom:16px}
-.card-h{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
-.card-h h2{font:700 22px/1 var(--cond);text-transform:uppercase;letter-spacing:.06em;margin-right:auto}
-.hint{color:var(--muted);font-size:14px}
-.hint b{color:var(--text)}
-.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+/* ---------- control panel: Studio Graphite, the competitions panel's components ---------- */
+.control{margin-left:514px;min-height:100vh;padding:0 32px 64px 0;display:flex;flex-direction:column}
+.control-top{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:12px;height:72px;margin-bottom:24px;background:var(--bg);box-shadow:0 1px 0 var(--edge)}
+.ctitle{display:flex;align-items:center;gap:10px;min-width:0;font-size:15px;font-weight:600;white-space:nowrap}
+.ctitle .ver{color:var(--fg-3);font-size:12px;font-weight:500;padding:2px 7px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--edge)}
+.ctop-btns{margin-left:auto;display:flex;gap:6px;align-items:center}
+.ctop-btns .gap{width:1px;height:22px;background:var(--edge-2);margin:0 6px}
+.control-body{max-width:860px;display:flex;flex-direction:column;gap:20px}
+.livehead{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.page-h{flex:1;min-width:0;font-family:var(--ui-display);font-size:30px;line-height:1.1;font-weight:650;letter-spacing:-.02em}
+.livehead .meta{font-size:14px;color:var(--fg-2);padding-bottom:4px}
+.livehead .meta b{color:var(--fg);font-weight:600}
+.section{display:flex;flex-direction:column;gap:12px;padding-top:22px;border-top:1px solid var(--edge)}
+.sec-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.section-h{flex:1;min-width:0;font-size:16px;font-weight:600;letter-spacing:-.005em}
+.hint{font-size:14px;color:var(--fg-2);line-height:1.55}
+.hint b{color:var(--fg);font-weight:600}
+.row{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .grow{flex:1}
-.lab{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
-.in{height:42px;padding:0 10px;border-radius:4px;border:1px solid var(--line);background:var(--ground);font-size:16px;text-transform:none;letter-spacing:0;color:var(--text)}
-.in:focus{border-color:var(--gold);outline:none}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 16px;border-radius:4px;border:1px solid var(--line);background:var(--slab2);cursor:pointer;font-weight:600}
-.btn:hover{background:var(--slab3)}
-.btn svg{width:18px;height:18px}
-.btn.primary{height:52px;padding:0 26px;border-color:var(--gold);background:var(--gold);color:var(--gold-ink);font:700 22px/1 var(--cond);text-transform:uppercase;letter-spacing:.04em}
-.btn.primary:hover{filter:brightness(1.08)}
-.btn.danger:hover{background:#4a1a24;border-color:var(--red)}
-.btn.on{box-shadow:inset 0 0 0 2px var(--neon);color:#ffd9b8}
-.btn:disabled{opacity:.4;cursor:not-allowed;filter:none}
-.seg{display:flex;gap:6px}
+.lab{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--fg-2)}
+.in{height:38px;padding:0 10px;border-radius:var(--r);border:1px solid var(--edge-2);background:var(--bg);font-size:15px;font-weight:600;color:var(--fg);caret-color:var(--accent-fg);transition:border-color .15s,box-shadow .15s}
+.in:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.in::placeholder{color:var(--fg-3);font-weight:400}
+select.in{background:var(--well);font-weight:500;font-size:14px}
+select.in option{background:var(--panel-2)}
+.in[type=datetime-local]{color-scheme:dark}
 
-.cells{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
-.cell{display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:5px;background:var(--slab2);border:1px solid var(--line)}
-.cell.done{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.btn,.top-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 14px;border-radius:var(--r);
+  background:var(--well);box-shadow:inset 0 0 0 1px var(--edge-2);font-size:14px;font-weight:500;white-space:nowrap;color:var(--fg);transition:background .15s,box-shadow .15s,color .15s}
+.btn svg,.top-btn svg{width:16px;height:16px;color:var(--fg-2)}
+.btn:hover:not(:disabled),.top-btn:hover:not(:disabled){background:var(--well-2);box-shadow:inset 0 0 0 1px var(--edge-3)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.on{background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent-line);color:var(--accent-fg)}
+.btn.danger:hover:not(:disabled),.top-btn.danger:hover:not(:disabled){background:var(--red-soft-bg);box-shadow:inset 0 0 0 1px var(--live-line);color:var(--live-fg)}
+.top-btn.danger:hover svg{color:var(--live-fg)}
+.help-btn{width:38px;height:38px;display:grid;place-items:center;border-radius:var(--r);background:var(--well);box-shadow:inset 0 0 0 1px var(--edge-2);color:var(--fg-2);transition:.15s}
+.help-btn .ic{width:17px;height:17px}
+.help-btn:hover{background:var(--well-2);color:var(--fg)}
+.help-btn.off{color:var(--live-fg)}
+/* the one next action: white, so it is the brightest thing on the panel */
+.btn.primary,.primary{height:44px;padding:0 20px;border-radius:var(--r);background:var(--go);color:var(--go-ink);box-shadow:0 1px 2px rgba(0,0,0,.5),0 8px 24px -12px rgba(255,255,255,.25);
+  font-family:var(--ui-display);font-size:15px;font-weight:600;transition:background .15s,transform .1s}
+.btn.primary:hover:not(:disabled),.primary:hover:not(:disabled){background:var(--go-hover);box-shadow:0 1px 2px rgba(0,0,0,.5)}
+.btn.primary:active:not(:disabled){transform:translateY(1px)}
+.btn.primary:disabled{background:var(--well-2);color:var(--fg-3);box-shadow:none;opacity:1}
+.seg{display:inline-flex;flex-wrap:wrap;gap:2px;padding:3px;border-radius:calc(var(--r) + 3px);background:var(--well);box-shadow:inset 0 0 0 1px var(--edge-2)}
+.seg .btn{height:34px;padding:0 14px;background:none;box-shadow:none;font-weight:600;color:var(--fg-2)}
+.seg .btn:hover:not(:disabled){background:var(--well-2);box-shadow:none;color:var(--fg)}
+.seg .btn.on,.seg .btn.on:hover{background:var(--accent);color:#fff;box-shadow:0 1px 2px rgba(0,0,0,.4)}
+
+.cells{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cell{display:flex;flex-direction:column;gap:8px;padding:8px;border-radius:var(--r-lg);background:var(--panel);box-shadow:inset 0 0 0 1px var(--edge);transition:box-shadow .15s,background .15s}
+.cell.done{background:var(--ok-soft);box-shadow:inset 0 0 0 1.5px var(--ok)}
 /* textareas can't centre vertically, so the box is a label and the textarea grows to its text inside it */
-.cell .ta{display:flex;align-items:center;height:76px;padding:6px 10px;border-radius:4px;border:1px solid var(--line);background:var(--ground);cursor:text}
-.cell .ta:focus-within{border-color:var(--gold)}
-.cell textarea{width:100%;max-height:100%;field-sizing:content;resize:none;border:0;padding:0;background:none;outline:none;text-align:center;font:600 16px/1.25 var(--sans)}
-.cell .btn{height:46px;border-color:#4b586b;background:linear-gradient(180deg,#3d4859,#2a3341);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 2px 0 rgba(0,0,0,.4);font:700 19px/1 var(--cond);text-transform:uppercase;letter-spacing:.05em}
-.cell .btn:hover{border-color:var(--gold);color:var(--gold);background:linear-gradient(180deg,#465264,#303a4a)}
-.cell .btn:active{transform:translateY(1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.14)}
-.cell.done .btn{background:linear-gradient(180deg,#ffe07a,#f0b63a);border-color:var(--gold);color:var(--gold-ink);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 0 12px rgba(247,201,72,.35)}
-.cell.done .btn:hover{color:var(--gold-ink);filter:brightness(1.06)}
-.cell.wild{align-items:center;justify-content:center;text-align:center;color:var(--muted);font-size:14px}
-.cell.wild img{height:92px}
+.cell .ta{display:flex;align-items:center;height:72px;padding:6px 10px;border-radius:var(--r);border:1px solid var(--edge-2);background:var(--bg);cursor:text}
+.cell .ta:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.cell textarea{width:100%;max-height:100%;field-sizing:content;resize:none;border:0;padding:0;background:none;outline:none;text-align:center;font:600 15px/1.3 var(--ui);caret-color:var(--accent-fg)}
+.cell .btn{height:40px}
+.cell.done .btn{background:var(--ok);color:var(--ok-ink);box-shadow:none}
+.cell.done .btn svg{color:var(--ok-ink)}
+.cell.wild{align-items:center;justify-content:center;text-align:center;color:var(--fg-3);font-size:13px}
+.cell.wild img{height:92px;border-radius:var(--r)}
 
-.stages{display:grid;gap:6px}
-.stage{display:grid;grid-template-columns:100px minmax(0,1fr) minmax(0,1.3fr);gap:12px;align-items:center;padding:6px 6px 6px 12px;border-radius:4px;background:var(--slab2)}
-.sname{font:700 18px/1 var(--cond);text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
-.stage.done .sname{color:var(--neon)}
-.sstat{color:var(--muted);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.stage.done .sstat{color:var(--text)}
-.stage.won .sstat b{color:var(--gold)}
+.stages{display:flex;flex-direction:column;gap:6px}
+.stage{display:grid;grid-template-columns:100px minmax(0,1fr) minmax(0,1.3fr);gap:12px;align-items:center;padding:6px 8px 6px 14px;border-radius:var(--r-lg);background:var(--panel);box-shadow:inset 0 0 0 1px var(--edge)}
+.sname{font-size:15px;font-weight:600;color:var(--fg-3)}
+.stage.done .sname{color:var(--fg)}
+.sstat{color:var(--fg-3);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stage.done .sstat{color:var(--fg-2)}
+.stage.won .sstat b{color:var(--accent-fg);font-weight:600}
 
-.kwv{font:700 26px/1 var(--cond);color:var(--gold)}
-.drawrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;padding:10px 12px;border-radius:5px;background:var(--slab2);font-size:18px}
-.drawrow.ok{box-shadow:inset 0 0 0 2px var(--green)}
-.drawrow .pf{width:24px;height:24px}
-.secs{font:700 26px/1 var(--cond);color:var(--gold);font-variant-numeric:tabular-nums;margin-right:auto}
+.kwv{font-size:17px;font-weight:600;color:var(--accent-fg)}
+.drawrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:62px;padding:8px 10px 8px 14px;border-radius:var(--r-lg);background:var(--accent-soft);box-shadow:inset 0 0 0 1.5px var(--accent);font-size:17px;font-weight:600}
+.drawrow.ok{background:var(--panel);box-shadow:inset 0 0 0 1px var(--edge)}
+.drawrow .pf{width:22px;height:22px}
+.drawrow b{font-weight:600}
+.secs{font-family:var(--ui-display);font-size:22px;font-weight:650;color:var(--accent-fg);font-variant-numeric:tabular-nums;margin-right:auto}
 .secs::after{content:"s"}   /* the stream shows the bare number */
-.tag{padding:3px 8px;border-radius:3px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
-.tag.ok{background:var(--green);color:#03281a}
-.count{display:flex;align-items:baseline;gap:8px;color:var(--muted);margin-bottom:8px}
-.count b{font:700 34px/1 var(--cond);color:var(--text)}
+.tag{display:inline-flex;align-items:center;height:26px;padding:0 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.tag.ok{background:var(--ok);color:var(--ok-ink)}
+.drawrow .tag.ok{margin-left:auto}
+.count{display:flex;align-items:baseline;gap:8px;font-size:15px;color:var(--fg-2)}
+.count b{font-family:var(--ui-display);font-size:32px;line-height:1;font-weight:650;letter-spacing:-.02em;color:var(--fg);font-variant-numeric:tabular-nums}
 .chips{display:flex;flex-wrap:wrap;gap:6px;max-height:130px;overflow-y:auto}
-.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px 3px 4px;border-radius:4px;background:var(--slab3);font-size:14px;font-weight:600;white-space:nowrap}
-.chip .pf{width:20px;height:20px}
-.chip .tix{color:var(--gold)}
-.range{width:180px;accent-color:var(--gold)}
-.status{display:flex;gap:16px;font-size:14px;color:var(--muted)}
+.chip{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px 0 5px;border-radius:999px;background:var(--well-2);box-shadow:inset 0 0 0 1px var(--edge);font-size:13px;font-weight:500;white-space:nowrap}
+.chip .pf{width:18px;height:18px}
+.chip .tix{color:var(--accent-fg);font-weight:600}
+.range{width:180px;accent-color:var(--accent)}
+.status{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--fg-2)}
 .status span{display:inline-flex;align-items:center;gap:6px}
-.status i{width:9px;height:9px;border-radius:50%;background:#5b6573}
-.status i.ok{background:var(--green)}
-.status i.wait{background:var(--gold)}
+.status i{width:7px;height:7px;border-radius:50%;background:var(--fg-3)}
+.status i.ok{background:var(--ok)}
+.status i.wait{background:var(--warn)}
 
-.toast{position:fixed;left:50%;bottom:24px;z-index:50;transform:translate(-50%,20px);opacity:0;pointer-events:none;transition:.25s;
-  padding:12px 20px;border-radius:5px;background:var(--slab3);border:1px solid var(--line);font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,.5)}
-.toast.on{opacity:1;transform:translate(-50%,0)}
+.toast{position:fixed;bottom:96px;left:514px;z-index:40;padding:12px 16px;border-radius:var(--r-lg);max-width:560px;
+  background:var(--panel-2);box-shadow:inset 0 0 0 1px var(--edge-2),0 16px 40px -12px rgba(0,0,0,.7);font-size:14px;font-weight:500;
+  opacity:0;transform:translateY(10px);transition:opacity .22s,transform .22s cubic-bezier(.16,1,.3,1);pointer-events:none}
+.toast.on{opacity:1;transform:none}
+
+/* help + confirm stay right of the stream box, as on the competitions page */
+.help-overlay,.confirm-overlay{position:fixed;top:0;right:0;bottom:0;left:498px;z-index:60;display:none;background:rgba(6,7,9,.72)}
+.help-overlay{align-items:flex-start;justify-content:center;overflow-y:auto;padding:48px 32px}
+.confirm-overlay{z-index:70;align-items:center;justify-content:center}
+.help-overlay.show,.confirm-overlay.show{display:flex}
+.help-modal,.confirm-modal{position:relative;background:var(--panel-2);border-radius:var(--r-xl);box-shadow:inset 0 0 0 1px var(--edge-2),0 30px 70px -20px rgba(0,0,0,.8)}
+.help-modal{max-width:680px;width:100%;padding:30px 32px 28px}
+.help-close{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:var(--r);display:grid;place-items:center;color:var(--fg-2)}
+.help-close:hover{background:var(--well-2);color:var(--fg)}
+.help-modal h2{font-family:var(--ui-display);font-size:26px;line-height:1.15;font-weight:650;letter-spacing:-.02em;margin-bottom:22px;padding-right:40px}
+.help-modal h3{font-size:14px;font-weight:600;margin:26px 0 10px}
+.help-modal h3:first-of-type{margin-top:0}
+.help-modal p{font-size:14px;line-height:1.6;color:var(--fg-2)}
+.help-modal p b{color:var(--fg);font-weight:600}
+.help-modal code{font-family:inherit;padding:1px 6px;border-radius:var(--r-sm);background:var(--well-2);color:var(--accent-fg)}
+.confirm-modal{max-width:460px;width:calc(100% - 60px);padding:24px}
+.confirm-msg{font-size:16px;font-weight:500;line-height:1.5;margin-bottom:22px}
+.confirm-actions{display:flex;gap:8px;justify-content:flex-end}
+
+@media (max-width:1100px){
+  .monitor{position:relative;left:auto;top:auto;margin:24px}
+  .monitor-label{position:static;margin:0 24px 16px}
+  .control{margin-left:0;padding:0 24px 48px}
+  .help-overlay,.confirm-overlay{left:0}
+  .toast{left:24px}
+}
 </style>
 </head>
 <body>
-<div class="desk">
-  <div class="monitor">
-    <div class="box" id="box"><div id="boxInner"></div><div class="tk" id="tk"></div><div class="drawfx" id="drawfx"></div></div>
-    <p class="monitor-label"><b>On stream</b> · OBS Browser Source: this page with <code>#display</code> on the end, any square size (600×600 is 1:1)</p>
-  </div>
-  <main class="panel">
-    <header class="top"><h1>Money Train 5 <em>Bingo</em></h1><span class="ver" id="ver"></span></header>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+  <symbol id="i-new" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-sound" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M22 9l-6 6M16 9l6 6"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.2a3 3 0 0 1 5.7 1.1c0 2-2.9 2.6-2.9 4.2M12 17.6h.01"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+</svg>
+<div class="monitor">
+  <div class="box" id="box"><div id="boxInner"></div><div class="tk" id="tk"></div><div class="drawfx" id="drawfx"></div></div>
+</div>
+<div class="monitor-label"><span class="tally">On stream</span></div>
 
-    <section class="card">
-      <div class="card-h"><h2>Board</h2><span class="hint" id="lineCount"></span><button class="btn danger" id="resetBoard">Reset board</button></div>
-      <div class="cells" id="cells"></div>
-      <p class="hint">Edit a challenge any time and the stream updates as you type. Lines and the full board are detected automatically.</p>
+<div class="control">
+  <div class="control-top">
+    <div class="ctitle"><span>Relax Bingo</span><span class="ver" id="ver"></span></div>
+    <div class="ctop-btns">
+      <button class="top-btn" id="backBtn" title="Back to Special Giveaways. The bingo stays on stream."><svg class="ic"><use href="#i-back"/></svg>Special Giveaways</button>
+      <button class="top-btn danger" id="resetBoard" title="Clear the marks, lines and winners"><svg class="ic"><use href="#i-new"/></svg>New board</button>
+      <span class="gap"></span>
+      <select class="in" id="game" aria-label="Game"><option value="mt5">Money Train 5</option><option value="rr2">The Racaroon 2</option></select>
+      <button class="help-btn" id="soundBtn" aria-label="Toggle sounds"><svg class="ic"><use href="#i-sound"/></svg></button>
+      <button class="help-btn" id="helpBtn" title="How this works" aria-label="Help"><svg class="ic"><use href="#i-help"/></svg></button>
+    </div>
+  </div>
+  <div class="control-body">
+    <div class="livehead"><h1 class="page-h" id="gameName">Money Train 5</h1><span class="meta" id="lineCount"></span></div>
+
+    <div class="cells" id="cells"></div>
+
+    <section class="section">
+      <div class="sec-top"><h2 class="section-h">Keyword raffle</h2><div class="status" id="chatStatus"></div></div>
+      <div id="raffle"></div>
+      <div id="entries"></div>
     </section>
 
-    <section class="card">
-      <div class="card-h"><h2>Teaser</h2><div class="seg"><button class="btn" data-teaser="1">On stream</button><button class="btn" data-teaser="0">Off</button></div></div>
+    <section class="section">
+      <div class="sec-top"><h2 class="section-h">Prizes</h2></div>
+      <div class="stages" id="stages"></div>
+    </section>
+
+    <section class="section">
+      <div class="sec-top"><h2 class="section-h">Guess the next tile</h2></div>
+      <div id="guess"></div>
+    </section>
+
+    <section class="section">
+      <div class="sec-top"><h2 class="section-h">Teaser</h2><div class="seg"><button class="btn" data-teaser="1">On stream</button><button class="btn" data-teaser="0">Off</button></div></div>
       <div class="row">
         <label class="lab">Prize <input class="in" id="tzPrize" maxlength="12" spellcheck="false" style="width:120px"></label>
         <label class="lab">Starts <input class="in" id="tzAt" type="datetime-local"></label>
       </div>
     </section>
 
-    <section class="card">
-      <div class="card-h"><h2>Keyword raffle</h2><div class="status" id="chatStatus"></div></div>
-      <div id="raffle"></div>
-      <div id="entries"></div>
-    </section>
-
-    <section class="card">
-      <div class="card-h"><h2>Prize stages</h2></div>
-      <div class="stages" id="stages"></div>
-    </section>
-
-    <section class="card">
-      <div class="card-h"><h2>Guess the next tile</h2></div>
-      <div id="guess"></div>
-    </section>
-
-    <section class="card">
-      <div class="card-h"><h2>Sound</h2><div class="seg"><button class="btn" data-sound="1">On</button><button class="btn" data-sound="0">Off</button></div></div>
+    <section class="section">
+      <div class="sec-top"><h2 class="section-h">Sound</h2></div>
       <div class="row">
         <label class="lab">Volume <input type="range" class="range" id="vol" min="0" max="100"></label>
         <span class="grow"></span>
         <button class="btn" data-sfx="tick">Reel tick</button><button class="btn" data-sfx="whistle">Line</button><button class="btn" data-sfx="horn">Bingo</button><button class="btn" data-sfx="coin">Claim</button>
       </div>
-      <p class="hint">Plays from this window, so it reaches stream through desktop audio. The browser keeps sound locked until you <b>click anywhere on the page once</b> after loading it.</p>
     </section>
 
-    <section class="card">
-      <div class="card-h"><h2>Chat channels</h2></div>
+    <section class="section">
+      <div class="sec-top"><h2 class="section-h">Chat channels</h2></div>
       <div class="row">
-        <label class="lab">Twitch channel <input class="in" id="twitch" spellcheck="false" style="width:180px"></label>
-        <label class="lab">Kick chatroom ID <input class="in" id="kick" spellcheck="false" style="width:130px"></label>
+        <label class="lab">Twitch <input class="in" id="twitch" spellcheck="false" style="width:160px"></label>
+        <label class="lab">Kick chatroom ID <input class="in" id="kick" spellcheck="false" style="width:110px"></label>
+        <label class="lab">YouTube <input class="in" id="youtube" spellcheck="false" style="width:200px" placeholder="channel or live link"></label>
       </div>
-      <p class="hint">Kick needs the chatroom ID, not the channel name: open <b>kick.com/api/v2/channels/NAME</b> in a browser and copy <b>chatroom.id</b>. Kick chat is read through kick.com's own (unofficial) socket.</p>
     </section>
-  </main>
+  </div>
+</div>
+
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-modal">
+    <button class="help-close" id="helpClose" aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button>
+    <h2>Relax Bingo</h2>
+    <h3>Board</h3>
+    <p>Edit a challenge any time; the stream updates as you type. <b>Mark done</b> on a tile. Lines and the full board are found by themselves and get their takeover on stream.</p>
+    <h3>Keyword raffle</h3>
+    <p>Chat types the keyword on Twitch, Kick or YouTube. <b>Draw a winner</b> spins the entries on stream, and the winner has the claim time to type anything in chat. A claim is saved against the stage. <b>Back to board</b> keeps everyone in for the next line, minus the winner. Past winners can't enter again, under the same name on any platform.</p>
+    <h3>Guess the next tile</h3>
+    <p>Chat types <b>!1</b> to <b>!9</b> to guess which tile gets marked next. Everyone who picked it gets <b>+1 ticket in every raffle</b> for the rest of the board. Un-marking a misclick gives the round back. Tickets clear with <b>New board</b>.</p>
+    <h3>Sound</h3>
+    <p>Plays from this window, so it reaches stream through desktop audio. The browser unlocks it after the first click on the page.</p>
+    <h3>Chat channels</h3>
+    <p>Kick needs the chatroom ID, not the name: open <code>kick.com/api/v2/channels/NAME</code> and copy <b>chatroom.id</b>. YouTube finds the stream from the channel's /live; paste the live link only if it doesn't.</p>
+    <h3>OBS</h3>
+    <p>The bingo is shown in the competitions stream box, so OBS needs nothing new. On its own: this page with <code>#display</code> on the end, any square size.</p>
+  </div>
+</div>
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-modal">
+    <div class="confirm-msg" id="confirmMsg"></div>
+    <div class="confirm-actions"><button class="top-btn" id="confirmNo">Cancel</button><button class="primary" id="confirmYes">Yes</button></div>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -338,15 +486,27 @@ const BEAM={r0:[18,49,282,49],r1:[18,150,282,150],r2:[18,251,282,251],c0:[49,18,
 const FX_MS=5000, REVEAL_MS=3000, ROW=88, STAMP_MS=600, RESULT_MS=6000;   // ROW: a name's row in the train's reel window
 const ARRIVE=1700, STEPS=330;   // the train is in before the reel moves, and 330 names run past however many entered
 const WILD=4;   // the centre is free: always marked, shown as the wild symbol
-const DEFAULT_CELLS=["Basegame Bonus","10000x win","Reach Station 20",
-  "Bonus ends with every position filled","Wild","100x win from Base",
-  "Reach Station 10 from base","1000x win","Arms Dealer converts 4 bonus symbols"];
+/* One page, two games. The operator picks the game in the panel; it dresses the box (art in
+   assets/ for Money Train 5, rr2/ for The Racaroon 2, cut from its public screenshots) and
+   brings that game's challenges, prizes and keyword. */
+const GAMES={
+  mt5:{name:"Money Train 5", kw:"MT5", teaser:"€500", prizes:[...Array(8).fill("€50"),"€100"],
+    cells:["Basegame Bonus","10000x win","Reach Station 20",
+      "Bonus ends with every position filled","Wild","100x win from Base",
+      "Reach Station 10 from base","1000x win","Arms Dealer converts 4 bonus symbols"]},
+  rr2:{name:"The Racaroon 2", kw:"Racaroon", teaser:"€1,500", prizes:[...Array(8).fill("€125"),"€500"],
+    cells:["Racaroon Respins","Macaron jackpot","5x heart multiplier",
+      "100x win","Wild","Respins with 12+ prizes",
+      "500x win","Bonus buy pays 200x","1000x win"]},
+};
+const G=()=>GAMES[S.game]||GAMES.mt5, RR=()=>S.game==="rr2";
 const PF={twitch:"M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z",
-  kick:"M1.333 0h8v5.333H12V2.667h2.667V0h8v8H20v2.667h-2.667v2.666H20V16h2.667v8h-8v-2.667H12v-2.666H9.333V24h-8Z"};
+  kick:"M1.333 0h8v5.333H12V2.667h2.667V0h8v8H20v2.667h-2.667v2.666H20V16h2.667v8h-8v-2.667H12v-2.666H9.333V24h-8Z",
+  youtube:"M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"};
 
-const rfFresh=(keyword="MT5",claimSecs=60,stage=0)=>({on:false,open:false,keyword,claimSecs,stage,entries:[],spin:null,won:null});
-const fresh=()=>({cells:DEFAULT_CELLS.map(t=>({t,d:false})), lines:[], prizes:[...Array(8).fill("€50"),"€100"], winners:{}, winnerLog:[], fx:null,
-  view:"board", chat:{twitch:"casinodaddy",kickRoom:"4534770"}, rf:rfFresh(),
+const rfFresh=(keyword=GAMES.mt5.kw,claimSecs=60,stage=0)=>({on:false,open:false,keyword,claimSecs,stage,entries:[],spin:null,won:null});
+const fresh=()=>({game:"mt5", cells:GAMES.mt5.cells.map(t=>({t,d:false})), lines:[], prizes:[...GAMES.mt5.prizes], winners:{}, winnerLog:[], fx:null,
+  view:"board", chat:{twitch:"casinodaddy",kickRoom:"4534770",youtube:"@casinodaddyofficial"}, rf:rfFresh(),
   guess:{on:false, picks:{}, bonus:{}, last:null},   // picks: eid→cell this round; bonus: eid→extra raffle tickets
   sound:{on:true, vol:70},
   teaser:{on:false, prize:"€500", at:Date.parse("2026-09-24T14:00:00+02:00"), shownAt:0}});
@@ -354,11 +514,17 @@ function load(raw){
   let s=fresh();
   try{ const v=JSON.parse(raw===undefined?localStorage.getItem(KEY):raw); if(v&&Array.isArray(v.cells)) s=Object.assign(s,v); }catch(e){}
   s.cells[WILD].d=true;
+  if(s.chat.youtube===undefined) s.chat.youtube="@casinodaddyofficial";   // a board saved before YouTube
   return s;
 }
 /* Stream Studio holds the board (/bingo/sync, the competitions relay). A panel
    loads it before load() reads localStorage, and only one panel drives: two would
    both read chat and overwrite each other. Same lock as the competitions page. */
+/* The show runs on the server's clock (as on the competitions page): a draw is animated from the
+   timestamp the panel wrote, so a playing PC whose clock is off would play it seconds apart from OBS. */
+let NET_SKEW=0;
+const netNow=()=>Date.now()+NET_SKEW;
+const netClock=j=>{ if(j && typeof j.now==="number"){ const d=j.now-Date.now(); if(!NET_SKEW || Math.abs(d-NET_SKEW)>200) NET_SKEW=d; } };
 const CTL_ID=(()=>{ try{ let v=sessionStorage.getItem("studio_ctl"); if(!v){ v=Math.random().toString(36).slice(2); sessionStorage.setItem("studio_ctl",v); } return v; }catch(e){ return Math.random().toString(36).slice(2); } })();
 if(!DISPLAY){
   let j=null;
@@ -366,7 +532,7 @@ if(!DISPLAY){
     let take=false; try{ take=sessionStorage.getItem("bingo_take")==="1"; sessionStorage.removeItem("bingo_take"); }catch(e){}
     const x=new XMLHttpRequest();   // synchronous on purpose: load() below reads localStorage
     x.open("GET",`sync?hb=${CTL_ID}&pull=1${take?"&take=1":""}`,false); x.send();
-    if(x.status===200) j=JSON.parse(x.responseText);
+    if(x.status===200){ j=JSON.parse(x.responseText); netClock(j); }
   }catch(e){}
   if(j && j.owner===false){
     document.body.innerHTML=`<div style="min-height:100vh;display:grid;place-items:center;text-align:center;padding:24px"><div>
@@ -401,9 +567,9 @@ const tileSize=t=>{ const n=t.length; return n<=16?30:n<=30?24:n<=50?21:18; };  
 const nameSize=t=>{ const n=t.length; return n<=10?60:n<=14?50:n<=18?42:36; };
 const logo=p=>PF[p]?`<i class="pf pf-${p}"><svg viewBox="0 0 24 24"><path d="${PF[p]}"/></svg></i>`:"";
 const nameHtml=e=>logo(e.platform)+`<span>${esc(e.name)}</span>`;
-const pfName=p=>p==="kick"?"Kick":"Twitch";
+const pfName=p=>({kick:"Kick",youtube:"YouTube"})[p]||"Twitch";
 const eid=e=>e.platform+":"+e.user;
-const secs=until=>Math.max(0,Math.ceil((until-Date.now())/1000));
+const secs=until=>Math.max(0,Math.ceil((until-netNow())/1000));
 const spinEnd=sp=>sp.startedAt+sp.duration;
 const claimEnd=sp=>spinEnd(sp)+sp.claimMs;
 const poolOf=()=>S.rf.entries.filter(e=>!e.st);   // not won, not missed
@@ -420,7 +586,7 @@ function matches(text,kw){
 /* ================= board ================= */
 function toggleCell(i){
   if(i===WILD) return;
-  const now=Date.now(), c=S.cells[i], G=S.guess;
+  const now=netNow(), c=S.cells[i], G=S.guess;
   c.d=!c.d;
   if(c.d){
     c.at=now;
@@ -447,19 +613,21 @@ function toggleCell(i){
 const nextStage=()=>{ for(let n=1;n<=9;n++) if(stageDone(n)&&!S.winners[n]) return n; return 0; };
 
 /* ================= stream box ================= */
-const header=()=>`<div class="hd"><img class="logo" src="assets/logo.webp" alt="Money Train 5"><div class="bingo">Bingo</div></div>`;
+const header=()=>`<div class="hd"><img class="logo" src="${RR()?"rr2":"assets"}/logo.webp" alt="${G().name}"><div class="bingo">Bingo</div></div>`;
 // one per line, in completion order; full board gets the logo with the crew
 const CHARS=["collector","necromancer","sniper","payer","arms-dealer","bomber","pyro","ticketmaster"];
+const RR_CHARS=["raccoon","cake"];
 [...CHARS,"logo","logo-crew","train",1,2,3,4,5].forEach(n=>{ new Image().src=`assets/${typeof n==="number"?"station"+n:n}.webp`; });   // warm the cache so a takeover never pops in late
+["bg","logo","wild",...RR_CHARS].forEach(n=>{ new Image().src=`rr2/${n}.webp`; });
 // the game's five stations, one step further along the line every two lines
 const stationNo=()=>Math.min(5,1+Math.floor(S.lines.length/2));
 // one tile short of a line: the tile chat should be rooting for
 const hot=i=>!S.cells[i].d&&Object.values(LINES).some(l=>l.includes(i)&&l.every(j=>j===i||S.cells[j].d));
 function boardView(){
-  const now=Date.now(), G=S.guess, picks=Array(9).fill(0);
+  const now=netNow(), G=S.guess, picks=Array(9).fill(0);
   Object.values(G.picks).forEach(i=>picks[i]++);
   const tiles=S.cells.map((c,i)=>{
-    if(i===WILD) return `<div class="tile wild"><img src="assets/wild.png" alt="Wild"></div>`;
+    if(i===WILD) return `<div class="tile wild"><img src="${RR()?"rr2/wild.webp":"assets/wild.png"}" alt="Wild"></div>`;
     const age=now-(c.at||0), stamp=c.d&&age<STAMP_MS;   // the stamp plays from its timestamp, so a rebuild mid-stamp carries on
     const badges=G.on&&!c.d?`<i class="tno">${i+1}</i>`+(picks[i]?`<i class="tgs">${picks[i]} ${picks[i]===1?"pick":"picks"}</i>`:""):"";
     return `<div class="tile${c.d?" done":""}${stamp?" stamp":""}${hot(i)?" hot":""}" style="font-size:${tileSize(c.t)}px${stamp?`;animation-delay:-${age}ms`:""}">${badges}${esc(c.t)}</div>`;
@@ -480,7 +648,7 @@ function guessFooter(){
   let h=allDone()?"":`<div class="ft cta swap" style="font-size:24px">Type<b>!1–9</b>to guess the next tile</div>`;
   if(L){
     // the result waits out the takeover that same click started
-    const wait=S.fx&&S.fx.id===L.at?(S.fx.full?2:1)*FX_MS:0, age=Date.now()-L.at-wait;
+    const wait=S.fx&&S.fx.id===L.at?(S.fx.full?2:1)*FX_MS:0, age=netNow()-L.at-wait;
     if(age<RESULT_MS) h+=`<div class="ft cta result" style="font-size:24px;animation-delay:${-age}ms">`
       +(L.got.length?`<b>${L.got.length}</b>guessed tile ${L.cell+1} · +1 raffle ticket`:`Nobody guessed tile<b>${L.cell+1}</b>`)+`</div>`;
   }
@@ -490,7 +658,7 @@ let winSig="";
 function winCard(){
   const R=S.rf, sp=R.spin;
   let e, foot, sig;
-  if(sp&&Date.now()>=spinEnd(sp)){
+  if(sp&&netNow()>=spinEnd(sp)){
     e=winnerOf(sp); if(!e) return "";
     sig=sp.winner+sp.startedAt;
     foot=sp.claimed?`<p class="ok">Claimed</p>`:`<p>Type in ${pfName(e.platform)} chat to claim<b data-until="${claimEnd(sp)}">${secs(claimEnd(sp))}</b></p>`;
@@ -518,10 +686,10 @@ function raffleView(){
    winCard() pops on top once it stops, same as CREW's tiered reveal. The arrival
    runs on a negative delay, so a reload mid-draw finds the train already in. */
 function drawFxHtml(){
-  const R=S.rf, sp=R.spin, spinning=sp && Date.now()<spinEnd(sp);
+  const R=S.rf, sp=R.spin, spinning=sp && netNow()<spinEnd(sp);
   const w=winCard();
-  const train=sp ? `<div class="trainwrap${spinning?"":" done"}" style="animation-delay:${-(Date.now()-sp.startedAt)}ms">
-      <img src="assets/train.webp" alt="">
+  const train=sp ? `<div class="trainwrap${spinning?"":" done"}" style="animation-delay:${-(netNow()-sp.startedAt)}ms">
+      <img src="${RR()?"rr2/raccoon.webp":"assets/train.webp"}" alt="">
       <div class="tw"><div class="reel" id="reel"></div></div>
     </div>` : "";
   return train+w;
@@ -539,22 +707,24 @@ const TZ="Europe/Stockholm";
 const whenText=at=>{ const f=o=>new Intl.DateTimeFormat("en-GB",{timeZone:TZ,...o}).format(at);
   return `${f({weekday:"long"})} ${f({day:"numeric"})}/${f({month:"numeric"})} · ${f({hour:"2-digit",minute:"2-digit",hour12:false})} ${f({timeZoneName:"short"}).split(" ").pop()}`; };
 function countdown(at){
-  const t=Math.max(0,Math.ceil((at-Date.now())/1000)); if(!t) return "Starting now";
+  const t=Math.max(0,Math.ceil((at-netNow())/1000)); if(!t) return "Starting now";
   const d=Math.floor(t/86400), p=n=>String(n).padStart(2,"0");
   return (d?d+"d ":"")+`${p(Math.floor(t/3600)%24)}:${p(Math.floor(t/60)%60)}:${p(t%60)}`;
 }
 function teaserView(){
   const T=S.teaser;
-  return `<div class="tz"><img class="crew" src="assets/logo-crew.webp" alt="Money Train 5" style="animation-delay:${-(Date.now()-T.shownAt)}ms">
+  return `<div class="tz"><img class="crew" src="${RR()?"rr2/logo.webp":"assets/logo-crew.webp"}" alt="${G().name}" style="animation-delay:${-(netNow()-T.shownAt)}ms">
     <b class="prize gold-t" style="font-size:${T.prize.length<=5?120:T.prize.length<=8?84:56}px">${esc(T.prize)}</b>
     <div class="give steel-t">Giveaway</div><div class="when">${esc(whenText(T.at))}</div>
     <div class="cd">Starts in<b data-cd="${T.at}">${countdown(T.at)}</b></div></div>`;
 }
 function renderBox(){
   const raffle=S.rf.on&&S.view==="raffle";
+  document.body.classList.toggle("g-rr2", RR());
   if(S.teaser.on){ $("#boxInner").innerHTML=teaserView(); updateDrawFx(); checkFx(); return; }   // the crew logo is the header
-  $("#box").style.setProperty("--station",`url(assets/station${stationNo()}.webp)`);
-  $("#boxInner").style.setProperty("--ph",-(Date.now()%12000)+"ms");   // loop periods divide 12s
+  document.body.classList.toggle("g-rr2", RR());
+  $("#box").style.setProperty("--station", RR() ? "url(rr2/bg.webp)" : `url(assets/station${stationNo()}.webp)`);
+  $("#boxInner").style.setProperty("--ph",-(netNow()%12000)+"ms");   // loop periods divide 12s
   $("#boxInner").innerHTML=header()+(raffle?raffleView():boardView()+footer());
   updateDrawFx();
   checkFx();
@@ -570,7 +740,7 @@ function checkFx(){
   if(!f||f.id===fxShown) return;
   fxShown=f.id;
   clearTimeout(tkNext);
-  const age=Date.now()-f.at;
+  const age=netNow()-f.at;
   if(age<FX_MS-300) playTk(f,false,age);
   if(f.full && age<2*FX_MS-300) tkNext=setTimeout(()=>playTk(f,true,Math.max(0,age-FX_MS)), Math.max(0,FX_MS-age));
 }
@@ -580,8 +750,9 @@ function playTk(f, full, age){
   const big=full?"Bingo!":n>1?n+" lines!":"Line!";
   const sub=full?"Full board":n>1?`Lines ${f.from}–${f.to} of 8`:`Line ${f.from} of 8`;
   tk.className="tk"+(full?" full":"");
-  const art=full?`<img class="crew" src="assets/logo-crew.webp" alt="">`:"";
-  tk.innerHTML=`<div class="rail"></div>`+(full?"":`<img class="char" src="assets/${CHARS[(f.to-1)%8]}.webp" alt="">`)
+  const art=full?`<img class="crew" src="${RR()?"rr2/logo.webp":"assets/logo-crew.webp"}" alt="">`:"";
+  const ch=RR() ? `rr2/${RR_CHARS[(f.to-1)%2]}` : `assets/${CHARS[(f.to-1)%8]}`;
+  tk.innerHTML=`<div class="rail"></div>`+(full?"":`<img class="char" src="${ch}.webp" alt="">`)
     +`<div class="text">${art}<div class="big steel-t${n>1&&!full?" sm":""}">${big}</div><div class="sub">${sub}</div>`
     +(prizes.length?`<div class="prize">${[...new Set(prizes)].map(p=>{ const k=prizes.filter(x=>x===p).length; return (k>1?k+"× ":"")+esc(p); }).join(" + ")}</div>`:"")+`</div><div class="rail b"></div>`;
   if(age<500) sfx(full?"horn":"whistle");   // not on a reload that joins late
@@ -612,7 +783,7 @@ function frame(){
     // the run is always STEPS long: shift reads the pool so the winner sits at the end of it
     plan={at:sp.startedAt, pool, N, steps:STEPS, shift:mod(wi-STEPS,N)};
   }
-  const p=Math.max(0,Math.min(1,(Date.now()-sp.startedAt-ARRIVE)/(sp.duration-ARRIVE))), off=plan.steps*roll(p);
+  const p=Math.max(0,Math.min(1,(netNow()-sp.startedAt-ARRIVE)/(sp.duration-ARRIVE))), off=plan.steps*roll(p);
   const mid=reel.clientHeight/2, base=Math.floor(off);
   if(base!==plan.base){ plan.base=base; if(p>0&&p<1&&base%4===0) sfx("tick"); }   // every fourth row: at full pace a tick each one is a machine gun
   while(reel.children.length<6) reel.appendChild(document.createElement("div"));
@@ -635,7 +806,7 @@ function patch(sel,html,wire){
   el._html=html; el.innerHTML=html; if(wire) wire(el);
 }
 function buildCells(){
-  $("#cells").innerHTML=S.cells.map((c,i)=>i===WILD?`<div class="cell wild"><img src="assets/wild.png" alt="">Free square, always marked</div>`
+  $("#cells").innerHTML=S.cells.map((c,i)=>i===WILD?`<div class="cell wild"><img src="${RR()?"rr2/wild.webp":"assets/wild.png"}" alt="">Free square</div>`
     :`<div class="cell" id="cell${i}"><label class="ta"><textarea maxlength="80" spellcheck="false" aria-label="Challenge ${i+1}"></textarea></label><button class="btn"></button></div>`).join("");
   S.cells.forEach((c,i)=>{
     if(i===WILD) return;
@@ -653,48 +824,49 @@ function renderPanel(){
     if(b.innerHTML!==label) b.innerHTML=label;
     if(ta!==document.activeElement&&ta.value!==c.t) ta.value=c.t;
   });
-  $("#lineCount").textContent=`${S.lines.length}/8 lines${allDone()?" + full board":""}`;
+  $("#lineCount").innerHTML=`<b>${S.lines.length}</b>/8 lines${allDone()?" · full board":""}`;
   patch("#raffle",raffleHtml(),wireRaffle);
   patch("#entries",entriesHtml());
   patch("#guess",guessHtml(),el=>el.querySelectorAll("[data-guess]").forEach(b=>b.onclick=()=>{
     S.guess.on=b.dataset.guess==="1"; if(!S.guess.on) S.guess.picks={}; save(); renderAll();
   }));
-  document.querySelectorAll("[data-sound]").forEach(b=>b.classList.toggle("on",(b.dataset.sound==="1")===S.sound.on));
+  const sb=$("#soundBtn"); sb.innerHTML=`<svg class="ic"><use href="#i-${S.sound.on?"sound":"mute"}"/></svg>`; sb.classList.toggle("off",!S.sound.on); sb.title=S.sound.on?"Mute sounds":"Unmute sounds";
   document.querySelectorAll("[data-teaser]").forEach(b=>b.classList.toggle("on",(b.dataset.teaser==="1")===S.teaser.on));
   patch("#stages",stagesHtml(),el=>el.querySelectorAll("[data-prize]").forEach(inp=>{
     inp.oninput=()=>{ S.prizes[+inp.dataset.prize]=inp.value; save(); renderBox(); };
   }));
   const dot=s=>`<i class="${s==="connected"?"ok":s==="off"?"":"wait"}"></i>`;
-  $("#chatStatus").innerHTML=`<span>${dot(chat.twitch)}Twitch ${chat.twitch}</span><span>${dot(chat.kick)}Kick ${chat.kick}</span>`;
+  const st=(name,s)=>`<span>${dot(s)}${name}${s==="connected"?"":" "+esc(s)}</span>`;
+  $("#chatStatus").innerHTML=st("Twitch",chat.twitch)+st("Kick",chat.kick)+st("YouTube",chat.youtube);
 }
 function stagesHtml(){
   return Array.from({length:9},(_,k)=>{
     const n=k+1, done=stageDone(n), w=S.winners[n];
     const stat=w?`Won by <b>${esc(w.name)}</b>`:done?(n==9?"Complete":LINE_NAME[S.lines[k]]):"Not yet";
-    return `<div class="stage${done?" done":""}${w?" won":""}"><span class="sname">${stageName(n)}</span><span class="sstat">${stat}</span><input class="in" data-prize="${k}" maxlength="60" placeholder="Prize (optional, shown on stream)" value="${esc(S.prizes[k])}"></div>`;
+    return `<div class="stage${done?" done":""}${w?" won":""}"><span class="sname">${stageName(n)}</span><span class="sstat">${stat}</span><input class="in" data-prize="${k}" maxlength="60" placeholder="Prize" value="${esc(S.prizes[k])}"></div>`;
   }).join("");
 }
 function raffleHtml(){
   const R=S.rf;
   if(!R.on){
     const opts=[0,1,2,3,4,5,6,7,8,9].filter(n=>!n||stageDone(n))
-      .map(n=>`<option value="${n}"${n==R.stage?" selected":""}>${n?stageName(n):"No stage"}${S.winners[n]?" (has a winner)":""}</option>`).join("");
+      .map(n=>`<option value="${n}"${n==R.stage?" selected":""}>${n?stageName(n):"No stage"}${S.winners[n]?" (won)":""}</option>`).join("");
     return `<div class="row">
         <label class="lab">Keyword <input class="in" id="kw" maxlength="30" spellcheck="false" style="width:140px" value="${esc(R.keyword)}"></label>
         <label class="lab">Raffle for <select class="in" id="stage">${opts}</select></label>
         <label class="lab">Claim time <input class="in" id="claim" type="number" min="5" max="600" step="5" style="width:84px" value="${R.claimSecs}"> s</label>
       </div>
       <div class="row"><button class="btn primary" id="openBtn">Open entries</button></div>
-      <p class="hint">Chat types the keyword on Twitch or Kick. <b>Draw a winner</b> spins the entries on stream; the winner has the claim time to type anything in chat. A claim is saved against the stage. Open entries at the start of the bingo: <b>Back to board</b> keeps everyone in for the next line, minus the winner. ${S.winnerLog.length?`<b>${S.winnerLog.length} past ${S.winnerLog.length===1?"winner":"winners"}</b> can't enter again.`:"Past winners can't enter again."}</p>`;
+      `;
   }
   const sp=R.spin;
   let draw="";
   if(sp){
     const e=winnerOf(sp)||{name:"?",platform:""};
-    draw=Date.now()<spinEnd(sp) ? `<div class="drawrow">Drawing…</div>`
+    draw=netNow()<spinEnd(sp) ? `<div class="drawrow">Drawing…</div>`
       : `<div class="drawrow${sp.claimed?" ok":""}">${logo(e.platform)}<b>${esc(e.name)}</b>`
         +(sp.claimed?`<span class="tag ok">Claimed</span>`
-          :`<span class="hint">claim time</span><span class="secs" data-until="${claimEnd(sp)}">${secs(claimEnd(sp))}</span><button class="btn" id="claimBtn">${CHECK}Mark claimed</button><button class="btn danger" id="missBtn">Didn't claim</button>`)
+          :`<span class="secs" data-until="${claimEnd(sp)}">${secs(claimEnd(sp))}</span><button class="btn" id="claimBtn">${CHECK}Mark claimed</button><button class="btn danger" id="missBtn">Didn't claim</button>`)
         +`</div>`;
   }else if(R.won){
     draw=`<div class="drawrow ok">${logo(R.won.platform)}<b>${esc(R.won.name)}</b><span class="tag ok">Won ${esc(stageName(R.won.stage))}</span></div>`;
@@ -705,7 +877,7 @@ function raffleHtml(){
     <div class="row">
       <button class="btn primary" id="drawBtn"${sp||!poolOf().length?" disabled":""}>Draw a winner</button>
       <button class="btn" id="toggleBtn">${R.open?"Close entries":"Reopen entries"}</button>
-      <button class="btn" id="testBtn">Load 1,400 test entries</button>
+      <button class="btn" id="testBtn">Test entries</button>
       <button class="btn" id="nextBtn">Back to board</button>
       <button class="btn danger" id="finishBtn">End raffle</button>
     </div>`;
@@ -715,7 +887,7 @@ function entriesHtml(){
   const pool=poolOf();
   return `<div class="count"><b>${pool.length}</b>in the draw</div>`
     +(pool.length?`<div class="chips">${pool.slice(-80).reverse().map(e=>`<span class="chip">${nameHtml(e)}${tickets(e)>1?`<b class="tix">×${tickets(e)}</b>`:""}</span>`).join("")}</div>`
-      :`<p class="hint">${S.rf.open?"Waiting for chat to type the keyword.":"Nobody left to draw."}</p>`);
+      :`<p class="hint">${S.rf.open?"Nobody yet.":"Nobody left to draw."}</p>`);
 }
 function guessHtml(){
   const G=S.guess, n=Object.keys(G.picks).length, holders=Object.keys(G.bonus).length, L=G.last;
@@ -723,7 +895,7 @@ function guessHtml(){
     +(G.on?`<span class="hint"><b>${n}</b> ${n===1?"guess":"guesses"} this round</span>`:"")
     +(L?`<span class="hint">Tile ${L.cell+1}: <b>${L.got.length}</b> of ${L.n} guessed right</span>`:"")
     +(holders?`<span class="hint"><b>${holders}</b> ${holders===1?"viewer has":"viewers have"} bonus tickets</span>`:"")+`</div>
-    <p class="hint">Chat types <b>!1</b> to <b>!9</b> to guess which tile gets marked next (numbers show on the tiles). When you mark a tile, everyone who picked it gets <b>+1 ticket in every raffle</b> for the rest of the board, and a new round starts. Un-marking a misclick gives the round back. Tickets clear with Reset board. Tickets already won still count if you turn this off.</p>`;
+`;
 }
 function wireRaffle(el){
   const R=S.rf, on=(id,fn)=>{ const b=el.querySelector(id); if(b) b.onclick=fn; };
@@ -733,7 +905,7 @@ function wireRaffle(el){
   if(cl) cl.onchange=()=>{ const v=Math.round(+cl.value); if(v>=5&&v<=600) R.claimSecs=v; cl.value=R.claimSecs; save(); };
   on("#openBtn",()=>{ S.rf={...rfFresh(R.keyword,R.claimSecs,R.stage), on:true, open:true}; S.view="raffle"; save(); renderAll(); });
   on("#drawBtn",draw);
-  on("#claimBtn",()=>{ const sp=S.rf.spin; if(sp&&!sp.claimed){ sp.claimed=true; sp.claimedAt=Date.now(); save(); renderAll(); } });
+  on("#claimBtn",()=>{ const sp=S.rf.spin; if(sp&&!sp.claimed){ sp.claimed=true; sp.claimedAt=netNow(); save(); renderAll(); } });
   on("#missBtn",()=>commit(false));
   on("#toggleBtn",()=>{ R.open=!R.open; save(); renderAll(); });
   on("#testBtn",testEntries);
@@ -743,8 +915,9 @@ function wireRaffle(el){
   });
   on("#finishBtn",()=>{
     if(R.spin) return toast("Finish the draw first");
-    if(!confirm("End the raffle? The entry list is cleared and the stream goes back to the board.")) return;
-    S.rf=rfFresh(R.keyword,R.claimSecs); S.rf.stage=nextStage(); S.view="board"; save(); renderAll();
+    ask("End the raffle? The entry list is cleared and the stream goes back to the board.","End raffle",()=>{
+      S.rf=rfFresh(R.keyword,R.claimSecs); S.rf.stage=nextStage(); S.view="board"; save(); renderAll();
+    });
   });
   el.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>{ S.view=b.dataset.view; save(); renderAll(); });
 }
@@ -758,7 +931,7 @@ function testEntries(){
   const have=new Set(S.rf.entries.map(eid));
   for(let i=0;i<1400;i++){
     const a=pick(A), b=pick(B), n=Math.floor(Math.random()*1000), f=i%4;
-    const e={platform:Math.random()<.5?"twitch":"kick", user:"test"+i, test:true,
+    const e={platform:["twitch","kick","youtube"][i%3], user:"test"+i, test:true,
       name:f===0?cap(a)+cap(b):f===1?a+"_"+b:f===2?cap(a)+cap(b)+n:a+b+(n%100)};
     if(!have.has(eid(e))) S.rf.entries.push(e);
   }
@@ -771,7 +944,7 @@ function draw(){
   const r=crypto.getRandomValues(new Uint32Array(2));
   let x=r[0]%pool.reduce((n,e)=>n+tickets(e),0);   // weighted by guess tickets
   R.won=null;
-  R.spin={startedAt:Date.now(), duration:25000+r[1]%4000, winner:eid(pool.find(e=>(x-=tickets(e))<0)), count:R.entries.length, claimed:false, claimMs:R.claimSecs*1000};
+  R.spin={startedAt:netNow(), duration:25000+r[1]%4000, winner:eid(pool.find(e=>(x-=tickets(e))<0)), count:R.entries.length, claimed:false, claimMs:R.claimSecs*1000};
   S.view="raffle"; save(); renderAll();
 }
 /* The claim resolves: a claim wins the stage, a miss leaves the draw for a redraw. */
@@ -787,7 +960,7 @@ function commit(claimed){
       S.winnerLog.push({name:e.name, platform:e.platform, user:e.user, stage:R.stage});
       if(R.stage) S.winners[R.stage]={name:e.name, platform:e.platform};
     }
-    if(!e.test) logResult({id:sp.startedAt+"-"+sp.winner, mode:"Relax Bingo", winner:`${e.name} (${e.platform})${claimed?"":" did not claim"}`,
+    if(!e.test) logResult({id:sp.startedAt+"-"+sp.winner, mode:G().name+" Bingo", winner:`${e.name} (${e.platform})${claimed?"":" did not claim"}`,
       count:sp.count, detail:raffleTitle(R.stage)});
     toast(claimed?`${e.name} won ${raffleTitle(R.stage).toLowerCase()}`:`${e.name} didn't claim. Draw again.`);
   }
@@ -800,17 +973,20 @@ function logResult(row, n=0){
     .catch(()=>{ if(n<60) setTimeout(()=>logResult(row, n+1), 30000); });
 }
 let toastT=0;
+let askCb=null;
+function ask(msg,yes,cb){ $("#confirmMsg").textContent=msg; $("#confirmYes").textContent=yes; askCb=cb; $("#confirmOverlay").classList.add("show"); }
+function hideAsk(){ $("#confirmOverlay").classList.remove("show"); askCb=null; }
 function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("on"),3500); }
 
 /* ================= chat (control panel only) =================
    Ported from Stream Competitions: Twitch anonymous IRC (official, no login) and
    Kick's own Pusher socket (unofficial; if Kick entries stop, that is the part to fix). */
-const chat={twitch:"off", kick:"off", ws:{}, restart:{}};
+const chat={twitch:"off", kick:"off", youtube:"off", ws:{}, restart:{}};
 let dirty=false, panelDirty=false;
 function chatMsg(platform,user,name,text){
   const R=S.rf, sp=R.spin;
   // anything the winner says counts as claiming, on the platform they entered from
-  if(sp&&!sp.claimed&&sp.winner===platform+":"+user&&Date.now()>=spinEnd(sp)){ sp.claimed=true; sp.claimedAt=Date.now(); dirty=true; return; }
+  if(sp&&!sp.claimed&&sp.winner===platform+":"+user&&netNow()>=spinEnd(sp)){ sp.claimed=true; sp.claimedAt=netNow(); dirty=true; return; }
   const g=S.guess.on&&/^!([1-9])(?![\p{L}\p{N}_])/u.exec(String(text||"").trim());
   if(g){   // "!4" or "!4 come on"; a new guess replaces the old one
     const i=g[1]-1, k=platform+":"+user;
@@ -872,6 +1048,51 @@ function startChat(){
           chatMsg("kick", String(d.sender.slug||d.sender.username).toLowerCase(), d.sender.username, d.content);
       }catch(e){}
     }, '{"event":"pusher:ping","data":{}}');
+  ytStart();
+}
+/* YouTube: ported from the competitions page's ytStart() (youtubei through the server's /yt/*
+   passthrough; unofficial, like Kick). S.chat.youtube is a channel handle, or a live link that
+   overrides it. A new ytStart() retires the old loop. */
+const ytVid=s=>{ s=String(s||"").trim(); const m=/(?:v=|\/live\/|\/video\/|youtu\.be\/|\/embed\/)([A-Za-z0-9_-]{11})/.exec(s); return m ? m[1] : /^[A-Za-z0-9_-]{11}$/.test(s) ? s : ""; };
+const ytCall=(path, body)=>fetch("/yt/"+path, {method:"POST",
+  body:JSON.stringify(Object.assign({context:{client:{clientName:"WEB", clientVersion:"2.20250910.00.00"}}}, body)),
+  signal:AbortSignal.timeout(10000)}).then(r=>{ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); });
+const ytText=r=>(r.runs||[]).map(x=>x.text||(x.emoji&&x.emoji.shortcuts&&x.emoji.shortcuts[0])||"").join("");
+let ytRun=0;
+async function ytStart(){
+  const run=++ytRun, alive=()=>run===ytRun;
+  const wait=ms=>new Promise(r=>setTimeout(r,ms));
+  const say=t=>{ if(alive() && chat.youtube!==t){ chat.youtube=t; panelDirty=true; } };
+  const src=String(S.chat.youtube||"").trim(), since=Date.now()*1000;   // µs; what was already in chat isn't an entry
+  if(!src) return say("off");
+  say("looking for the stream");
+  while(alive()){
+    try{
+      let vid=ytVid(src);
+      if(!vid) vid=(((await ytCall("navigation/resolve_url", {url:"https://www.youtube.com/"+src.replace(/^https?:\/\/(www\.)?youtube\.com\//,"").replace(/\/live$/,"")+"/live"})).endpoint||{}).watchEndpoint||{}).videoId;
+      if(!vid){ say("not live, checking every 30s"); await wait(30000); continue; }
+      const lcr=((((await ytCall("next", {videoId:vid})).contents||{}).twoColumnWatchNextResults||{}).conversationBar||{}).liveChatRenderer;
+      let cont=lcr && (((lcr.continuations||[])[0]||{}).reloadContinuationData||{}).continuation;
+      if(!cont) throw new Error("no live chat on that stream");
+      say("connected");
+      while(cont && alive()){
+        const lc=((await ytCall("live_chat/get_live_chat", {continuation:cont})).continuationContents||{}).liveChatContinuation||{};
+        (lc.actions||[]).forEach(a=>{
+          const m=a.addChatItemAction && a.addChatItemAction.item.liveChatTextMessageRenderer;
+          if(!m || Number(m.timestampUsec)<since || !alive()) return;
+          chatMsg("youtube", m.authorExternalChannelId, (m.authorName&&m.authorName.simpleText||"").replace(/^@/,""), ytText(m.message||{}));
+        });
+        const c=(lc.continuations||[])[0]||{};
+        const d=c.invalidationContinuationData||c.timedContinuationData||c.reloadContinuationData||{};
+        cont=d.continuation;
+        await wait(Math.min(Math.max(d.timeoutMs||3000, 1500), 5000));
+      }
+      say("stream ended, looking again");
+    }catch(e){
+      say(String(e.message||e).slice(0,50)+", retrying");
+      await wait(15000);
+    }
+  }
 }
 
 /* ================= sound (control panel only) =================
@@ -917,7 +1138,7 @@ const sfx=name=>{ if(audio()) SFX[name](); };
 /* ================= boot ================= */
 let phase="";
 setInterval(()=>{
-  const sp=S.rf.spin, now=Date.now();
+  const sp=S.rf.spin, now=netNow();
   if(!DISPLAY&&sp&&(sp.claimed ? now>=Math.max(spinEnd(sp)+REVEAL_MS, sp.claimedAt+2500) : now>=claimEnd(sp))) commit(!!sp.claimed);
   if(!DISPLAY&&dirty){ dirty=false; save(); renderAll(); }   // ponytail: batches chat floods to four writes a second
   else if(!DISPLAY&&panelDirty){ panelDirty=false; renderPanel(); }
@@ -930,7 +1151,7 @@ setInterval(()=>{
 
 if(DISPLAY){
   document.body.classList.add("display");
-  document.title="Money Train 5 Bingo · Display";
+  document.title="Bingo · Display";
   const fit=()=>document.body.style.setProperty("--fit",Math.min(innerWidth,innerHeight)/600);
   fit(); addEventListener("resize",fit);
   // OBS is its own browser, so the board comes from the server, not localStorage
@@ -938,6 +1159,7 @@ if(DISPLAY){
   (async()=>{ for(;;){
     try{
       const j=await (await fetch(`sync?seq=${seq}`,{cache:"no-store"})).json();
+      netClock(j);
       if(j.seq!==seq){ seq=j.seq; S=load(j.keys&&j.keys[KEY]); renderBox(); }
     }catch(e){}
     await new Promise(r=>setTimeout(r,300));
@@ -945,23 +1167,47 @@ if(DISPLAY){
 }else{
   $("#ver").textContent="v"+VERSION;
   buildCells();
-  const tw=$("#twitch"), kk=$("#kick");
-  tw.value=S.chat.twitch; kk.value=S.chat.kickRoom;
+  const tw=$("#twitch"), kk=$("#kick"), yt=$("#youtube");
+  tw.value=S.chat.twitch; kk.value=S.chat.kickRoom; yt.value=S.chat.youtube;
+  yt.onchange=()=>{ S.chat.youtube=yt.value.trim(); save(); ytStart(); };
   tw.onchange=()=>{ S.chat.twitch=tw.value.trim().toLowerCase().replace(/^#/,""); tw.value=S.chat.twitch; save(); chat.restart.twitch(); };
   kk.onchange=()=>{ S.chat.kickRoom=kk.value.trim(); save(); chat.restart.kick(); };
-  $("#resetBoard").onclick=()=>{
-    if(!confirm("Reset the board? All marks, lines and winners are cleared (so past winners can enter again). Challenge texts and prizes stay.")) return;
+  const clearBoard=()=>{
     S.cells.forEach((c,i)=>c.d=i===WILD); S.lines=[]; S.winners={}; S.winnerLog=[]; S.fx=null; if(!S.rf.on) S.rf.stage=0;
     Object.assign(S.guess,{picks:{}, bonus:{}, last:null});
-    save(); renderAll();
+  };
+  $("#resetBoard").onclick=()=>{
+    ask("Start a new board? Marks, lines and winners are cleared, so past winners can enter again. Challenges and prizes stay.","New board",()=>{ clearBoard(); save(); renderAll(); });
+  };
+  // a new game is a new board: its challenges, prizes, keyword and teaser prize replace the old game's
+  const gm=$("#game"); gm.value=S.game;
+  const showGame=()=>{ $("#gameName").textContent=G().name; document.title=G().name+" Bingo"; };
+  showGame();
+  gm.onchange=()=>{
+    if(S.rf.on) { gm.value=S.game; return toast("End the raffle first"); }
+    const to=gm.value; gm.value=S.game;
+    const go=()=>{
+      const g=GAMES[to]; gm.value=to;
+      S.game=to; S.cells=g.cells.map(t=>({t,d:false})); S.prizes=[...g.prizes]; S.rf=rfFresh(g.kw,S.rf.claimSecs); S.teaser.prize=g.teaser; $("#tzPrize").value=g.teaser;
+      clearBoard(); showGame(); buildCells(); save(); renderAll();
+    };
+    if(S.lines.length||S.cells.some((c,i)=>c.d&&i!==WILD)) ask(`Switch to ${GAMES[to].name}? The board is cleared and gets that game's challenges and prizes.`,"Switch",go); else go();
   };
   addEventListener("pointerdown",unlockAudio,true);
   const vol=$("#vol");
   vol.value=S.sound.vol;
   vol.oninput=()=>{ S.sound.vol=+vol.value; save(); };
-  document.querySelectorAll("[data-sound]").forEach(b=>b.onclick=()=>{ S.sound.on=b.dataset.sound==="1"; save(); renderPanel(); });
+  $("#soundBtn").onclick=()=>{ S.sound.on=!S.sound.on; save(); renderPanel(); };
+  $("#helpBtn").onclick=()=>$("#helpOverlay").classList.add("show");
+  $("#helpClose").onclick=()=>$("#helpOverlay").classList.remove("show");
+  $("#helpOverlay").onclick=e=>{ if(e.target===e.currentTarget) e.currentTarget.classList.remove("show"); };
+  // back to the competitions page's Relax Bingo, under Special Giveaways; the box keeps the bingo
+  $("#backBtn").onclick=()=>{ if(parent!==window) parent.postMessage({studioBack:"bingo"},"*"); else location.href="/comp/"; };
+  $("#confirmYes").onclick=()=>{ const cb=askCb; hideAsk(); if(cb) cb(); };
+  $("#confirmNo").onclick=hideAsk;
+  $("#confirmOverlay").onclick=e=>{ if(e.target===e.currentTarget) hideAsk(); };
   document.querySelectorAll("[data-sfx]").forEach(b=>b.onclick=()=>sfx(b.dataset.sfx));
-  document.querySelectorAll("[data-teaser]").forEach(b=>b.onclick=()=>{ S.teaser.on=b.dataset.teaser==="1"; if(S.teaser.on) S.teaser.shownAt=Date.now(); save(); renderAll(); });
+  document.querySelectorAll("[data-teaser]").forEach(b=>b.onclick=()=>{ S.teaser.on=b.dataset.teaser==="1"; if(S.teaser.on) S.teaser.shownAt=netNow(); save(); renderAll(); });
   const tzP=$("#tzPrize"), tzA=$("#tzAt"), T=S.teaser;
   const localIso=at=>new Date(at-new Date(at).getTimezoneOffset()*60000).toISOString().slice(0,16);   // datetime-local is this PC's time
   tzP.value=T.prize; tzA.value=localIso(T.at);
@@ -972,7 +1218,7 @@ if(DISPLAY){
   startChat();
   renderAll();
   // keep the lock; losing it ("Use it here" elsewhere) drops this panel to standby
-  setInterval(()=>fetch(`sync?hb=${CTL_ID}`,{cache:"no-store"}).then(r=>r.json()).then(j=>{ if(j.owner===false) location.reload(); }).catch(()=>{}),3000);
+  setInterval(()=>fetch(`sync?hb=${CTL_ID}`,{cache:"no-store"}).then(r=>r.json()).then(j=>{ netClock(j); if(j.owner===false) location.reload(); }).catch(()=>{}),3000);
 }
 </script>
 </body>

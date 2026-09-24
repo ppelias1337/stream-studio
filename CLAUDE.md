@@ -20,6 +20,8 @@ public/comp/index.html  Stream Competitions (the old index.html, see its own not
 public/bingo/index.html  Relax Bingo (copied from C:\Users\elias\Relax Bingo), synced via /bingo/sync
 public/bingo/assets/  MT5 art, cut down from the Money Train 5 asset pack in Downloads (not in the repo);
                    the draw is its Extra Graphics\Train with Blank Reels.png, names roll in the reel window
+public/bingo/rr2/  The Racaroon 2 art, cut from the game's public screenshots/key art (no pack yet)
+public/comp/bb3/   Buffalo Blitz 3 art for the Challenge Board, same source
 public/*           Wheel Studio pages (index.html = OBS studio, control.html = operator)
 ```
 
@@ -29,10 +31,11 @@ iframe. The shell posts `{studioTab}` and the page filters Home by `SECTION` (Ke
 There is one stream box, so switching tabs is the Home button with a filter, and leaving a live
 format asks first. **Wheel Studio** is `/control` in the second iframe. **Relax Bingo** is a card on
 Special Giveaways Home. It opens `/bingo/` in a third iframe, which stays loaded because it reads chat. Pressing
-Special Giveaways again goes back. Bingo has its own relay instance (`bingo-state.json`, its own lock). On stream it's the `BINGO` format:
+Special Giveaways again goes back. Bingo has its own relay instance (`bingo-state.json`, its own lock). The bingo
+panel's **Game** picks Money Train 5 or The Racaroon 2 (€1,500: 8 lines at €125 + full board €500); a switch brings that game's art, challenges, prizes and keyword. On stream it's the `BINGO` format:
 the competitions box shows `/bingo/#display` in an iframe, so OBS keeps the one `/comp/#display` source.
-**Challenge Board** (`BOARD`, `board_state_v1`, Special Giveaways) is 16 challenges, each with a count. A full
-one owes a giveaway: `RF_MODES.BOARD.setup()` puts the keyword entries on the box only while one is due
+**Challenge Board** (`BOARD`, `board_state_v1`, Special Giveaways) is Playtech's Buffalo Blitz 3 board: 16 challenges
+as scrolling rows (closest to done on top), each needing 3 (`BD_NEED`) with a prize; a tick runs a buffalo along the bar (`c.from`/`c.at`) (the pool on stream is their sum, €2,000 by default). A full one owes a giveaway: `RF_MODES.BOARD.setup()` puts the keyword entries on the box only while one is due
 (`bdDue()`), and each winner row keeps the `cell` it was drawn for.
 **Dead Man's Crew** (`CREW`, `crew_state_v1`, Special Giveaways) is the Slotmill visit raffle: keyword `Slotmill`,
 five fixed €100 seats; its draw is a full-canvas slot spin (`crDrawFrame`, like Prag's) with a captain win tier per seat; art in `public/comp/crew/` (cut down from the pack in `Dead_Mans_Crew/`, which is gitignored).

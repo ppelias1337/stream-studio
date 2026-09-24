@@ -143,7 +143,8 @@ It is flat and typographic: no gradients, glows, glass or rounded cards. DIN num
 
 A modern desktop app (Linear / Raycast register) on the streamer's second monitor, glanced at for a few seconds between bonuses.
 
-- **Tokens** are declared identically on `:root` in `app.html`, `comp/index.html` and `control.html` (`--bg --panel --panel-2 --well* --edge* --fg* --accent* --go* --live* --ok --warn --r*`). Change one, change all three. The stream box never reads them.
+- **Tokens** are declared identically on `:root` in `app.html`, `comp/index.html`, `control.html` and `bingo/index.html` (`--bg --panel --panel-2 --well* --edge* --fg* --accent* --go* --live* --ok --warn --r*`). Change one, change all four. The stream box never reads them.
+- **Relax Bingo's panel** is its own page but the same desk: 450px monitor top-left with the On stream tally, the sticky top bar, sections, the white primary, violet segments, the confirm dialog and the **?** help. Its stream box keeps the game's art.
 - **White** is the one next action. **Violet** is the current step, the selected option and the picking row. **Red** is live or loss, **green** connected/done/shield, **amber** waiting.
 - Segoe UI Variable, sentence case. Controls 8px, rows 10px, panels 14px.
 
