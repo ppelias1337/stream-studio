@@ -21,9 +21,8 @@ var RESULTS_HEADER = ['draw_id', 'timestamp', 'wheel_tab', 'slot', 'prize', 'win
                       'entries_snapshot', 'undone'];
 var NAME_MAX     = 24;
 
-// How many rows each panel can actually show at 1920x1080, measured from the
-// running overlay: 59px header, 56px rows, 380px and 420px panels.
-var MAX_PRIZE_ROWS = 5;
+// How many rows the x-win panel can show at 1920x1080. The winners panel has no
+// cap: it scrolls to follow the draw (winnersWindow() in public/index.html).
 var MAX_XWIN_ROWS  = 6;
 var LOGO_EXT     = ['png', 'jpg', 'jpeg', 'webp', 'svg'];
 var STATUSES     = ['DRAFT', 'READY', 'DONE'];
@@ -283,10 +282,6 @@ function validateTab_(sh) {
 
   // 6. Cross-block sanity.
   if (!prizes.length) err('H2', 'No prize rows — this wheel has nothing to spin for.');
-  else if (prizes.length > MAX_PRIZE_ROWS) {
-    err('H' + (MAX_PRIZE_ROWS + 2), prizes.length + ' prize rows — the winners panel only shows ' +
-        MAX_PRIZE_ROWS + ', the rest would overflow it on stream.');
-  }
   if (xwin.length > MAX_XWIN_ROWS) {
     err('D' + (MAX_XWIN_ROWS + 2), xwin.length + ' x-win rows — the panel only shows ' +
         MAX_XWIN_ROWS + ', the rest would overflow it on stream.');

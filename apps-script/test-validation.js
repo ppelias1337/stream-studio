@@ -130,14 +130,9 @@ const CASES = [
     grid: build({ settings: [['title', 'T'], ['sponsor', 'S'], ['logo_file', 'a.png'], ['status', 'DRAFT']] }),
     errors: 0, check: r => r.wheel.status === 'DRAFT' },
 
-  { name: 'six prize rows overflow the winners panel',
+  { name: 'six prize rows are fine, the winners panel scrolls',
     grid: build({ entries: [['A',5],['B',4],['C',3],['D',2],['E',6],['F',7],['G',8]],
                   prizes: [[1,'a'],[2,'b'],[3,'c'],[4,'d'],[5,'e'],[6,'f']] }),
-    errors: 1, expect: ['6 prize rows', 'only shows 5'] },
-
-  { name: 'five prize rows are fine',
-    grid: build({ entries: [['A',5],['B',4],['C',3],['D',2],['E',6],['F',7]],
-                  prizes: [[1,'a'],[2,'b'],[3,'c'],[4,'d'],[5,'e']] }),
     errors: 0 },
 
   { name: 'seven x-win rows overflow that panel',
