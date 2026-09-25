@@ -493,6 +493,13 @@
   .cr-seat.on b{color:var(--gold)}
   .cr-captain{position:absolute;right:-6px;bottom:0;width:168px;height:318px;background:url(crew/captain.webp) center bottom/contain no-repeat;filter:drop-shadow(0 0 18px rgba(93,255,192,.25))}
   .cr-captain::after{content:"";position:absolute;right:14px;bottom:10px;width:120px;height:27px;background:url(crew/slotmill.webp) center/contain no-repeat;filter:drop-shadow(0 1px 3px #000)}
+  .cr-tz{flex:1;width:74%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;text-transform:uppercase;padding-bottom:40px}
+  .cr-tz .cr-logo{width:100%;height:130px}
+  .cr-tz .prize{line-height:.9;color:var(--gold);text-shadow:0 5px 0 #3A1C00,0 0 26px rgba(255,197,58,.5)}
+  .cr-tz .give{font-size:54px;line-height:1;letter-spacing:.04em;color:#fff;text-shadow:0 3px 10px rgba(0,0,0,.8)}
+  .cr-tz .when{margin-top:12px;padding:5px 16px;border-radius:var(--rad);background:rgba(4,16,12,.8);box-shadow:inset 0 0 0 2px var(--ghost),0 0 16px rgba(93,255,192,.45);font-size:26px;letter-spacing:.05em;color:#EFFFF8}
+  .cr-tz .cd{margin-top:10px;font-size:20px;letter-spacing:.14em;color:var(--muted)}
+  .cr-tz .cd b{margin-left:10px;font-size:38px;letter-spacing:.02em;color:var(--gold);font-variant-numeric:tabular-nums;text-shadow:0 3px 0 #3A1C00}
   .elim.tk-crew .tk{background:linear-gradient(90deg,#06140F 45%,rgba(6,20,15,.2)),url(crew/captain-win.webp) right -30px bottom/auto 94% no-repeat,#06140F;color:#fff}
   .elim.tk-crew .tk-label{color:var(--ghost)}
   .elim.tk-crew .tk-name{padding-right:120px;color:var(--gold);text-shadow:0 3px 12px rgba(0,0,0,.8)}
@@ -3029,9 +3036,10 @@ if(!DISPLAY_ONLY){
   },250);   // ponytail: batches chat floods to four writes a second
   if(rf.on) rfStartChat();   // reload mid-entries: reconnect
 }
-setInterval(()=>document.querySelectorAll("[data-until]").forEach(el=>{
-  el.textContent=rfSecs(+el.dataset.until);
-}),250);
+setInterval(()=>{
+  document.querySelectorAll("[data-until]").forEach(el=>{ el.textContent=rfSecs(+el.dataset.until); });
+  document.querySelectorAll("[data-cd]").forEach(el=>{ el.textContent=crCountdown(+el.dataset.cd); });
+},250);
 
 /* ================= 1v1 SHOWDOWN ================= */
 /* ================= SHOWDOWN (2–5 players, first to X) =================
@@ -5017,8 +5025,9 @@ function bdRenderControl(){
    then the crew board (RF_MODES.CREW.setup), with the reel on top of it for a draw.
    Art is public/comp/crew/, cut down from the Slotmill pack. */
 const CR_KEY="crew_state_v1", CR_KW=RF_MODES.CREW.kw, CR_N=5, CR_PRIZE=100;
-function crFresh(){ return {winners:Array.from({length:CR_N},()=>({id:uid(), name:""}))}; }
-function crLoad(){ try{ const s=JSON.parse(localStorage.getItem(CR_KEY)); if(s && Array.isArray(s.winners)) return s; }catch(e){} return null; }
+const crTeaser=()=>({on:false, prize:"€500", at:Date.parse("2026-09-25T15:00:00+02:00")});
+function crFresh(t){ return {winners:Array.from({length:CR_N},()=>({id:uid(), name:""})), teaser:t||crTeaser()}; }
+function crLoad(){ try{ const s=JSON.parse(localStorage.getItem(CR_KEY)); if(s && Array.isArray(s.winners)){ s.teaser||=crTeaser(); return s; } }catch(e){} return null; }
 function crSave(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(CR_KEY, JSON.stringify(cr)); }catch(e){} bcast({type:"state"}); }
 let cr=crLoad()||crFresh();
 const crTaken=()=>cr.winners.filter(p=>p.name.trim()).length;
@@ -5037,7 +5046,7 @@ function crUndo(){
   crSave(); crRender(); toast(`Took ${was} off the crew`);
 }
 function crConfirmReset(){
-  const go=()=>{ rfStop("CREW"); cr=crFresh(); crSave(); crRender(); };
+  const go=()=>{ rfStop("CREW"); cr=crFresh(cr.teaser); crSave(); crRender(); };
   if(!(rf.on && rf.mode==="CREW") && !crTaken()) return go();
   showConfirm("Start a new crew? This stops entries and clears the five seats.","Start new",go);
 }
@@ -5045,12 +5054,30 @@ function crRender(){ crRenderDisplay(); if(!DISPLAY_ONLY) crRenderControl(); }
 function crRenderDisplay(){
   const c=$("#displayContent");
   if(lbTakeover(c) || rfTakeover(c)) return;
+  if(cr.teaser.on) return crTeaserView(c);
   const n=crTaken(), open=rf.on && rf.mode==="CREW" && rf.open;
   const cta = n===CR_N ? "The crew is complete" : open ? `Type <b>${escapeHtml(CR_KW)}</b> in chat` : "Entries open soon";
   c.innerHTML=`<div class="cr-logo" role="img" aria-label="Dead Man's Crew"></div>
     <div class="cr-cta"><span>${CR_N} × €${CR_PRIZE}</span><em>${cta}</em></div>
     <div class="cr-seats">${cr.winners.map((p,i)=>`<div class="cr-seat${p.name.trim()?" on":""}"><i style="background-image:url(crew/skull${i+1}.webp)"></i>
       <span>${p.name.trim() ? escapeHtml(p.name) : "Wanted"}</span><b>€${CR_PRIZE}</b></div>`).join("")}</div>
+    <div class="cr-captain" role="img" aria-label="Slotmill"></div>`;
+}
+/* Teaser, as Relax Bingo's: logo, the prize, when, a countdown. The countdown ticks in the [data-cd] interval. */
+const CR_TZ="Europe/Stockholm";
+function crWhen(at){ const f=o=>new Intl.DateTimeFormat("en-GB",{timeZone:CR_TZ,...o}).format(at);
+  return `${f({weekday:"long"})} ${f({day:"numeric"})}/${f({month:"numeric"})} · ${f({hour:"2-digit",minute:"2-digit",hour12:false})} ${f({timeZoneName:"short"}).split(" ").pop()}`; }
+function crCountdown(at){
+  const t=Math.max(0,Math.ceil((at-netNow())/1000)); if(!t) return "Starting now";
+  const d=Math.floor(t/86400), p=n=>String(n).padStart(2,"0");
+  return (d?d+"d ":"")+`${p(Math.floor(t/3600)%24)}:${p(Math.floor(t/60)%60)}:${p(t%60)}`;
+}
+function crTeaserView(c){
+  const T=cr.teaser;
+  c.innerHTML=`<div class="cr-tz"><div class="cr-logo" role="img" aria-label="Dead Man's Crew"></div>
+    <b class="prize" style="font-size:${T.prize.length<=5?110:T.prize.length<=8?80:54}px">${escapeHtml(T.prize)}</b>
+    <div class="give">Giveaway</div><div class="when">${escapeHtml(crWhen(T.at))}</div>
+    <div class="cd">Starts in<b data-cd="${T.at}">${crCountdown(T.at)}</b></div></div>
     <div class="cr-captain" role="img" aria-label="Slotmill"></div>`;
 }
 function crRenderControl(){
@@ -5060,8 +5087,15 @@ function crRenderControl(){
     ${summaryHtml([["Keyword",CR_KW], ["Prizes",`${CR_N} × €${CR_PRIZE}`], ["Guest","Slotmill"]])}
     <div class="two-col">${rfSection()}
     <div class="section"><div class="section-h">The crew · ${crTaken()} of ${CR_N}</div><div class="crows">${rows}</div></div></div>
+    <div class="section"><div class="section-h">Teaser</div><div class="crow plain">
+      <div class="seg"><button class="${cr.teaser.on?"on":""}" data-crtz="1">On stream</button><button class="${cr.teaser.on?"":"on"}" data-crtz="0">Off</button></div>
+      <span class="clab sm">Prize</span><input class="tier-in" id="crTzPrize" maxlength="12" spellcheck="false" style="width:110px" value="${escapeHtml(cr.teaser.prize)}">
+      <span class="clab sm">Starts</span><input class="tier-in" id="crTzAt" type="datetime-local" style="width:210px" value="${new Date(cr.teaser.at-new Date(cr.teaser.at).getTimezoneOffset()*60000).toISOString().slice(0,16)}"></div></div>
     <div class="actionbar"><button class="btn" id="crNewBtn">${ic("new")}New crew</button><button class="btn" id="crTestBtn">${ic("bolt")}Load 1,400 test entries</button></div>`;
   $("#crNewBtn").onclick=crConfirmReset;
+  document.querySelectorAll("[data-crtz]").forEach(b=>b.onclick=()=>{ cr.teaser.on=b.dataset.crtz==="1"; crSave(); crRender(); });
+  $("#crTzPrize").oninput=e=>{ cr.teaser.prize=e.target.value; crSave(); crRenderDisplay(); };
+  $("#crTzAt").onchange=e=>{ const v=new Date(e.target.value).getTime(); if(v) cr.teaser.at=v; crSave(); crRenderDisplay(); };   // datetime-local is this PC's time
   $("#crTestBtn").onclick=rfTestEntries;
   rfWire();
 }
