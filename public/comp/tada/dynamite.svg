@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130 120" width="130" height="120">
+  <!-- three sticks tied together, the fuse lit (the game's scatter, without its tile and lettering) -->
+  <defs>
+    <linearGradient id="stick" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8E1206"/><stop offset=".35" stop-color="#FF4A2A"/><stop offset=".6" stop-color="#E0301E"/><stop offset="1" stop-color="#7A0E04"/>
+    </linearGradient>
+    <radialGradient id="end"><stop offset="0" stop-color="#FFE0A0"/><stop offset=".6" stop-color="#E8A040"/><stop offset="1" stop-color="#8A4A10"/></radialGradient>
+    <radialGradient id="spark"><stop offset="0" stop-color="#fff"/><stop offset=".3" stop-color="#FFF2A0"/><stop offset=".6" stop-color="#FFB000" stop-opacity=".8"/><stop offset="1" stop-color="#FF6A00" stop-opacity="0"/></radialGradient>
+  </defs>
+  <g transform="rotate(-22 65 70)">
+    <path d="M65 34 C66 20 78 12 92 10" fill="none" stroke="#3A2010" stroke-width="4" stroke-linecap="round"/>
+    <rect x="30" y="34" width="24" height="76" rx="11" fill="url(#stick)" stroke="#4A0A02" stroke-width="2"/>
+    <rect x="76" y="34" width="24" height="76" rx="11" fill="url(#stick)" stroke="#4A0A02" stroke-width="2"/>
+    <rect x="52" y="30" width="26" height="82" rx="12" fill="url(#stick)" stroke="#4A0A02" stroke-width="2"/>
+    <ellipse cx="42" cy="36" rx="11" ry="4" fill="url(#end)"/><ellipse cx="88" cy="36" rx="11" ry="4" fill="url(#end)"/><ellipse cx="65" cy="32" rx="12" ry="4.5" fill="url(#end)"/>
+    <g fill="none" stroke="#C88A5A" stroke-width="4"><path d="M28 56 Q65 64 102 56"/><path d="M28 88 Q65 96 102 88"/></g>
+  </g>
+  <circle cx="98" cy="16" r="16" fill="url(#spark)"/>
+  <path d="M98 2 L100 13 L112 12 L101 18 L106 30 L97 20 L88 28 L93 17 L82 12 L95 13 Z" fill="#FFF6C8"/>
+</svg>

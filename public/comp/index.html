@@ -132,7 +132,7 @@
   /* duel: two slabs and a score band */
   .dduel{flex:1;display:flex;flex-direction:column;gap:8px;min-height:0}
   .dside{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px;min-height:0}
-  .dplayer{min-width:0;display:flex;flex-direction:column;align-items:center;background:var(--slab);border-radius:var(--rad);overflow:hidden;text-align:center}
+  .dplayer{min-width:0;display:flex;flex-direction:column;align-items:center;gap:12px;background:var(--slab);border-radius:var(--rad);overflow:hidden;text-align:center}
   .dpick{align-self:stretch;height:30px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:16px;letter-spacing:.08em;text-transform:uppercase;color:transparent}
   .dpick svg{width:16px;height:16px}
   .dplayer.choosing-card .dpick{background:var(--gold);color:var(--gold-ink)}
@@ -145,7 +145,7 @@
   .dplayer .pn,.dplayer .dsc,.dplayer .pw{margin-top:auto}
   .dplayer .pn{display:flex;align-items:center;justify-content:center;gap:6px;max-width:100%;padding:0 10px;font-size:28px;line-height:1.05}
   .dplayer .pn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-  .dplayer .dpips{gap:5px;margin-top:6px}
+  .dplayer .dpips{gap:5px;margin-top:-6px}   /* the card's 12px gap, less: pips belong to the score */
   .dplayer .dpip{width:18px;height:18px}
   .dplayer .dpips.compact{gap:3px}
   .dplayer .dpips.compact .dpip{width:13px;height:13px}
@@ -416,8 +416,8 @@
   /* the draw is put first in body, so the box (which sits over the chat) steps aside while it runs */
   .pw-draw.fixed ~ .display{visibility:hidden}
   /* full-screen layers run on under the chat hole; their content stays centred left of it */
-  .pw-draw.fixed :is(.cr-dbg,.gz-dbg,.cr-tier,.gz-win){right:calc(-1 * var(--sr))}
-  .pw-draw.fixed :is(.cr-tier,.gz-win){padding-right:var(--sr)}
+  .pw-draw.fixed :is(.cr-dbg,.gz-dbg,.cr-tier,.gz-win,.td-dbg,.td-bridge,.td-rail,.td-flash,.td-win){right:calc(-1 * var(--sr))}
+  .pw-draw.fixed :is(.cr-tier,.gz-win,.td-win){padding-right:var(--sr)}
   .pw-draw.fixed .cr-tier>i{right:calc(var(--sr) + 20px)}
   .pw-draw.fixed .gz-dzeus{right:0;width:420px;height:770px}
   .pw-draw.out{animation:pwdout .9s ease both}
@@ -477,13 +477,144 @@
     --gold:#FF8A00; --gold-2:#FFB000; --gold-ink:#241100;
     background:var(--box);border-color:rgba(255,150,40,.45);
   }
-  .tada-logo{display:block;aspect-ratio:573/174;background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAj0AAACuCAMAAADqIkz3AAADAFBMVEUAAAD+ggD+lgD+fgH+pwD6ggLkhyb5gQPkhSP6gwT+sQDliCXkhyX4gwf1hAjzggn4ggDegCD+qQDegA7lhyPehiLmgyLfhyT+fQL5dgD8qAD9qQD1lwL+fQL4pwD+qgD+fQH8ewD9qQD+sQD7mQH+fQD9mAD+qQD8mAH9mAD+sQD9mgDkhyT5agD9mQD/VQD9fAL/AAC/gACAgADfhxmqVQDdiSb+sQD8sQD+sgDvgCDSikLdiSjdiRrtsiztsivdiibssizZiTL7sQD/sQDPh0LbkgDSikKqqgDPi0D/QADPgEDZjCntsirtsi7fixvMZgDSiki/jzDtsysAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//o86AAABAHRSTlMA/v7+/oLAQkHE/v6Bp2cpDRCPD2UkKELOEitrEEsQrLErTJExiXHPr4toz6EJTwNsAQQCJgOGqEfKEMBgQPG0qErALA0wB4gDQAQQ4CuL8AVgENQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAqhVneQAAEctJREFUeNrtnYly4zYShklJEISxQFKnL9mWPbbHE3vuK5kkm3uTva/3f5fVbVICSaAbIEANuirllK2hSPBD40ej0QgCb968efPmzZs3bzZs1DFk3//X8pP1Dg+L7m80+8hfZj8P55b6nTcFY6Ep+97yk9Hi2yOzjxzs/poxTmi8hy/6Hz/86X8/1Yeew1rSs4ao2+ntFTy/PpnbL7Whp1NnehYEkT3yQV8v6Hnq6amKnsWnxntCz1eenurpmXmgyNPj6YHSE4b/+jjw9Hh6gPTMP3xcE0jePp0hcq5Ez3n/SevpW0+POXrCsCbj1z/njHxSoufT/A99T49JekJWiwnYnxaQnCjQc7L4Q8vTY5Se5b+oBz1PFejpL/7wxNNjmJ6QJc7T88MChW8SaXretRZ24ekxTU8YOj96/bT0JF9L03O1pOfK02OeHufF89slPZ+k6blY0nPu6amAHufFz9MlPr9K0nP+ZAFP38d7zNLTXP3kbtOznEI9+UqSnq+W9Jx4egzTUxN8vlnqZkl6ni3geeZjzVXR4/jgtcRkJ+Rz+kQUFDxZqp5TT081usd56Xz+ROhlxPT0UZrZ0wMypyfun5b4vJOgBxfs8fQAred8Hth2yEdIDy7Y4+kBWtthev4QhnxORTPzC+TA5enZP+mzCvmcl9Jz3kIFezw9YHNY+vwiCvmI6Fn+Dhzs8fSAjdUs5COiBxnsmRlhedZG2m/u0/Nz+n73Z+wShXwE9GCDPXttVHnBKqaE7cO867y1O8G62qUHG+zx9OxYbygLkMMh54tlvmA6y2eyI3HQwR5Pj8jeczl8Bo6HfLJxnJNnrWdXWoM9ZTYihRbtJz1BMGb1dj6JjFtZBXvM5Ut26hszQ9ETBN2mBD7uPvtK0hR+Bh3sKaWnaZ6emEYrV0bfu0NPWcdZ2BByWwNK167bXJWRE2l6TkzS0zRJz2j40DYXQ8HRE8QGYj6dbjYuQM3p5nK/0jetmTthIT4oemLB7Hg7gNuhZ2dUbIem6ZHBRyngTHfF+Hai2Sj/eRVrCp3P2OgXz8X/mH9kYpQeUyPXsC3K/NyW4QWx4APj9ASRRt086soop27Nd5NVQ0+Uk7vHnaInILp0c8xzchVHnh5VO5SO31qmJymlR6q6T4/n5tkTOD0n/YuL/un5F0ZPzORXVi3TU3YJucWuSF53y9NzslzhnMneky+JnmIx8eAWPaUZCAzeWZbzkRhGzypOvIzYaFa+H65P+zOvduIePQlXEhLW6Sl1Pgn4Akt6IhA9aXhaWwsQSLvuby576xg9cekKAHWLnlLnQ5G6+whCz3lryy50yZ+Ti8xlJy7RE6uuHdmn5zvUnJ0r5nlI0tNv7dipluWq0+xFG/cTd+ihYai4dmSfnh5C+PyNqa52yNFz3hLYsxNtq2MbeBqNO2fokYInOwe2T0/A4REfqYV6rk7PaUtofezw9by1Q0/jpSP0xE0peoaO0VMWcB6VcNdUcbZy9Fy0cuz0jUbPs6Tn3g164jBUzzZ3gJ4eNPdfMsUso7vl6HmWRw9q+LrNULOxiQv0DKQThsdu0ROU3G4XvEgmGLrk6GkVGHj4umqJ6XnpAj2yPTEbAXGBngcQPe/ls+s1+h54pul1K4eeWwfoieQbc+oYPUNIGwwU9maMtOke+NrFpJVHz3P79MRhCNrp4gI9oDYgUoJ550bk6Llqldjpn1UXJ+4aeeaA7+HFWWa5OtQFekbFlzmAprWK5gmS8Z5nZfiorl3cNhymh4Yq9HC36AkAAR8G3BIvGWsudT6KaxfX+fDc259zhUr0hLWnZxgC9zTLrpKeluPTOpU+uCS5z6fn2nq8J1Kkh7pFD1PObVaDJ+VsQRka6ODP83x4XtpfqQgV6SG1oodiXU9qngDIDsMHfwrGreeBdXpeq9IT1pweVXgeV2cUMlPfyYxeMvUxJvnj1t0H+/QcKbfm+1rTEyk/7wMoK/7kQsvw9dyIYtZFTyeEl3Vzgh6uSI98bzk42HK2ansq3ki5n5LE1WszilkXPQ9yyjGi85hrQiOeioA4QQ9Ro2ckKe4ofSwZRIE7cs5l3E/x2sWdGcWsix4pZ5PJsPvu76Maj1wyAxfPZDGNfvwI3s8lM/lqXeR7kZeGFLMmeiimhlsd6WGIMyoBuwHl3E/e2sXbXMl8l7hAD8ec91lDemJMwUPQXlIp93P/UnGJYuLEfq5SJ17EeA2jhVGI2IUB24l83i+nZ+ZMBDxMTCxvaaRnhNpOVwd6FH1t4RYe6D72Kwl6ZkQk0q7nPnGCniFqN10N17lQW5fBVRAmfQl6GvfXVboeDfQ8oArg1ICeAyVfW3IyHKKGxtbSRd5EaiIXKEzcoKeNeoP1yw7rSEbRtdMTJH0JejJeZWJwtq6HnhBVs7Z+mald1Hfi6vek3U9Bxs51ueu5doOeGPcCXaCnG6pU/XhA1UxAVn9KuZ9Gga2GryQfsMANeiiudpIL9DClPRVthOrRUDvs+r6Qm8wixK3hgQtPT4Sr21aD/Vzy9aokakXhK8+9vZWhp3F3XaB6NA1ceHoIqiu6QA9Vqz13gCqxqqNu4Z0UPo3bAsze1YEeUgd6iFq45wDla/EjlyQ7xY4p8PRookcxVm6VnokOdrTJHsP00BrQU7bSQhToYYbpuW7oMVoLeiJMx6+IHq648mCRHl3wNJL9GLmodXqK6680d4UwbuT6GXG/E13wNAJPjx56SBk9gQo9PUxsicB3ZakZqwc9DBMtqoSekVLduFJ6OhiJXnK/iTbXw+tBT2lf5Lbp4cqnhh9gvvIS8Y9faqOHOEMPRZ2OFlqmp+TxZzscFXMKAol9k8D71TRw6Twq3DA9DLHEWgE946bywFVCT8lceIq43zs0NdqPnEPTk2AqrXO79EjU/6KK2XDF3WUcOkFP7M4pJ4jzreLQKj0yxeOU8zkiuMoyO3K5SQ+Dv0JulZ6eBDxEfd/1wNT9vtRGT+IOPV1wlngU2qRnfKRWrxJ/MsEAd4plgqbGQXoOQ+DBsGWZEWbpiZQPCZDdSsqh5xKYiRaaPGUeT08vhG2t7DQt0kOZYr1BlTOV+Geh65hiT9Cd7CE9+V1qUw+K9CDnyZqjJ2LqRd4lvnX1vLMfgplmfNTE0QNN7HGcnqiUnt2ooUzfN0NPHHFIlW6ZWWbqefmW10pumvO/NsH0qCf24M95roQeuULf3ccEz5Fc39dCz+/dtD0oFcolmDMVeKrmDOWo75sL7rvGntIjXbuYkblJv0At9ByEcBsga6UxPn9ezrC0wgRzXeiJQiNmmx6KKncFMKI1Lawu9PT2kh6GOMlWNz33eqhxkh6Fw5VqRE+i6UgXDfRcN/TS88IpemLles3u00Or7y5Ei+rBdQwbteL53vkeou88Kfx33mumJ3aLnvG+0cNtdBccPSHkyB4n6DGiIy3Swwa4rCbN9Nxppoc6Rs9gr+gphcdMlIIAjmaD0MOOHaNHpmhzbeiRgEf1eDccPYleeuLANXoMjF226JGCx4RwJkqJYfgoaDw/8iE6doEe/Z3REj1y8IDOdoHP86g+eqKtwZfFLtDzfj/okd8p162Ong+32ujhb3aUG/m3fXq0+3Ir9KhsdeKV6Z47bSMXSwRvC+x+NNKjex5igR42VnneHquGnnd3aK2zo5iPtzrNGxA9hxrp0YxPdfSsM7dUd+gmIHyaqvTcNrTRQ/PunCfW6dGLT4W+Z7FGB/DfIO+jSs+koY2eqGCGTK3To1X7VDxywQKw3PzIpc/1CBRz+q/HtukJYlZPesCFAYhxepgOvZOrmNNO8cw2PUGi1BupE/QcYYpKKEXZpzdNVXreNnTRExcu0s1H75tjy/QoNWccNPPTgqqipzsOUDbgCt7lpiANiuTKHi3w0EKtv3wRR7FteoKBpDfns6humI9PJfRwHevNVP79kYLuQowu50fFY21zfmOz/6K3lumZ7bmRUT+HweLt2qOHD0e6lguJZGcJusr0aMrB5yWN1lybivvpGKFndt1pU2rr24Ed3cNIpG+leTF3JyWJuav9gd1QmR5WhWJO4dO8lH7q39qF9ju8PccF60Bss7f02/zv/rb8K4pvPtq5/nxHYKczCozYsOA1d9ff+Z+S+zWV/HIsjjEL6ZkGThgVbv3j0TjYTxPvcmYEqa0ifdOtV1yCnvK6wVVZr9N9aB+srd0djoL9ttGw2948cPvHj4e9alQVSDE3xRYH3vbHXnFNYciz0NPj8VFUzOvdf3FTip4j3+D7ZQlm8Epyw4Te9XwhFulSzM0yG/rG3sMJHUcq5ptQip6pb+q9NIpSzDSUoufo2Df0ftoxgceYL5ty9Fz6ZvbD1xqVTYz5SErzqKf4eKvV8MVAinkqp5hf+wbe88l75BWztwqCPzsx5jLF/MI37pcgf6SGr+mjYpYzr5i9/BEoZjl4vGL28mcDz8aTTOXgufGN6qM/a9t4khs5eKZvfJP66M+2JzmTg0dDjHncWZ7n0Bn5V2Pa3tNVW2MyLS9ZDj3TD9Uq5l42rRKzVYVjt2h2N+Wfg5wMcdWCBfPTjxeX7EAXl9KPMlz9DioVBvra+oyJ6DmqVjH3dp0ggz7TSPpE7Txrb4oFRDn7hxi00kw3gGaFpnzER9Tj9YjWMqZb06+sJ6lEMYsFPKwsRyZ5NgbTI3o/DzbpYbtlw5i+tmaIAu6XfCsauPEkryUV8ysEO7lHS3PQ5ZTORC+hJzPSxKFNelL/FEFP7r5lhun9CV3sJ7OhmNPwZPeqEXwaSg9JDxOXO7FBz+PYBacn/wx4EuDsTXx2c1S9Ys480AzEI4Z7oGznGiLpSY19vdAyPeFnND1ZeBhjODe/Yy+OjzeLVS+qUMwkvcdz6SrGHD5hGmlwyG3h6Ems00Ow9IjamkBuS8YZVaGYO0LhP1uHg8+2l62D0M1t4dmyoXV61i0EpWcsbOuZFDKRiV6FYk750ux7hgYMN/N9hEvO0PMgmqtYome1uwVKD89paxNbsyuJMY81n5wSbYJrCN3cFp0uG7pAD8fQMxbOJM1YNTFmolm2PQ5YHK6b24LZCHWCnuV4DqQn0jI7l7NpJVkZTK/rGT22D4UfopqlZ+m9mF16eHrMAdLD0TU25ede1WRlhFvvOKZpA7uyKHVpiqVnuFu1qHJ6CE99M4HdxfZYnODaGj9w4RRz6omYMCAxhF4uTnU1DqaHP5K9+l9ijZ4k5TjIah2O4XqqhsgYzvegszLW8eW2kJ4uUDPzjFLpQel5lODxVoneyulhm4X1Wc9A+h49bY3XPfg8Zr30sMzADm6XNT2Ur9/S6n0Ri/RsHo7VgZ7LSvKYi0euLvCggeVIzqXrV+bRs77g5qc1etqplZIoQuqeCugJLo8qyGPW+kRc0xkQG3rWt8PWA6JNeh6HYqpHNRulJ3hxY37z1vaMfVZ1r/24dqf2REmoKdPjkR66tbHWKj2b3sFgd8G2ZuzDRVszQ/SUhJuPtdapZqLfdjVVKBpB6cn0Tx5YpudzExU3EEcLqTF6ghdTwzv/YuHwAqOHhZqSV1L0pJ1P5zE31Q4928XRwSsVUTX05LsfXeUO2qKVOxA9RXXnwfQE2XdlmZ6thQumo62N0hMcT43u/OuIDqkC0bPRzIR0yXyzCSHA2HyanmFmadE2PT09Ee959LEaeoI3gkyNo1faLp+eKC13Fw0oRMn1BMNUDGvnND3ZWWHHMj1ZGY/JDpvFruZt/XkT1zBEj2jurrG63Nbhmk3oLDIS5a4wwX4WaXqW8awoHcm3Tg8qw3EnrTmdRm6MnuCvrw3WyhgXnM6BiBxlkSIQ33OWjgMEbtCTnhvozIo3SM+W+9FcICz/kYbY99PbqTmtTM/qBUau0DNGJW1raWuAeL4xWCuD4M965eIxCqSbM7pnJsPmlqDpWQwTeHqCLi7lP9qc45gZw0zn/JzpysqQPA2SDCBxI6Yhn66du8LhAj2PYxdwJ7Lg5DLSq6Bg3ez5j0zVtaQcc6hUkuNjEshqxXe5+zFGiCoIkKj3Zo71UdRTInhbp9UTp0E1NhgYvXynM+x2h51O4M24dQ7nbX146FvCmzdv3rx58/Zl2v8Br3J5u7FSMM4AAAAASUVORK5CYII=) center/contain no-repeat}
+  :root{--tada-logo:url(data:image/png;base64,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)}
   .display.tada .bug-title{font-size:0;gap:10px}
-  .display.tada .bug-title::before{content:"";height:32px;aspect-ratio:573/174;background:url(data:image/png;base64,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) center/contain no-repeat}
+  .display.tada .bug-title::before{content:"";height:32px;aspect-ratio:573/174;background:var(--tada-logo) center/contain no-repeat}
   .display.tada .bug-title::after{content:"Giveaway";font-size:23px}
-  .display.tada .lt .tada-logo{width:100%;margin-bottom:10px}
   .display.tada .srow.first .splace,.display.tada .bug-phase.gold,.display.tada .elim.tk-gold .tk{background:linear-gradient(135deg,var(--gold-2),var(--gold))}
   .display.tada .rf-sq.spin .rf-marks{border-color:var(--gold)}
+  /* the box wears Gold Mine Express (TaDa's train game): its canyon at sunset, the ten seats as ore carts */
+  .display.tada{background:linear-gradient(rgba(30,10,3,.5),rgba(22,8,2,.9) 60%),url(tada/bg.webp) center 66%/cover}
+  .td-top{flex:none;display:flex;align-items:center;justify-content:center;gap:12px;height:88px;margin-bottom:8px}
+  .td-top .tl{height:70px;aspect-ratio:573/174;background:var(--tada-logo) center/contain no-repeat;filter:drop-shadow(0 3px 10px rgba(0,0,0,.75))}
+  .td-top .ng{width:50px;height:50px;background:url(tada/nugget.webp) center/contain no-repeat;rotate:-16deg;filter:drop-shadow(0 3px 6px rgba(0,0,0,.6))}
+  .td-top .ng+.tl+.ng{rotate:18deg;scale:-1 1}
+  .td-cta{flex:none;display:flex;align-items:center;gap:10px;margin-bottom:10px;border-radius:var(--rad);overflow:hidden;background:rgba(40,14,4,.82);box-shadow:inset 0 0 0 1px var(--line);text-transform:uppercase;white-space:nowrap}
+  .td-cta span{padding:8px 12px;background:linear-gradient(135deg,var(--gold-2),var(--gold));color:var(--gold-ink);font-size:26px;line-height:1}
+  .td-cta em{flex:1;min-width:0;font-style:normal;font-size:30px;line-height:1;letter-spacing:.05em;text-align:center;overflow:hidden;text-overflow:ellipsis}
+  .td-cta em.long{font-size:22px}
+  .td-cta b{color:var(--gold-2)}
+  .td-seats{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(5,1fr);grid-auto-flow:column;gap:6px}
+  .td-seat{display:flex;align-items:center;gap:8px;min-width:0;min-height:0;padding:0 10px 0 6px;border-radius:var(--rad);background:rgba(30,10,4,.8);box-shadow:inset 0 0 0 1px var(--line)}
+  .td-seat i,.td-xs i{position:relative;flex:none;aspect-ratio:240/168;background:url(tada/seat-empty.webp) center/contain no-repeat;filter:grayscale(.85) brightness(.45)}
+  .td-seat i{height:34px}
+  .td-seat.on i,.td-xs.on i,.td-xs.now i{filter:none}
+  .td-seat.on i,.td-xs.on i{background-image:url(tada/seat-full.webp)}
+  .td-seat span{flex:1;min-width:0;font-size:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+  .td-seat.on{background:linear-gradient(90deg,rgba(255,150,30,.26),rgba(30,10,4,.85));box-shadow:inset 0 0 0 1px var(--line-2)}
+  .td-seat.on span{color:#FFE7A0;text-transform:none;letter-spacing:0}
+  /* the buys: both logos over the standings, the top two in gold with a nugget */
+  .td-hd{flex:none;display:flex;align-items:center;gap:10px;height:54px;margin-bottom:10px}
+  .td-hd .tl{height:40px;aspect-ratio:573/174;background:var(--tada-logo) center/contain no-repeat}
+  .td-hd b{margin-left:auto;padding:7px 11px;border-radius:var(--rad);background:linear-gradient(135deg,var(--gold-2),var(--gold));color:var(--gold-ink);font-size:18px;line-height:1;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+  .display.tada .srow{background:rgba(30,10,4,.82)}
+  .display.tada .srow>*{order:2}
+  .display.tada .srow .splace{order:0}
+  .display.tada .srow.first{background:linear-gradient(90deg,rgba(255,160,30,.42),rgba(40,14,4,.88));box-shadow:inset 0 0 0 1px rgba(255,205,100,.6),0 0 14px rgba(255,160,30,.2)}
+  .display.tada .srow.first::after{content:"";order:1;flex:none;width:1.25em;height:1.25em;margin-left:-.2em;background:url(tada/nugget.webp) center/contain no-repeat}
+  .display.tada .srow.first .sname{color:#FFE7A0}
+  .display.tada .srow.first .splayed{padding:3px 7px;border-radius:5px;background:linear-gradient(135deg,var(--gold-2),var(--gold));color:var(--gold-ink);font-weight:700}
+  .elim.tk-tada .tk{background:linear-gradient(90deg,#2A0F04 45%,rgba(42,15,4,0) 75%),url(tada/loco.webp) right 16px center/170px auto no-repeat,url(tada/bg.webp) center 66%/cover;color:#fff}
+  .elim.tk-tada .tk-label{color:#FFB000}
+  .elim.tk-tada .tk-name{padding-right:150px;color:#FFE7A0;text-shadow:0 3px 12px rgba(0,0,0,.8)}
+  .elim.tk-tada .tk-sub{background:rgba(255,160,40,.18);color:#FFD27A}
+
+  /* the TaDa draw: a train of ore carts, a name on each, starts up and stops one cart in the frame; dynamite
+     blows its gold out and the winner rides up into the Express, the ten seats at the top */
+  .td-draw{background:#1A0804}
+  .td-draw .dchat{--dc-a:#FFB000;--dc-line:rgba(255,176,0,.45);--dc-bg:rgba(30,10,4,.84)}
+  .td-scene{position:absolute;inset:0}
+  .td-draw.landed .td-scene{animation:tdshake .5s linear 1.35s}
+  @keyframes tdshake{20%{translate:-14px 8px}40%{translate:12px -10px}60%{translate:-8px 6px}80%{translate:5px -3px}}
+  .td-dbg{position:absolute;inset:0;background:url(tada/bg.webp) center 60%/cover;animation:crzoom 30s linear both}
+  .td-bridge{position:absolute;left:0;right:0;top:771px;bottom:0;background:url(tada/trestle.webp) 0 0/293px 409px repeat-x;
+    -webkit-mask-image:linear-gradient(#000 45%,rgba(0,0,0,.35));mask-image:linear-gradient(#000 45%,rgba(0,0,0,.35))}   /* sinks into the gorge */
+  .td-rail{position:absolute;left:0;right:0;top:739px;height:39px;background:url(tada/rail.webp) 0 0/531px 39px repeat-x}
+  .td-train{position:absolute;inset:0;overflow:hidden}
+  /* ChatGPT's painted train (cut by hand from its three images): each sprite at 2x, placed in stage px. The cart
+     is 386 wide on a 380 pitch, so the hooks of neighbouring carts overlap and couple. */
+  .td-cart{position:absolute;left:0;top:523px;width:386px;height:217px;will-change:transform;transition:opacity .6s,filter .6s}
+  .td-heap{position:absolute;z-index:1;left:0;bottom:201px;width:386px;height:69px;background:url(tada/heap.webp) center/100% 100% no-repeat}
+  .td-cart.alt .td-heap{scale:-1 1}
+  .td-body{position:absolute;inset:0;background:url(tada/cart.webp) center/100% 100% no-repeat}
+  .td-plate{position:absolute;left:132px;top:58px;width:122px;height:46px;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 8px;border-radius:5px;
+    color:#FFE7A0;white-space:nowrap;text-shadow:0 2px 3px #000,0 0 6px rgba(0,0,0,.8)}
+  .td-plate span{overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .td-plate .pf{flex:none;width:.8em;height:.8em}
+  .td-wh{position:absolute;top:130px;width:84px;height:84px;background:url(tada/wheel.webp) center/contain no-repeat;rotate:var(--rot,0deg)}
+  .td-wh.a{left:76px}
+  .td-wh.b{left:223px}
+  .td-loco{position:absolute;left:0;top:466px;width:573px;height:274px;will-change:transform;background:url(tada/engine.webp) center/100% 100% no-repeat}
+  /* its wheels turn (each at its own speed, from --dist, the px travelled) and the rods follow the crank pins */
+  .td-loco i.w{position:absolute;left:calc(var(--x) - var(--r));top:calc(var(--y) - var(--r));width:calc(var(--r) * 2);height:calc(var(--r) * 2);
+    background:center/contain no-repeat;rotate:calc(var(--dist,0) * 57.2958deg / var(--rn))}
+  .td-loco i.rod{position:absolute;left:0;top:0;height:10px;border-radius:5px;transform-origin:5px 5px;
+    background:linear-gradient(#FFF0B0,#E8B04A 45%,#8A5210);box-shadow:0 0 0 1.5px #4A2A08,0 2px 3px rgba(0,0,0,.5)}
+  .td-loco i.rod::before,.td-loco i.rod::after{content:"";position:absolute;top:-2px;width:14px;height:14px;border-radius:50%;
+    background:radial-gradient(circle at 40% 35%,#FFF6C8,#E8B04A 50%,#6A3C08);box-shadow:0 0 0 1.5px #4A2A08}
+  .td-loco i.rod::before{left:-2px}
+  .td-loco i.rod::after{right:-2px}
+  /* steam from the stack, trailing back */
+  .td-loco i.puff{position:absolute;left:424px;top:-26px;width:60px;height:60px;border-radius:50%;opacity:0;
+    background:radial-gradient(circle at 40% 40%,#fff,rgba(235,225,215,.85) 45%,rgba(200,190,180,0) 72%);animation:tdpuff 1.1s ease-out infinite}
+  .td-loco i.puff:nth-of-type(2){animation-delay:.37s}
+  .td-loco i.puff:nth-of-type(3){animation-delay:.74s}
+  @keyframes tdpuff{0%{opacity:.95;transform:scale(.5)}100%{opacity:0;transform:translate(-150px,-90px) scale(2.2)}}
+  .td-mark{position:absolute;top:438px;width:426px;height:318px;border-radius:22px;pointer-events:none;background:linear-gradient(rgba(255,200,90,.16),rgba(255,200,90,.03));
+    box-shadow:inset 0 0 0 5px #FFD76A,inset 0 0 0 8px rgba(90,40,0,.55),0 0 0 3px #8A4A10,0 0 40px rgba(255,190,60,.5);animation:pwhead .6s cubic-bezier(.16,1,.3,1) calc(1s + var(--el,0s)) both}
+  .td-draw.tease .td-mark{animation:tdtease .45s ease-in-out infinite alternate}
+  @keyframes tdtease{to{box-shadow:inset 0 0 0 5px #fff,inset 0 0 0 8px rgba(90,40,0,.55),0 0 0 3px #FFB000,0 0 90px rgba(255,190,60,.95)}}
+  .td-draw.landed .td-train .td-cart:not(.win){opacity:.3;filter:grayscale(.6) brightness(.6)}
+  :is(.td-cart.win,.td-wcart) .td-plate{background:linear-gradient(#FFE9A8,#E8A21C);color:#2A1600;text-shadow:none}
+  /* landed: the dynamite drops onto the winner's gold, bounces, and blows it out of the cart */
+  .td-dyn{position:absolute;top:400px;width:130px;height:120px;background:url(tada/dynamite.svg) center/contain no-repeat;opacity:0;filter:drop-shadow(0 6px 10px rgba(0,0,0,.6))}
+  .td-draw.landed .td-dyn{animation:tddrop 1.2s linear .15s forwards}
+  @keyframes tddrop{0%{opacity:1;transform:translateY(-700px) rotate(-30deg);animation-timing-function:cubic-bezier(.5,0,1,1)}45%{transform:none;animation-timing-function:ease-out}
+    55%{transform:translateY(-30px) rotate(-5deg);animation-timing-function:ease-in}65%{transform:none}90%{opacity:1;transform:scale(1.08)}100%{opacity:0;transform:scale(1.6)}}
+  .td-draw.landed .td-cart.win .td-heap{animation:tdempty 0s 1.4s forwards}   /* its gold is what flies out */
+  @keyframes tdempty{to{opacity:0}}
+  .td-boom{position:absolute;top:200px;width:600px;height:600px;border-radius:50%;opacity:0;background:radial-gradient(#fff,#FFF2B0 18%,#FFB000 38%,rgba(255,110,0,.4) 55%,transparent 70%)}
+  .td-draw.landed .td-boom{animation:tdboom .9s ease-out 1.35s forwards}
+  @keyframes tdboom{0%{opacity:1;transform:scale(.1)}30%{opacity:1}100%{opacity:0;transform:scale(2.6)}}
+  .td-flash{position:absolute;inset:0;z-index:2;background:#FFF6D8;opacity:0;pointer-events:none}
+  .td-draw.landed .td-flash{animation:tdflash .7s ease-out 1.35s}
+  @keyframes tdflash{from{opacity:.85}}
+  .td-burst{position:absolute;top:500px;width:0;height:0}
+  .td-burst i{position:absolute;left:-40px;top:-40px;width:80px;height:80px;background:url(tada/nugget.webp) center/contain no-repeat;opacity:0}
+  .td-draw.landed .td-burst i{animation:tdburst 1.4s cubic-bezier(.15,.75,.4,1) 1.35s forwards}
+  @keyframes tdburst{0%{opacity:1;transform:scale(.5)}80%{opacity:1}100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--r)) scale(1.15)}}
+  .td-dhead{position:absolute;top:12px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:4px;text-transform:uppercase;animation:pwhead .6s cubic-bezier(.16,1,.3,1) calc(.6s + var(--el,0s)) both}
+  .td-dhead>i{width:420px;height:128px;margin:6px 0 4px;background:var(--tada-logo) center/contain no-repeat;filter:drop-shadow(0 6px 16px rgba(0,0,0,.8))}
+  .td-dhead b{display:flex;align-items:center;gap:12px;padding:6px 20px;border-radius:10px;background:rgba(36,12,4,.84);box-shadow:inset 0 0 0 1px rgba(255,190,90,.4);font-size:30px;letter-spacing:.1em;color:#FFE0B0;font-variant-numeric:tabular-nums}
+  .td-dhead b em{font-style:normal;color:#FFB000}
+  /* the Express: the ten seats as a parked train, filled as winners claim */
+  .td-xp{position:absolute;top:212px;left:50%;display:flex;align-items:flex-end;gap:6px;padding:10px 16px 8px;border-radius:16px;translate:-50% 0;
+    background:rgba(30,10,4,.78);box-shadow:inset 0 0 0 2px rgba(255,190,90,.35),0 10px 30px rgba(0,0,0,.45);animation:pwhead .6s cubic-bezier(.16,1,.3,1) calc(.8s + var(--el,0s)) both}
+  .td-xl{flex:none;align-self:flex-end;width:150px;height:72px;margin:0 4px 26px 0;background:url(tada/engine.webp) center/contain no-repeat;scale:-1 1}
+  .td-xs{flex:none;width:var(--sw);display:flex;flex-direction:column;align-items:center;gap:4px}
+  .td-xs i{width:100%}
+  .td-xs span{max-width:100%;font-size:17px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#9A7A5A}
+  .td-xs.on span{color:#FFE7A0}
+  .td-xs.now i{animation:tdnow .6s ease-in-out infinite alternate}
+  .td-xs.now span{color:#FFB000}
+  @keyframes tdnow{to{filter:drop-shadow(0 0 10px #FFB000) brightness(1.25)}}
+  /* the win: the winner's cart comes up big, with the seat on its plate */
+  .td-win{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;opacity:0;text-align:center;text-transform:uppercase;
+    background:radial-gradient(circle at 50% 34%,rgba(130,44,8,.55),rgba(20,6,2,.95) 70%),url(tada/bg.webp) center 60%/cover}
+  .td-draw.landed .td-win{opacity:1;transition:opacity .6s 2.1s}
+  .td-wcart{position:relative;top:auto;left:auto;flex:none;scale:1.3;margin:90px 0 40px}
+  .td-wcart::before{content:"";position:absolute;inset:-200px;background:repeating-conic-gradient(rgba(255,190,60,.2) 0 7deg,transparent 7deg 20deg);
+    -webkit-mask-image:radial-gradient(closest-side,#000 30%,transparent);mask-image:radial-gradient(closest-side,#000 30%,transparent);animation:gzrays 20s linear infinite}
+  .td-draw.landed .td-wcart{animation:gzorb .9s cubic-bezier(.3,1.5,.5,1) 2.2s both}
+  .td-wcart .td-plate{font-size:22px;letter-spacing:.08em}
+  .td-win small{position:relative;font-size:60px;line-height:1;letter-spacing:.1em;color:#FFB000;text-shadow:0 4px 0 #4A1C00,0 0 30px rgba(255,176,0,.5)}
+  .td-wname{position:relative;max-width:1000px;line-height:1;color:#fff;text-transform:none;overflow-wrap:anywhere;text-shadow:0 4px 18px rgba(0,0,0,.9)}
+  .td-draw.landed .td-wname{animation:crslam .7s cubic-bezier(.3,1.5,.5,1) 2.5s both}
+  .td-win>em{position:relative;font-style:normal;font-size:32px;letter-spacing:.08em;color:#FFD9A8}
+  .td-wclaim{position:relative;margin-top:6px}
+  .td-wclaim p{font-size:38px;letter-spacing:.06em;color:#FFD9A8}
+  .td-wclaim p.ok{color:#7FFFB0}
+  .td-wclaim b{display:inline-block;margin-top:4px;font-size:96px;line-height:1;color:#FFB000;font-variant-numeric:tabular-nums}
 
   /* Dead Man's Crew (Slotmill): the game's tavern behind everything, ghost green and treasure gold */
   .display.crew{
@@ -1018,6 +1149,10 @@
   body.display-only .display{position:fixed;top:50%;left:50%;margin:0;outline:none;transform:translate(-50%,-50%) scale(var(--fit,1));transform-origin:center}
   /* leaderboard: as tall as its rows, top edge where the square's would be */
   .display.fit{height:auto}
+  /* row boards (LMS, League, standings) too: short boxes leave the chat under it visible. Never under 280px, so the
+     knockout card still reads; a coin flip gets the full square. Without :has() it just stays square. */
+  .display:has(>.display-content>:is(.board,.sboard,.dduel)):not(:has(.elim.show .coin-stage)){height:auto;min-height:280px;max-height:var(--size)}
+  body.display-only .display:where(:has(>.display-content>:is(.board,.sboard,.dduel)):not(:has(.elim.show .coin-stage))),   /* :where keeps .canvas's placement winning */
   body.display-only .display.fit{top:calc(50% - 225px * var(--fit,1));transform:translate(-50%,0) scale(var(--fit,1));transform-origin:top center}
   /* full-canvas source (16:9): the box sits at its spot on the 1920×1080 overlay, the rest is alpha */
   body.display-only.canvas .display{top:var(--cy);left:var(--cx);transform:scale(var(--fit,1));transform-origin:0 0}
@@ -1457,7 +1592,7 @@ let state = load() || fresh();
 let appMode = loadMode();
 let navHist=[appMode], navAt=0;   // browser-style back/forward over the formats this panel has visited
 
-function loadMode(){ try{ const m=JSON.parse(localStorage.getItem(MODE_KEY)); return (m==="LMS"||m==="H2H"||m==="BRACKET"||m==="LEAGUE"||m==="WHEEL"||m==="TADA"||m==="PRAG"||m==="KEYWORD"||m==="BOARD"||m==="GATES")?m:null; }catch(e){ return null; } }
+function loadMode(){ try{ const m=JSON.parse(localStorage.getItem(MODE_KEY)); return (m==="LMS"||m==="H2H"||m==="BRACKET"||m==="LEAGUE"||m==="WHEEL"||m==="TADA"||m==="PRAG"||m==="KEYWORD"||m==="BOARD")?m:null; }catch(e){ return null; } }
 function saveMode(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(MODE_KEY, JSON.stringify(appMode)); }catch(e){} bcast({type:"state"}); }
 
 function fresh(){
@@ -1784,7 +1919,7 @@ function highlightMissing(ids){
     if(c){ c.classList.add("needs-entry"); setTimeout(()=>c.classList.remove("needs-entry"),600); }
   });
 }
-/* ---------------- sound effects (WebAudio, no files — stays single-file) --- */
+/* ---------------- sound effects: sfx/<name>.mp3 when there is one, else a WebAudio tone ---------------- */
 const SOUND_KEY="comp_sound_v1";
 let soundOn=(localStorage.getItem(SOUND_KEY)??"1")==="1";
 let audioCtx=null;
@@ -1800,8 +1935,18 @@ function tone(freq,t0,dur,type,vol){
   o.connect(g); g.connect(ctx.destination);
   o.start(t); o.stop(t+dur+0.05);
 }
+/* Drop a file in public/comp/sfx/ named after the sound (winner.mp3, tick.mp3, whistle.mp3 ...) and it plays
+   instead of the tone. A name without a file is found out once (its 404) and keeps the tone from then on. */
+const SFX_FILE={};   // name -> Audio to clone, or false: no file
 function sfx(name){
   if(!soundOn) return;
+  const f=SFX_FILE[name];
+  if(f===false) return sfxTone(name);
+  if(f){ f.cloneNode().play().catch(()=>{}); return; }   // a clone each time, so fast ticks overlap
+  const a=SFX_FILE[name]=new Audio(`sfx/${name}.mp3`);
+  a.play().catch(()=>{ if(a.error){ SFX_FILE[name]=false; sfxTone(name); } });
+}
+function sfxTone(name){
   const ctx=actx(); if(!ctx) return;
   if(ctx.state==="suspended") ctx.resume();
   if(name==="elim"){ tone(392,0,.18,"sawtooth",.11); tone(311,.16,.2,"sawtooth",.11); tone(233,.34,.45,"sawtooth",.13); }
@@ -1810,8 +1955,10 @@ function sfx(name){
   else if(name==="match"){ tone(659,0,.12,"triangle",.14); tone(880,.12,.32,"triangle",.15); }
   else if(name==="tick"){ tone(2200,0,.03,"square",.03); }
   else if(name==="zap"){ tone(1900,0,.05,"square",.05); tone(120,.01,.3,"sawtooth",.1); tone(55,.04,.6,"triangle",.18); }
-  else if(name==="stop"){ tone(150,0,.1,"square",.07); tone(95,.02,.18,"triangle",.14); }
+  else if(name==="stop"||name==="brake"){ tone(150,0,.1,"square",.07); tone(95,.02,.18,"triangle",.14); }
   else if(name==="life"){ tone(494,0,.15,"triangle",.13); tone(659,.13,.16,"triangle",.14); tone(880,.28,.35,"triangle",.16); }
+  else if(name==="whistle"){ [0,.6].forEach(t=>{ tone(740,t,t?.8:.45,"triangle",.1); tone(932,t,t?.8:.45,"triangle",.08); tone(1175,t,t?.8:.45,"sine",.04); }); }
+  else if(name==="boom"){ tone(1400,0,.08,"square",.05); tone(95,0,.5,"sawtooth",.16); tone(48,0,1.2,"triangle",.32); tone(36,.05,1.4,"sine",.25); }
 }
 function updateSoundBtn(){ const b=$("#soundBtn"); if(b){ b.innerHTML=`<svg class="ic" aria-hidden="true"><use href="#i-${soundOn?"sound":"mute"}"/></svg>`; b.classList.toggle("off",!soundOn); b.title=soundOn?"Mute sounds":"Unmute sounds"; } }
 function toggleSound(){ soundOn=!soundOn; try{localStorage.setItem(SOUND_KEY,soundOn?"1":"0");}catch(e){} updateSoundBtn(); toast(soundOn?"Sound on":"Sound muted"); }
@@ -2798,7 +2945,9 @@ const RF_MODES={
   WHEEL:{icon:"reel", title:"Slot Wheel", setup:()=>!wh.cur && !wh.over, roster:()=>[], display:()=>whRenderDisplay(), save:()=>whSave(),
     slots:()=>true, take:e=>{ wh.cur={id:uid(), slot:e.slot, platform:e.platform, name:e.name, bet:wh.bet, win:""}; wh.started=true; }},
   // fixed keyword and ten fixed rows: a claim only fills a blank one
-  TADA:{icon:"gift", title:"TaDa Gaming Giveaway", kw:"TaDa", setup:()=>!td.started, roster:()=>td.players, display:()=>tdRenderDisplay(), save:()=>tdSave(), add:()=>null},
+  TADA:{icon:"gift", title:"TaDa Gaming Giveaway", kw:"TaDa", prize:()=>"€100 · TOP 2 WIN €50", log:row=>row ? `seat ${td.players.indexOf(row)+1} of ${TD_N}` : "", spinMs:()=>TD_DRAW_MS,
+    setup:()=>!td.started && (!!rf.spin || tdEntriesNow()), roster:()=>td.players, display:()=>tdRenderDisplay(), save:()=>tdSaveWin(), add:()=>null,
+    canDraw:()=>td.players.some(p=>!p.name.trim()), noDraw:"All ten seats are taken"},
   // entries run all show; every claim is a new winner row
   PRAG:{icon:"gift", title:"Prag-Wheel", kw:"Pragmatic", log:()=>"", spinMs:()=>PW_DRAW_MS, setup:()=>true, roster:()=>pw.winners, display:()=>pwRenderDisplay(), save:()=>pwSave(),
     add:()=>{ const p={id:uid(), name:""}; pw.winners.push(p); return p; }},
@@ -2854,8 +3003,11 @@ const rfWinner=sp=>rf.entries.find(e=>rfId(e)===sp.winner);
    during the spin wait for the next draw. */
 function rfSpinPool(sp){ return rf.entries.slice(0,sp.count).filter(e=>!e.st||rfId(e)===sp.winner).reverse(); }
 
-function rfChatMsg(platform, user, name, text){
-  if(!rf.on) return;
+/* Chat bots never enter or claim. Compared without case or punctuation (Kick slugs Degen_Bot as degen-bot). */
+const CHAT_BOTS=["botrix","streamelements","degenbot"];
+const isChatBot=user=>CHAT_BOTS.includes(String(user).toLowerCase().replace(/[^a-z0-9]/g,""));
+function rfChatMsg(platform, user, name, text, color, ts, extra, sub){
+  if(!rf.on || isChatBot(user)) return;
   const sp=rf.spin;
   // Anything the winner says counts as claiming, on the platform they entered from.
   if(sp && !sp.claimed && sp.winner===platform+":"+user && netNow()>=rfSpinEnd(sp)){
@@ -2865,6 +3017,7 @@ function rfChatMsg(platform, user, name, text){
   const kw=rfKw();
   if(!rfMatches(text, kw)) return;
   const e={platform, user, name};
+  if(sub) e.sub=true;   // paid sub / member when they entered: rf.subLuck draws them twice as often
   if(rf.slots){   // one slot per viewer, and the first to name a slot owns it
     e.slot=String(text).trim().slice(kw.trim().length).replace(/\s+/g," ").trim().slice(0,40);
     if(!e.slot || rf.entries.some(x=>x.slot && x.slot.toLowerCase()===e.slot.toLowerCase())) return;
@@ -2950,7 +3103,8 @@ function twPriv(line){
   const m=/^(?:@(\S+) )?:(\w+)!\S+ PRIVMSG #\w+ :(.*)$/.exec(line);
   if(!m) return;
   const dn=/(?:^|;)display-name=([^;]*)/.exec(m[1]||""), user=m[2].toLowerCase(), col=/(?:^|;)color=([^;]*)/.exec(m[1]||""), ts=/(?:^|;)tmi-sent-ts=(\d+)/.exec(m[1]||""), em=/(?:^|;)emotes=([^;]*)/.exec(m[1]||"");
-  chatMsg("twitch", user, dn && dn[1].toLowerCase()===user ? dn[1] : m[2], m[3], col&&col[1], ts&&ts[1], em&&em[1]);
+  chatMsg("twitch", user, dn && dn[1].toLowerCase()===user ? dn[1] : m[2], m[3], col&&col[1], ts&&ts[1], em&&em[1],
+    /(?:^|;)badges=[^;]*\b(?:subscriber|founder)\//.test(m[1]||""));
 }
 function rfStartChat(){
   if(rfChat.started) return;
@@ -2975,7 +3129,8 @@ function rfStartChat(){
         if(!/ChatMessageEvent$/.test(m.event||"")) return;
         const d=JSON.parse(m.data);
         if(d && d.sender && typeof d.content==="string")
-          chatMsg("kick", String(d.sender.slug||d.sender.username).toLowerCase(), d.sender.username, d.content, d.sender.identity&&d.sender.identity.color);
+          chatMsg("kick", String(d.sender.slug||d.sender.username).toLowerCase(), d.sender.username, d.content, d.sender.identity&&d.sender.identity.color, 0, undefined,
+            ((d.sender.identity&&d.sender.identity.badges)||[]).some(b=>b.type==="subscriber"||b.type==="founder"));
       }catch(e){}
     }, '{"event":"pusher:ping","data":{}}');
   ytStart();
@@ -3019,7 +3174,8 @@ async function ytStart(){
         (lc.actions||[]).forEach(a=>{
           const m=a.addChatItemAction && a.addChatItemAction.item.liveChatTextMessageRenderer;
           if(!m || (!DISPLAY_ONLY && Number(m.timestampUsec)<since) || !alive()) return;   // the display wants the backlog
-          chatMsg("youtube", m.authorExternalChannelId, (m.authorName&&m.authorName.simpleText||"").replace(/^@/,""), ytText(m.message||{}), "", Number(m.timestampUsec)/1000, (m.message||{}).runs);
+          chatMsg("youtube", m.authorExternalChannelId, (m.authorName&&m.authorName.simpleText||"").replace(/^@/,""), ytText(m.message||{}), "", Number(m.timestampUsec)/1000, (m.message||{}).runs,
+            (m.authorBadges||[]).some(b=>b.liveChatAuthorBadgeRenderer&&b.liveChatAuthorBadgeRenderer.customThumbnail));   // only member badges have their own picture
         });
         const c=(lc.continuations||[])[0]||{};
         const d=c.invalidationContinuationData||c.timedContinuationData||c.reloadContinuationData||{};
@@ -3035,8 +3191,14 @@ async function ytStart(){
 }
 
 function rfOpenEntries(){
-  rf={on:true, open:true, mode:appMode, slots:rfSlotsIn(appMode), keyword:rf.keyword, slotKeyword:rf.slotKeyword, claimSecs:rf.claimSecs, entries:[], spin:null};
+  rf={on:true, open:true, mode:appMode, slots:rfSlotsIn(appMode), keyword:rf.keyword, slotKeyword:rf.slotKeyword, claimSecs:rf.claimSecs, subLuck:rf.subLuck, entries:[], spin:null};
   rfStartChat(); rfFlush();
+}
+/* Ticket n (a random uint) of the pool; with sub luck on, a sub holds two tickets. */
+function rfPick(pool, n){
+  const w=e=>rf.subLuck && e.sub ? 2 : 1;
+  let t=n%pool.reduce((s,e)=>s+w(e),0);
+  return pool.find(e=>(t-=w(e))<0);
 }
 function rfDrawOne(){
   if(rf.spin) return;
@@ -3047,7 +3209,7 @@ function rfDrawOne(){
   const r=crypto.getRandomValues(new Uint32Array(3));
   const ms=RF_MODES[rf.mode].spinMs?.()||RF_SPIN_MS;   // a format can run its own, longer draw
   rf.spin={ startedAt:netNow(), duration:ms[0]+r[1]%(ms[1]-ms[0]), seed:r[2],
-            winner:rfId(pool[r[0]%pool.length]), count:rf.entries.length, claimed:false, claimMs:rf.claimSecs*1000 };
+            winner:rfId(rfPick(pool, r[0])), count:rf.entries.length, claimed:false, claimMs:rf.claimSecs*1000, subLuck:!!rf.subLuck };
   if(rf.slots){ rf.spin.claimed=true; rf.spin.claimedAt=rf.spin.startedAt; }   // a slot has nobody to claim it
   rfFlush();
 }
@@ -3076,7 +3238,7 @@ function rfCommit(claimed){
     }
     // giveaway draws go to the sheet, misses too: a true record of every draw on stream
     if(M.log && !e.test) sheetPush({id:sp.startedAt+"-"+sp.seed, mode:M.title, winner:`${e.name} (${e.platform})${claimed?"":" did not claim"}`,
-      count:sp.count, seed:sp.seed, detail:[`keyword ${rfKw()}`, M.log(row)].filter(Boolean).join(" · ")});
+      count:sp.count, seed:sp.seed, detail:[`keyword ${rfKw()}`, sp.subLuck&&"subs 2x", M.log(row)].filter(Boolean).join(" · ")});
     toast(!claimed ? `${e.name} didn't claim` : full ? `${label} drawn, but it's full` : M.take ? `Up next: ${label}` : `${label} is in`, !claimed||full);
   }
   rfSave(); renderApp();
@@ -3103,7 +3265,7 @@ function rfTakeover(c){
   set("#rfTop", rf.open ? "Type" : "Entries closed");
   set("#rfKw", kw);
   set("#rfBottom", rf.open ? (rf.slots ? "and a slot name" : "in chat to enter") : "");
-  set("#rfCount", pool.length ? (rf.slots ? `${pool.length} slot${pool.length>1?"s":""} in the wheel` : `${pool.length} in the draw`) : rf.open ? "Waiting for chat" : "Nobody left to draw");
+  set("#rfCount", pool.length ? (rf.slots ? `${pool.length} slot${pool.length>1?"s":""} in the wheel` : `${pool.length} in the draw${rf.subLuck?" · subs 2× luck":""}`) : rf.open ? "Waiting for chat" : "Nobody left to draw");
   const pfs=c.querySelector("#rfPfs"), pfHtml=rfPfCounts(pool);
   if(pfs.dataset.v!==pfHtml){ pfs.dataset.v=pfHtml; pfs.innerHTML=pfHtml; }
   c.querySelector("#rfPhase").classList.toggle("on", !!rf.open);
@@ -3136,7 +3298,7 @@ const rfMod=(a,n)=>((a%n)+n)%n;
 let rfPlan=null, rfLastOff=null, rfWasSpinning=false;
 function rfFrame(){
   requestAnimationFrame(rfFrame);
-  if(rf.on && (rf.mode==="PRAG" || rf.mode==="CREW" || rf.mode==="GATES") && appMode===rf.mode) return;   // pwDrawFrame() / crDrawFrame() / gzDrawFrame() run these draws
+  if(rf.on && (rf.mode==="PRAG" || rf.mode==="CREW" || rf.mode==="GATES" || rf.mode==="TADA") && appMode===rf.mode) return;   // pwDrawFrame() / crDrawFrame() / gzDrawFrame() / tdDrawFrame() run these draws
   const sq=document.getElementById("rfSq");
   if(!sq) return;
   const sp=rf.on ? rf.spin : null;
@@ -3212,7 +3374,8 @@ const rfSection=()=>`<div class="section"><div class="section-h">Let chat enter<
 function rfPanelHtml(){
   if(rf.on && rf.mode!==appMode) return `<div class="chint">Keyword entries are running in <b>${MODE_NAME[rf.mode]}</b>.</div><button class="btn" id="rfFinish">Stop them</button>`;
   const slots=rf.on ? rf.slots : rfSlotsIn(appMode), what=slots?"slot":"player";
-  const claimIn=slots ? "" : `<div class="crow plain"><span class="clab sm">Claim time</span><input class="tier-in" id="rfClaimSecs" type="number" min="5" max="600" step="5" style="width:90px" value="${rf.claimSecs}" aria-label="Claim time in seconds"><span class="tier-sep">seconds</span></div>`;
+  const claimIn=slots ? "" : `<div class="crow plain"><span class="clab sm">Claim time</span><input class="tier-in" id="rfClaimSecs" type="number" min="5" max="600" step="5" style="width:90px" value="${rf.claimSecs}" aria-label="Claim time in seconds"><span class="tier-sep">seconds</span></div>
+    <div class="crow plain"><span class="clab sm">Sub luck</span>${segHtml([["1","2×"],["0","Off"]], rf.subLuck?"1":"0", "data-rf-sub")}</div>`;
   if(!rf.on) return `
     <button class="primary sm big-btn" id="rfOpen">${ic("bolt")}Open ${slots?"slot":"keyword"} entries</button>
     <div class="crow plain"><span class="clab sm">Keyword</span><input class="tier-in" id="rfKw" style="width:150px" spellcheck="false" value="${escapeHtml(rfKw())}" aria-label="Keyword"${RF_MODES[appMode]?.kw?" disabled":""}></div>
@@ -3272,6 +3435,8 @@ function rfWire(){
   if(sq) sq.oninput=()=>{ rfQuery=sq.value; $("#rfNames").innerHTML=rfNamesHtml(); };
   const panel=$("#rfPanel");
   if(panel) panel.onclick=ev=>{
+    const s=ev.target.closest("[data-rf-sub]");   // applies from the next draw
+    if(s){ rf.subLuck=s.dataset.rfSub==="1"; rfFlush(); panel.innerHTML=rfPanelHtml(); rfWire(); return; }
     const b=ev.target.closest("[data-rf-rm]"); if(!b || rf.spin) return;   // mid-spin would change the reel's pool
     const e=rf.entries.find(x=>rfId(x)===b.dataset.rfRm);
     if(e){ e.st="removed"; rfFlush(); }
@@ -4778,10 +4943,7 @@ function tdStart(){
   const named=td.players.filter(p=>p.name.trim());
   if(named.length<2){ toast("Add at least 2 players", true); return; }
   tdSnapshot();
-  // entries are cleared when the buys start, so count them first (the operator's removals don't count)
-  if(rf.on && rf.mode==="TADA"){ const es=rf.entries.filter(e=>e.st!=="removed"), by={};
-    es.forEach(e=>{ by[e.platform]=(by[e.platform]||0)+1; }); td.entries={total:es.length, by}; }
-  rfStop("TADA");
+  tdCountEntries(); rfStop("TADA");
   td.players=named; td.started=true;
   tdSave(); tdRender();
 }
@@ -4809,9 +4971,22 @@ const tdStatsText=(st, at)=>[`TaDa Gaming Giveaway${at?" · "+at:""}`,
   ...st.winners.map((w,i)=>`${i+1}. ${w.name} · ${PF_NAME[w.platform]||"added by hand"} · win ${fmt(w.win)} · ${tdEur(w.prize)}`)].join("\n");
 const tdStatsHtml=st=>`<div class="td-stats"><span>${st.entries ? `<b>${st.entries.total}</b> entries${Object.entries(st.entries.by).map(([p,n])=>` · ${rfLogo(p)} ${n}`).join("")}` : "Entries not counted"}</span>
   ${st.winners.map(w=>`<span>${ic("trophy")}${rfLogo(w.platform)}<b>${escapeHtml(w.name)}</b> ${escapeHtml(w.platform ? PF_NAME[w.platform] : "added by hand")} · ${fmt(w.win)} · ${tdEur(w.prize)}</span>`).join("")}</div>`;
+/* entries are cleared when they stop, so count them first (the operator's removals don't count) */
+function tdCountEntries(){
+  if(!(rf.on && rf.mode==="TADA")) return;
+  const es=rf.entries.filter(e=>e.st!=="removed"), by={};
+  es.forEach(e=>{ by[e.platform]=(by[e.platform]||0)+1; }); td.entries={total:es.length, by};
+}
+/* a claim names a seat, so it's announced on save; the tenth one stops the entries */
+function tdSaveWin(){
+  td.players.forEach((p,i)=>{ if(p.name.trim() && p.chat && !p.shown){ p.shown=true;
+    const m={type:"fx", fx:"tada", seat:true, names:[p.name], sub:`Seat ${i+1} of ${TD_N} · one bonus buy`}; bcast(m); tdPlayWin(m); } });
+  if(td.players.every(p=>p.name.trim())){ tdCountEntries(); rfStop("TADA"); }
+  tdSave();
+}
 function tdPlayWin(m){
-  sfx("winner");
-  takeover("tk-gold", "crown", "TaDa winners", m.names.join(" & "), m.sub, 4000);
+  sfx(m.seat ? "match" : "winner");
+  takeover("tk-tada", m.seat ? "gift" : "crown", m.seat ? "All aboard" : "TaDa winners", m.names.join(" & "), m.sub, m.seat ? 3600 : 4000);
 }
 
 function tdRender(){ tdRenderDisplay(); if(!DISPLAY_ONLY) tdRenderControl(); }
@@ -4819,14 +4994,18 @@ function tdRenderDisplay(){
   const c=$("#displayContent");
   if(lbTakeover(c) || rfTakeover(c)) return;
   if(!td.started){
-    const names=td.players.map(p=>p.name.trim()).filter(Boolean);
-    c.innerHTML=bugHtml("gift", "TaDa Gaming Giveaway", "€100 prize pool", "gold")+lobbyHtml('<i class="tada-logo"></i>Giveaway', "Top 2 wins take €50 each", names, `${names.length} of ${TD_N} in`, "Entries open soon");
+    const n=td.players.filter(p=>p.name.trim()).length, open=rf.on && rf.mode==="TADA" && rf.open;
+    const cta = n>=TD_N ? "All aboard · the buys are next" : open ? `Type <b>${escapeHtml(RF_MODES.TADA.kw)}</b> in chat` : "Top 2 wins take €50 each";
+    c.innerHTML=`<div class="td-top"><i class="ng"></i><i class="tl" role="img" aria-label="TaDa Gaming"></i><i class="ng"></i></div>
+      <div class="td-cta"><span>€100</span><em${n>=TD_N || !open ? ' class="long"' : ""}>${cta}</em></div>
+      <div class="td-seats">${td.players.slice(0,TD_N).map((p,i)=>`<div class="td-seat${p.name.trim()?" on":""}"><i></i><span>${p.name.trim() ? escapeHtml(p.name) : "Seat "+(i+1)}</span></div>`).join("")}</div>`;
     return;
   }
   const {order, prize}=tdStandings();
   const rows=[...order, ...td.players.filter(p=>!order.includes(p))].map(p=>{ const w=parseWin(p.win);
     return {name:p.name, extra:prize[p.id]>0 ? tdEur(prize[p.id]) : "", value:w===null ? "—" : fmt(w), hi:prize[p.id]>0}; });
-  c.innerHTML=bugHtml("gift", "TaDa Gaming Giveaway", td.over ? "Winners" : `${order.length} of ${td.players.length} bought`, "gold")+standingsHtml(rows);
+  c.innerHTML=`<div class="td-hd"><i class="tl" role="img" aria-label="TaDa Gaming"></i>
+    <b>${td.over ? "Winners" : `${order.length} of ${td.players.length} bought`}</b></div>`+standingsHtml(rows);
 }
 function tdRenderControl(){
   $("#undoBtn").disabled=!td.history.length;
@@ -4835,6 +5014,7 @@ function tdRenderControl(){
   on("#tdStartBtn", tdStart);
   on("#tdEndBtn", tdEnd);
   on("#tdNewBtn", tdConfirmReset);
+  on("#tdTestBtn", rfTestEntries);
   on("#tdCopyStats", ()=>navigator.clipboard.writeText(tdStatsText(tdStats())).then(()=>toast("Stats copied"),()=>toast("Clipboard blocked by the browser",true)));
   const ready=()=>{ const n=td.players.filter(p=>p.name.trim()).length; wizReady(n>=2, "Add at least 2 players"); };
   document.querySelectorAll("[data-td-name]").forEach(inp=>{ inp.oninput=()=>{
@@ -4854,13 +5034,22 @@ function tdSetupControls(){
   if(at===1) body=`<div class="page-h">The rules</div>
     ${summaryHtml([["Keyword","TaDa"], ["Players",`${TD_N} drawn from chat`], ["Each gets","1 bonus buy"], ["Prize pool","€100 · the top 2 wins get €50 each"]])}
     `;
-  else if(at===2) body=`<div class="page-h">Draw ${TD_N} players</div><div class="two-col">${rfSection()}
+  else if(at===2) body=`<div class="livehead"><div class="page-h">Draw ${TD_N} players</div><button class="btn" id="tdTestBtn">${ic("bolt")}Load 1,400 test entries</button></div>
+    <div class="two-col">${rfSection()}
     <div class="section"><div class="section-h">Players · ${named} of ${TD_N}</div><div class="crows">${nameRowsHtml(td.players, "data-td-name", "", "Drawn player")}</div></div></div>`;
   else body=`<div class="page-h">Check and start</div>
     ${summaryHtml([["Format","TaDa Gaming Giveaway"], ["Players", named ? `${named} of ${TD_N}` : "None yet"], ["Prizes","€50 · €50"]])}
     ${named ? chipsHtml(td.players.map(p=>p.name.trim()).filter(Boolean)) : ""}`;
   return wizRail("TADA", named>=2)+body+wizNav("TADA", named>=2, "Add at least 2 players", `<button class="primary" id="tdStartBtn" data-primary>${ic("play")}Start the buys</button>`);
 }
+/* while entries run, the box swaps between them and the seats, on the server clock so every window swaps together */
+const TD_ENT_MS=12000, TD_SEAT_MS=12000;
+const tdEntriesNow=()=>netNow()%(TD_ENT_MS+TD_SEAT_MS)<TD_ENT_MS;
+let tdShown=null;
+setInterval(()=>{
+  if(appMode!=="TADA" || td.started || !(rf.on && rf.mode==="TADA") || rf.spin){ tdShown=null; return; }
+  const e=tdEntriesNow(); if(e!==tdShown){ const first=tdShown===null; tdShown=e; if(!first) tdRenderDisplay(); }
+},250);
 function tdLiveControls(){
   const {prize}=tdStandings(), done=td.players.filter(p=>parseWin(p.win)!==null).length;
   const rows=td.players.map(p=>`<div class="crow" data-id="${p.id}">${rfLogo(p.chat?.platform)}<span class="clab">${escapeHtml(p.name)}</span>
@@ -4871,6 +5060,111 @@ function tdLiveControls(){
     ${td.over ? `<div class="section"><div class="section-h">Stats</div>${tdStatsHtml(tdStats())}<div><button class="btn" id="tdCopyStats">Copy stats</button></div></div>` : ""}
     <div class="actionbar">${td.over ? `<button class="primary" id="tdNewBtn">${ic("new")}New giveaway</button>` : `<button class="primary" id="tdEndBtn" data-primary>${ic("check")}End giveaway</button>`}</div>`;
 }
+
+/* ---- The draw, both windows, straight from rf.spin (full canvas left of the chat; a 1080 stage in the box).
+   Gold Mine Express's feature: a train of ore carts at the top, a name on each. It starts up (whistle),
+   runs at speed, and slows until the winner's cart stops in the frame. Then dynamite drops onto its gold and
+   blows it out of the cart, and the win screen brings that cart up big with the seat on its plate.
+   Above the track, the Express: the ten seats, the one being drawn for pulsing. */
+const TD_DRAW_MS=[17500,19000], TD_FADE_MS=2200, TD_CP=380, TD_CW=386, TD_LW=573, TD_V=7, TD_DEC=5.5, TD_RAMP=6, TD_WHEEL=84;   // the train pulls away over TD_RAMP s
+let tdPlan=null, tdLast=null;
+const tdPlateFs=n=>n.length<=8 ? 24 : n.length<=12 ? 20 : 17;
+/* the engine's wheels in stage px on the 573-wide engine (centre x, y, radius), and the crosshead the main rod runs to */
+const TD_ENG={rear1:[63.8,234,21.6], rear2:[109.5,235.1,22.7], drv1:[194.6,216.2,48.5], drv2:[309,216.2,48.5], front:[465.6,245.5,25.1]}, TD_XHEAD=[377,223.2], TD_CRANK=17;
+const tdLocoHtml=()=>`<div class="td-loco"><i class="puff"></i><i class="puff"></i><i class="puff"></i>${Object.entries(TD_ENG).map(([k,[x,y,r]])=>
+  `<i class="w" style="--x:${x}px;--y:${y}px;--r:${r}px;--rn:${r};background-image:url(tada/eng-${k}.webp)"></i>`).join("")}<i class="rod c"></i><i class="rod m"></i></div>`;
+/* the crank pins sit TD_CRANK out on the driving wheels: the coupling rod joins them, the main rod runs from the
+   second one to the crosshead, which slides along with the pin */
+function tdRods(loco, dist){
+  const a=dist/TD_ENG.drv1[2], px=TD_CRANK*Math.cos(a), py=TD_CRANK*Math.sin(a);
+  const [x1,y1]=TD_ENG.drv1, [x2]=TD_ENG.drv2, c=loco.querySelector(".rod.c"), m=loco.querySelector(".rod.m");
+  c.style.width=(x2-x1+10)+"px"; c.style.transform=`translate(${(x1+px-5).toFixed(1)}px,${(y1+py-5).toFixed(1)}px)`;
+  const mx=x2+px, my=y1+py, hx=TD_XHEAD[0]+px, hy=TD_XHEAD[1], len=Math.hypot(hx-mx, hy-my);
+  m.style.width=(len+10)+"px"; m.style.transform=`translate(${(mx-5).toFixed(1)}px,${(my-5).toFixed(1)}px) rotate(${Math.atan2(hy-my, hx-mx).toFixed(3)}rad)`;
+}
+const tdCartHtml=label=>`<div class="td-heap"></div><i class="td-body"></i><div class="td-plate">${label}</div><i class="td-wh a"></i><i class="td-wh b"></i>`;
+function tdDrawPlan(sp, W){
+  const pool=rfSpinPool(sp), N=pool.length, winner=pool.find(e=>rfId(e)===sp.winner);
+  if(!winner) return null;
+  const S=pool.slice(), rnd=pwRng(sp.seed);
+  for(let i=N-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [S[i],S[j]]=[S[j],S[i]]; }
+  // The locomotive leads at x = d*CP - LW, cart r follows at x = (d-r-1)*CP - LW: at d=0 it's all off the
+  // track to the left, so nobody's name is on screen before the train comes in. It rolls right as d grows,
+  // and the winner's cart kw stops at mx (the frame) when d reaches end.
+  const move=(sp.duration-TD_FADE_MS)/1000, mx=(W-TD_CW)/2, off=1+(mx+TD_LW)/TD_CP;
+  const F=crDist(move, TD_V, move, TD_DEC, TD_RAMP), kw=Math.max(1, Math.round(F-off)), end=kw+off;
+  const name=r=>{ if(r===kw) return winner; let e=S[rfMod(r,N)]; if(e===winner && N>1) e=S[rfMod(r+1,N)]; return e; };
+  const seat=Math.min(TD_N, td.players.filter(p=>p.name.trim()).length+1);
+  // the gold that flies out: up and out both ways, a little down again by the end
+  const burst=Array.from({length:14},(_,i)=>{ const a=Math.PI*(1.06+.88*i/13)+(rnd()-.5)*.25, v=240+rnd()*300;
+    return [Math.round(Math.cos(a)*v), Math.round(Math.sin(a)*v+160), Math.round((rnd()-.5)*720)]; });
+  return {at:sp.startedAt, W, move, mx, kw, end, scale:end/F, name, N, seat, burst, redraw:rf.entries.some(e=>e.st==="missed")};
+}
+function tdDrawFrame(){
+  requestAnimationFrame(tdDrawFrame);
+  const sp = rf.on && rf.mode==="TADA" && appMode==="TADA" ? rf.spin : null;
+  let ov=document.getElementById("tdDraw");
+  if(!sp){
+    if(ov && !ov.classList.contains("out")){ ov.classList.add("out"); ov.id=""; setTimeout(()=>ov.remove(),900); }
+    tdPlan=null; tdLast=null; return;
+  }
+  if(ov && ov.classList.contains("fixed")!==(DISPLAY_ONLY && document.body.classList.contains("canvas"))){ ov.remove(); ov=null; }
+  if(!ov) ov=pwDrawMount("tdDraw", "pw-draw td-draw");
+  const stage=ov.firstChild, W=parseFloat(stage.style.width), H=parseFloat(stage.style.height);
+  const hw=ov.offsetWidth, hh=ov.offsetHeight, kk=Math.min(hw/W, hh/H);
+  stage.style.transform=`translate(${ov.classList.contains("fixed")?0:(hw-W*kk)/2}px,${(hh-H*kk)/2}px) scale(${kk})`;
+  if(!tdPlan || tdPlan.at!==sp.startedAt || tdPlan.W!==W){
+    tdPlan=tdDrawPlan(sp, W); if(!tdPlan) return;
+    ov.style.setProperty("--el", -Math.max(0, netNow()-sp.startedAt)/1000+"s");
+    const p=tdPlan, sw=Math.floor(Math.min(118, (W-220)/TD_N));
+    const seats=Array.from({length:TD_N},(_,i)=>{ const nm=(td.players[i]?.name||"").trim();
+      return `<div class="td-xs${nm?" on":""}${i===p.seat-1?" now":""}"><i></i><span>${nm ? escapeHtml(nm) : i===p.seat-1 ? "?" : i+1}</span></div>`; }).join("");
+    stage.innerHTML=`<div class="td-scene"><div class="td-dbg"></div><div class="td-bridge"></div><div class="td-rail"></div>
+        <div class="td-train">${tdLocoHtml()}</div>
+        <div class="td-mark" style="left:${p.mx-20}px"></div><div class="td-dyn" style="left:${W/2-65}px"></div><div class="td-boom" style="left:${W/2-300}px"></div>
+        <div class="td-burst" style="left:${W/2}px">${p.burst.map(([x,y,r])=>`<i style="--dx:${x}px;--dy:${y}px;--r:${r}deg"></i>`).join("")}</div></div>
+      <div class="td-flash"></div>
+      <div class="td-dhead"><i></i><b>Giveaway · ${p.redraw?"<em>Redraw</em> · ":""}Seat ${p.seat} of ${TD_N} · ${p.N.toLocaleString("en-US")} in the draw</b></div>
+      <div class="td-xp" style="--sw:${sw}px"><i class="td-xl"></i>${seats}</div>
+      <div class="td-win"><div class="td-cart td-wcart">${tdCartHtml(`<span>Seat ${p.seat}</span>`)}</div>
+        <small>All aboard!</small><span class="td-wname"></span><em>Seat ${p.seat} of ${TD_N} · one bonus buy · top 2 win €50</em><div class="td-wclaim"></div></div>`;
+  }
+  const p=tdPlan, now=netNow(), t=(now-sp.startedAt-TD_FADE_MS)/1000, landed=now>=rfSpinEnd(sp);
+  const d = landed ? p.end : p.scale*crDist(Math.min(t,p.move), TD_V, p.move, TD_DEC, TD_RAMP);
+  const train=stage.querySelector(".td-train");
+  train.style.setProperty("--rot", (d*TD_CP/(Math.PI*TD_WHEEL)*360%360).toFixed(1)+"deg");
+  // each cart keeps its own element while it's on the track, so nothing is rewritten under the eye
+  const lx=d*TD_CP-TD_LW, loco=train.firstChild;
+  loco.style.transform=`translateX(${lx.toFixed(1)}px)`; loco.style.display = lx>W ? "none" : "";
+  if(lx>-TD_LW && lx<W){ loco.style.setProperty("--dist", (d*TD_CP).toFixed(1)); tdRods(loco, d*TD_CP); }
+  const carts=train.carts||(train.carts=new Map()), seen=new Set();
+  for(let r=Math.max(0,Math.ceil(d-1-(W+TD_LW)/TD_CP)); r<=Math.floor(d-TD_LW/TD_CP); r++){
+    seen.add(r);
+    let c=carts.get(r);
+    if(!c){ const e=p.name(r); c=document.createElement("div"); c.className="td-cart"+(r%2?" alt":"");
+      c.innerHTML=tdCartHtml(rfNameHtml(e)); c.querySelector(".td-plate").style.fontSize=tdPlateFs(e.name)+"px"; train.appendChild(c); carts.set(r,c); }
+    c.style.transform=`translateX(${((d-r-1)*TD_CP-TD_LW).toFixed(1)}px)`;
+    c.classList.toggle("win", landed && r===p.kw);
+  }
+  carts.forEach((c,r)=>{ if(!seen.has(r)){ c.remove(); carts.delete(r); } });
+  ov.classList.toggle("tease", !landed && t>p.move-2.2);
+  ov.classList.toggle("landed", landed);
+  // the whistle as it starts, a tick per cart, the stop, the blast and the win; only for what this window saw happen
+  const was=tdLast; tdLast = landed ? {t:Infinity} : {t, d};
+  if(was && was.t!==Infinity){
+    if(!landed && was.t<=0 && t>0) sfx("whistle");
+    if(!landed && Math.floor(d)>Math.floor(was.d)) sfx("tick");
+    if(landed){ sfx("brake"); setTimeout(()=>sfx("boom"),1350); setTimeout(()=>sfx("winner"),2200); }
+  }
+  if(landed){
+    const e=rfWinner(sp), pf=(e&&e.platform||"").toUpperCase();
+    const nm=stage.querySelector(".td-wname"), cl=stage.querySelector(".td-wclaim"), seatNow=stage.querySelector(".td-xs.now span");
+    if(e && nm.textContent!==e.name){ nm.textContent=e.name; nm.style.fontSize=(e.name.length<=12?120:e.name.length<=18?96:72)+"px"; if(seatNow) seatNow.textContent=e.name; }
+    const html = sp.claimed ? `<p class="ok">Claimed on ${pf}</p>` : `<p>Type in ${pf} chat to claim</p><b>${rfSecs(rfClaimEnd(sp))}</b>`;
+    if(cl.innerHTML!==html) cl.innerHTML=html;
+  }
+}
+requestAnimationFrame(tdDrawFrame);
 
 /* ================= PRAG-WHEEL =================
    Pragmatic Play Friday. Chat types "Pragmatic" (fixed keyword), winners are drawn
@@ -5373,12 +5667,12 @@ const CR_SYMS=["l1","l2","l3","l4","m1","m2","m3","m4","h1","w"];
 const CR_TIERS=["Big win","Mega win","Super mega win","Ultra win","Max win"];
 const CR_RAMP=.8, CR_BEAT=.85, CR_SYM_DEC=.3, CR_NAME_DEC=5.5, CR_BOUNCE=.28;
 let crPlan=null, crLast=null;
-/* rows travelled by time t: spin up, full speed V, then the speed falls steadily to 0 at `stop`
-   over `dec` seconds (0.3s for a symbol reel's snap, 5.5s for the names' slowdown) */
-function crDist(t, V, stop, dec){
+/* rows travelled by time t: spin up over `ramp` seconds, full speed V, then the speed falls steadily to 0 at
+   `stop` over `dec` seconds (0.3s for a symbol reel's snap, 5.5s for the names' slowdown) */
+function crDist(t, V, stop, dec, ramp=CR_RAMP){
   if(t<=0) return 0;
-  if(t<CR_RAMP) return V*t*t/(2*CR_RAMP);
-  const c=stop-dec, f=V*(CR_RAMP/2+Math.min(t,c)-CR_RAMP);
+  if(t<ramp) return V*t*t/(2*ramp);
+  const c=stop-dec, f=V*(ramp/2+Math.min(t,c)-ramp);
   if(t<=c) return f;
   const x=Math.min(1,(t-c)/dec);
   return f + V*dec*(x-x*x/2);
@@ -5812,7 +6106,6 @@ function menuControlView(){
       ${card("KEYWORD","Pick any keyword and title. Chat types it, draw winners one at a time, each one claims in chat.")}
       ${card("PRAG","Pragmatic Play Friday. Chat types Pragmatic, draw winners one at a time, and each one gets a spin on the wheel. The prizes scroll on stream.")}
       ${card("BOARD","Buffalo Blitz 3: 16 challenges, each with a count and a prize. Tick them as they happen on stream. A full challenge is a giveaway: chat types the keyword, draw a winner.")}
-      ${card("GATES","Gates of Olympus 2500 release. Four in-game challenges, €50 each: when one happens, chat types Pragmatic and its winner is drawn. Countdown teaser, lightning draw.")}
     </div>`;
 }
 function menuLeaderboardView(){
