@@ -260,6 +260,9 @@
   @keyframes rflive{50%{opacity:.35}}
   .rf-head{text-align:center;transition:margin-top .8s cubic-bezier(.16,1,.3,1)}
   .rf-sq.empty .rf-head{margin-top:110px}
+  /* what you can win, above the keyword, for formats with a set prize (RF_MODES[m].prize) */
+  .rf-prize{display:inline-block;margin-bottom:10px;padding:6px 16px;border-radius:var(--rad);background:linear-gradient(135deg,var(--gold-2,#FFE08A),var(--gold));color:var(--gold-ink,#2A1600);font-size:40px;line-height:1;letter-spacing:.02em;font-variant-numeric:tabular-nums;box-shadow:0 0 18px rgba(255,200,80,.35)}
+  .rf-prize:empty{display:none}
   .rf-cta{font-size:30px;line-height:1.1;text-transform:uppercase;letter-spacing:.02em;overflow-wrap:anywhere}
   .rf-cta b{color:var(--gold);margin:0 .22em}
   .rf-cta b::before,.rf-cta b::after{content:"\""}
@@ -552,6 +555,100 @@
   /* the 1080 stage (the box, the panel monitor): the captain stands behind the words */
   .cr-draw:not(.fixed) .cr-tier>i{right:-160px;opacity:.55}
   .cr-draw:not(.fixed) .cr-tier>div{margin-left:80px}
+
+  /* Gates of Olympus 2500 (Pragmatic release): the temple above the clouds, violet glass and Zeus's gold */
+  .display.gates{
+    --box:#150A2E; --card:#221244;
+    --slab:rgba(170,130,255,.12); --slab-2:rgba(170,130,255,.2); --slab-3:rgba(170,130,255,.3);
+    --line:rgba(200,170,255,.22); --line-2:rgba(200,170,255,.42);
+    --muted:#D9C8FF; --dim:#A594CC;
+    --gold:#FFCF5A; --gold-2:#FFE9A8; --gold-ink:#2A1600; --bolt:#7FE3FF;
+    background:linear-gradient(rgba(20,8,48,.6),rgba(14,5,34,.92)),url(gates/bg.webp) center/cover;border-color:rgba(255,207,90,.45);
+  }
+  .display.gates .bug-title{font-size:0;background:var(--slab-2)}
+  .display.gates .bug-title::before{content:"";width:120px;height:40px;background:url(gates/logo.webp) left center/contain no-repeat}
+  .gz-logo{flex:none;height:112px;margin-bottom:6px;background:url(gates/logo.webp) center/contain no-repeat;filter:drop-shadow(0 4px 12px rgba(0,0,0,.6))}
+  .gz-cta{flex:none;display:flex;align-items:center;gap:10px;margin-bottom:10px;border-radius:var(--rad);overflow:hidden;background:var(--slab-2);text-transform:uppercase;white-space:nowrap}
+  .gz-cta span{padding:8px 12px;background:linear-gradient(135deg,var(--gold-2),var(--gold));color:var(--gold-ink);font-size:26px;line-height:1}
+  .gz-cta em{font-style:normal;font-size:19px;letter-spacing:.04em;overflow:hidden;text-overflow:ellipsis}
+  .gz-cta b{color:var(--bolt)}
+  .gz-cta.due span{animation:gzpulse .9s ease-in-out infinite alternate}
+  .gz-cta.due em{color:var(--gold)}
+  .gz-chs{position:relative;z-index:1;flex:1;min-height:0;width:70%;display:grid;grid-template-rows:repeat(4,1fr);gap:7px}
+  .gz-ch{display:flex;align-items:center;gap:10px;min-height:0;padding-right:10px;border-radius:var(--rad);background:rgba(20,8,48,.8);box-shadow:inset 0 0 0 1px var(--line)}
+  .gz-ch>i{flex:none;height:100%;aspect-ratio:1;background:center/78% no-repeat;filter:grayscale(.7) brightness(.6)}
+  .gz-ch>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+  .gz-ch span,.gz-ch small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gz-ch span{font-size:21px;line-height:1.05;color:#EDE4FF;text-transform:uppercase;letter-spacing:.03em}
+  .gz-ch small{font-size:15px;letter-spacing:.06em;text-transform:uppercase;color:var(--bolt)}
+  .gz-ch b{flex:none;font-size:22px;color:var(--gold);font-variant-numeric:tabular-nums}
+  .gz-ch.due{background:linear-gradient(90deg,rgba(127,227,255,.22),rgba(20,8,48,.85));animation:gzdue .8s ease-in-out infinite alternate}
+  @keyframes gzdue{from{box-shadow:inset 0 0 0 1px rgba(127,227,255,.5)}to{box-shadow:inset 0 0 0 2px #7FE3FF,0 0 18px rgba(127,227,255,.55)}}
+  .gz-ch.due>i{filter:drop-shadow(0 0 6px #7FE3FF)}
+  .gz-ch.won{background:linear-gradient(90deg,rgba(255,207,90,.3),rgba(20,8,48,.85));box-shadow:inset 0 0 0 1px rgba(255,207,90,.6),0 0 14px rgba(255,207,90,.2)}
+  .gz-ch.won>i{filter:drop-shadow(0 0 6px rgba(190,120,255,.8))}
+  .gz-ch.won span{font-size:15px;color:var(--muted)}
+  .gz-ch.won small{order:-1;font-size:22px;color:#fff;text-transform:none;letter-spacing:0}
+  .gz-zeus{position:absolute;right:-12px;bottom:0;width:172px;height:330px;pointer-events:none;background:url(gates/zeus-bolt.webp) center bottom/contain no-repeat;filter:drop-shadow(0 0 18px rgba(127,227,255,.35))}
+  .gz-tz{flex:1;width:72%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;text-transform:uppercase;padding-bottom:16px}
+  .gz-tz .gz-logo{width:100%;height:124px}
+  .gz-tz .prize{line-height:.9;color:var(--gold);text-shadow:0 5px 0 #4A2400,0 0 26px rgba(255,207,90,.55)}
+  .gz-tz .give{font-size:46px;line-height:1;letter-spacing:.04em;color:#fff;text-shadow:0 3px 10px rgba(0,0,0,.8)}
+  .gz-tz .split{margin-top:4px;font-size:20px;letter-spacing:.08em;color:var(--muted)}
+  .gz-tz .when{margin-top:10px;padding:5px 16px;border-radius:var(--rad);background:rgba(20,8,48,.85);box-shadow:inset 0 0 0 2px var(--bolt),0 0 16px rgba(127,227,255,.45);font-size:21px;letter-spacing:.04em;white-space:nowrap;color:#F2FBFF}
+  .gz-tz.live .when{color:var(--gold);box-shadow:inset 0 0 0 2px var(--gold),0 0 22px rgba(255,207,90,.6);animation:gzpulse .9s ease-in-out infinite alternate}
+  @keyframes gzpulse{to{box-shadow:inset 0 0 0 2px var(--gold),0 0 40px rgba(255,207,90,.9)}}
+  .gz-tz .cd{margin-top:8px;font-size:18px;letter-spacing:.14em;color:var(--muted)}
+  .gz-tz .cd b{margin:0 8px;font-size:34px;letter-spacing:.02em;color:var(--gold);font-variant-numeric:tabular-nums;text-shadow:0 3px 0 #4A2400}
+  .elim.tk-gates .tk{background:linear-gradient(90deg,#1A0A3A 45%,rgba(26,10,58,.2)),url(gates/zeus-open.webp) right -24px bottom/auto 94% no-repeat,#1A0A3A;color:#fff}
+  .elim.tk-gates .tk-label{color:#FFCF5A}
+  .elim.tk-gates .tk-name{padding-right:120px;text-shadow:0 3px 12px rgba(0,0,0,.8)}
+  .elim.tk-gates .tk-sub{background:rgba(255,207,90,.16);color:#FFCF5A}
+
+  /* the Gates draw: names tumble into the game's grid, Zeus strikes them out in rounds, the last one standing wins */
+  .gz-draw{background:#0E0524}
+  .gz-dbg{position:absolute;inset:0;background:linear-gradient(rgba(16,6,40,.5),rgba(12,4,30,.84)),url(gates/bg-draw.webp) center/cover;animation:crzoom 30s linear both;transition:filter .12s}
+  .gz-draw.strike .gz-dbg{filter:brightness(1.6) saturate(1.2)}
+  .gz-dzeus{position:absolute;right:-30px;bottom:0;width:560px;height:980px;background:url(gates/zeus-bolt.webp) right bottom/contain no-repeat;filter:drop-shadow(0 0 30px rgba(127,227,255,.3));animation:crreels .8s cubic-bezier(.16,1,.3,1) calc(.8s + var(--el,0s)) both;transition:filter .12s}
+  .gz-draw:not(.fixed) .gz-dzeus{display:none}
+  .gz-draw.strike .gz-dzeus{filter:drop-shadow(0 0 50px #7FE3FF) brightness(1.3)}
+  .gz-dhead{position:absolute;top:22px;display:flex;flex-direction:column;align-items:center;gap:6px;text-transform:uppercase;animation:pwhead .6s cubic-bezier(.16,1,.3,1) calc(.6s + var(--el,0s)) both}
+  .gz-dhead i{width:360px;height:200px;background:url(gates/logo.webp) center/contain no-repeat;filter:drop-shadow(0 6px 18px rgba(0,0,0,.7))}
+  .gz-dhead b{padding:6px 20px;border-radius:10px;background:rgba(20,8,48,.8);box-shadow:inset 0 0 0 1px rgba(200,170,255,.35);font-size:30px;letter-spacing:.1em;color:#D9C8FF;font-variant-numeric:tabular-nums}
+  .gz-dhead b em{font-style:normal;color:#FFCF5A}
+  .gz-cell{position:absolute;display:flex;align-items:center;justify-content:center;padding:0 14px;border-radius:18px;font-size:30px;white-space:nowrap;will-change:transform,opacity;
+    background:linear-gradient(rgba(70,30,140,.86),rgba(28,9,62,.92));box-shadow:inset 0 0 0 3px #E8B64C,inset 0 0 0 6px rgba(0,0,0,.35),0 8px 18px rgba(0,0,0,.5)}
+  .gz-cell>.gz-sym{position:absolute;left:50%;top:50%;width:116px;height:116px;translate:-50% -50%;background:center/contain no-repeat;opacity:.3}
+  .gz-n{position:relative;display:flex;align-items:center;gap:8px;min-width:0;text-shadow:0 2px 6px rgba(0,0,0,.9)}
+  .gz-n span{overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .gz-n .pf{width:.8em;height:.8em}
+  .gz-draw.tease .gz-cell.alive{animation:gztease .4s ease-in-out infinite alternate}
+  @keyframes gztease{to{box-shadow:inset 0 0 0 3px #fff,0 0 36px #7FE3FF,0 0 70px rgba(155,107,255,.8)}}
+  .gz-cell.win{z-index:2;background:linear-gradient(#FFE9A8,#E8A21C);color:#2A1600}
+  .gz-cell.win .gz-n{text-shadow:none}
+  .gz-bolts{position:absolute;left:0;top:0;pointer-events:none;overflow:visible;filter:drop-shadow(0 0 8px #7FE3FF) drop-shadow(0 0 22px #9B6BFF)}
+  .gz-bolts path{fill:none;stroke:#F4FBFF;stroke-width:6;stroke-linejoin:bevel;opacity:0}
+  /* the win: the last orb, the name under it */
+  .gz-win{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;opacity:0;text-align:center;text-transform:uppercase;
+    background:radial-gradient(circle at 50% 36%,rgba(60,20,110,.45),rgba(12,4,30,.95) 70%),url(gates/bg-gold.webp) center/cover}
+  .gz-draw.landed .gz-win{opacity:1;transition:opacity .6s 1s}
+  .gz-win::after{content:"";position:absolute;left:30px;bottom:0;width:500px;height:780px;background:url(gates/zeus-open.webp) left bottom/contain no-repeat;opacity:.9}
+  .gz-draw:not(.fixed) .gz-win::after{display:none}
+  .gz-worb{position:relative;z-index:1;width:340px;height:308px;margin-bottom:6px}
+  .gz-worb::before{content:"";position:absolute;inset:-220px;background:repeating-conic-gradient(rgba(255,207,90,.2) 0 7deg,transparent 7deg 20deg);
+    -webkit-mask-image:radial-gradient(closest-side,#000 30%,transparent);mask-image:radial-gradient(closest-side,#000 30%,transparent);animation:gzrays 20s linear infinite}
+  @keyframes gzrays{to{rotate:360deg}}
+  .gz-worb i{position:absolute;inset:0;background:url(gates/orb.webp) center/contain no-repeat;filter:drop-shadow(0 0 40px rgba(190,120,255,.75))}
+  .gz-draw.landed .gz-worb i{animation:gzorb .9s cubic-bezier(.3,1.5,.5,1) 1.1s both}
+  @keyframes gzorb{from{transform:scale(.3) rotate(-25deg);opacity:0}}
+  .gz-win small{position:relative;font-size:44px;letter-spacing:.14em;color:#FFCF5A;text-shadow:0 3px 0 #4A2400}
+  .gz-wname{position:relative;max-width:1000px;line-height:1;color:#fff;text-transform:none;overflow-wrap:anywhere;text-shadow:0 4px 18px rgba(0,0,0,.9)}
+  .gz-draw.landed .gz-wname{animation:crslam .7s cubic-bezier(.3,1.5,.5,1) 1.4s both}
+  .gz-win>em{position:relative;font-style:normal;font-size:34px;letter-spacing:.08em;color:#D9C8FF}
+  .gz-wclaim{position:relative;margin-top:8px}
+  .gz-wclaim p{font-size:38px;letter-spacing:.06em;color:#D9C8FF}
+  .gz-wclaim p.ok{color:#7FFFB0}
+  .gz-wclaim b{display:inline-block;margin-top:4px;font-size:96px;line-height:1;color:#FFCF5A;font-variant-numeric:tabular-nums}
   .rf-name{display:flex;align-items:center;justify-content:center;gap:12px;height:var(--r);font-size:30px;white-space:nowrap;color:var(--text)}
   .rf-name span{overflow:hidden;text-overflow:ellipsis;min-width:0}
   .rf-name .pf{width:.85em;height:.85em}
@@ -1269,7 +1366,7 @@ async function netProbe(){
 function netPush(fx){
   if(!NET.on || DISPLAY_ONLY) return;
   const keys={};
-  [KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,CR_KEY,SHEET_Q_KEY].forEach(k=>{ keys[k]=localStorage.getItem(k); });
+  [KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,CR_KEY,GZ_KEY,SHEET_Q_KEY].forEach(k=>{ keys[k]=localStorage.getItem(k); });
   if(NET.synced) keys[HISTORY_KEY]=localStorage.getItem(HISTORY_KEY);
   fetch(NET.url,{method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({keys, fx: fx?[fx]:[], ctl:CTL_ID})}).then(r=>{ if(r.status===409) location.reload(); }).catch(()=>{});
@@ -1338,7 +1435,7 @@ let state = load() || fresh();
 let appMode = loadMode();
 let navHist=[appMode], navAt=0;   // browser-style back/forward over the formats this panel has visited
 
-function loadMode(){ try{ const m=JSON.parse(localStorage.getItem(MODE_KEY)); return (m==="LMS"||m==="H2H"||m==="BRACKET"||m==="LEAGUE"||m==="WHEEL"||m==="TADA"||m==="PRAG"||m==="KEYWORD"||m==="BINGO"||m==="BOARD"||m==="CREW")?m:null; }catch(e){ return null; } }
+function loadMode(){ try{ const m=JSON.parse(localStorage.getItem(MODE_KEY)); return (m==="LMS"||m==="H2H"||m==="BRACKET"||m==="LEAGUE"||m==="WHEEL"||m==="TADA"||m==="PRAG"||m==="KEYWORD"||m==="BOARD"||m==="GATES")?m:null; }catch(e){ return null; } }
 function saveMode(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(MODE_KEY, JSON.stringify(appMode)); }catch(e){} bcast({type:"state"}); }
 
 function fresh(){
@@ -1690,6 +1787,7 @@ function sfx(name){
   else if(name==="coin"){ for(let i=0;i<7;i++) tone(880+i*160,i*.09,.07,"square",.045); }
   else if(name==="match"){ tone(659,0,.12,"triangle",.14); tone(880,.12,.32,"triangle",.15); }
   else if(name==="tick"){ tone(2200,0,.03,"square",.03); }
+  else if(name==="zap"){ tone(1900,0,.05,"square",.05); tone(120,.01,.3,"sawtooth",.1); tone(55,.04,.6,"triangle",.18); }
   else if(name==="stop"){ tone(150,0,.1,"square",.07); tone(95,.02,.18,"triangle",.14); }
   else if(name==="life"){ tone(494,0,.15,"triangle",.13); tone(659,.13,.16,"triangle",.14); tone(880,.28,.35,"triangle",.16); }
 }
@@ -1929,8 +2027,8 @@ function rotateFromId(list,id){
 
 /* ================= SHARED VIEW PIECES ================= */
 const ic=(n,cls)=>`<svg class="ic${cls?" "+cls:""}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
-const MODE_ICON={LMS:"lms", H2H:"h2h", BRACKET:"bracket", LEAGUE:"league", WHEEL:"reel", TADA:"gift", PRAG:"gift", KEYWORD:"bolt", BINGO:"gift", BOARD:"gift", CREW:"gift"};
-const MODE_NAME={LMS:"Last Man Standing", H2H:"Showdown", BRACKET:"Bracket Tournament", LEAGUE:"Points League", WHEEL:"Slot Wheel", TADA:"TaDa Gaming Giveaway", PRAG:"Prag-Wheel", KEYWORD:"Keyword Giveaway", BINGO:"Relax Bingo", BOARD:"Buffalo Blitz 3 Challenges", CREW:"Dead Man's Crew"};
+const MODE_ICON={LMS:"lms", H2H:"h2h", BRACKET:"bracket", LEAGUE:"league", WHEEL:"reel", TADA:"gift", PRAG:"gift", KEYWORD:"bolt", BINGO:"gift", BOARD:"gift", CREW:"gift", GATES:"gift"};
+const MODE_NAME={LMS:"Last Man Standing", H2H:"Showdown", BRACKET:"Bracket Tournament", LEAGUE:"Points League", WHEEL:"Slot Wheel", TADA:"TaDa Gaming Giveaway", PRAG:"Prag-Wheel", KEYWORD:"Keyword Giveaway", BINGO:"Relax Bingo", BOARD:"Buffalo Blitz 3 Challenges", CREW:"Dead Man's Crew", GATES:"Gates of Olympus 2500"};
 
 /* header bug on the stream box */
 function bugHtml(icon, title, phase, tone){
@@ -2055,7 +2153,7 @@ function focusNextWin(inp, sel){
 }
 function dispatchDisplay(){
   if(!appMode){ const mc=$("#displayContent"); if(!lbTakeover(mc)) mc.innerHTML=menuDisplayView(); return; }
-  ({LMS:renderDisplay, H2H:h2hRenderDisplay, BRACKET:bkRenderDisplay, LEAGUE:lgRenderDisplay, WHEEL:whRenderDisplay, TADA:tdRenderDisplay, PRAG:pwRenderDisplay, KEYWORD:kwRenderDisplay, BINGO:bgRenderDisplay, BOARD:bdRenderDisplay, CREW:crRenderDisplay})[appMode]();
+  ({LMS:renderDisplay, H2H:h2hRenderDisplay, BRACKET:bkRenderDisplay, LEAGUE:lgRenderDisplay, WHEEL:whRenderDisplay, TADA:tdRenderDisplay, PRAG:pwRenderDisplay, KEYWORD:kwRenderDisplay, BINGO:bgRenderDisplay, BOARD:bdRenderDisplay, CREW:crRenderDisplay, GATES:gzRenderDisplay})[appMode]();
 }
 let pageTick=Math.floor(netNow()/PAGE_MS);
 setInterval(()=>{
@@ -2614,7 +2712,10 @@ const RF_MODES={
   BOARD:{icon:"gift", get title(){ return BD_TITLE; }, log:row=>{ const c=bdCell(row?.cell||bdDue()[0]?.id); return c ? `${c.label} · ${bdEur(c.prize||0)}` : ""; }, setup:()=>!!rf.spin || bdDue().length>0, roster:()=>[], display:()=>bdRenderDisplay(), save:()=>bdSaveWin(),
     add:()=>{ const p={id:uid(), name:"", cell:bdDue()[0]?.id||null}; bd.winners.push(p); return p; }},
   // five fixed seats: the entries show until the first is taken, then the crew board; a claim fills the next open seat
-  CREW:{icon:"gift", title:"Dead Man's Crew", kw:"Slotmill", log:()=>"€100 seat", spinMs:()=>CR_DRAW_MS, setup:()=>!!rf.spin || !crTaken(), roster:()=>cr.winners, display:()=>crRenderDisplay(), save:()=>crSaveWin(), add:()=>null},
+  CREW:{icon:"gift", title:"Dead Man's Crew", kw:"Slotmill", prize:()=>`${CR_N} × €${CR_PRIZE}`, log:()=>"€100 seat", spinMs:()=>CR_DRAW_MS, setup:()=>!!rf.spin || !crTaken(), roster:()=>cr.winners, display:()=>crRenderDisplay(), save:()=>crSaveWin(), add:()=>null},
+  // four challenges: Hit makes one due, a draw is for the first due one and its winner goes in that row; entries and board take turns
+  GATES:{icon:"gift", title:"Gates of Olympus 2500", kw:"Pragmatic", prize:()=>`${gz.rows.length} × ${gzEur(gz.prize)}`, log:row=>`${row?.label||gzDue()[0]?.label||""} · ${gzEur(gz.prize)}`, spinMs:()=>GZ_DRAW_MS, setup:()=>!!rf.spin || gzEntriesNow(), roster:()=>gzDue(),
+    canDraw:()=>gzDue().length>0, noDraw:"Press Hit on a challenge first", display:()=>gzRenderDisplay(), save:()=>gzSaveWin(), add:()=>null},
 };
 /* Slot entries ("!slot Gates of Olympus"): the words after the keyword are the entry.
    Frozen into rf.slots when entries open, so a format switching mid-entries can't mix them. */
@@ -2783,6 +2884,8 @@ function rfOpenEntries(){
 }
 function rfDrawOne(){
   if(rf.spin) return;
+  const G=RF_MODES[rf.mode];
+  if(G.canDraw && !G.canDraw()){ toast(G.noDraw, true); return; }
   const pool=rfPool();
   if(!pool.length){ toast("Nobody left to draw", true); return; }
   const r=crypto.getRandomValues(new Uint32Array(3));
@@ -2833,13 +2936,14 @@ function rfTakeover(c){
   if(!rf.on || appMode!==rf.mode || !M.setup()) return false;
   if(c.querySelector("#rfSq")?.dataset.mode!==rf.mode) c.innerHTML=`<div class="rf-sq" id="rfSq" data-mode="${rf.mode}">
       <div class="bug rf-bug"><span class="bug-title">${M.title}</span><span class="bug-phase rf-phase" id="rfPhase"></span></div>
-      <div class="rf-head" id="rfTitle"><div class="rf-cta" id="rfCta"><span id="rfTop"></span><b id="rfKw"></b><span id="rfBottom"></span></div><div class="rf-rule"><span id="rfCount"></span></div><div class="rf-pfs" id="rfPfs"></div></div>
+      <div class="rf-head" id="rfTitle"><div class="rf-prize" id="rfPrize"></div><div class="rf-cta" id="rfCta"><span id="rfTop"></span><b id="rfKw"></b><span id="rfBottom"></span></div><div class="rf-rule"><span id="rfCount"></span></div><div class="rf-pfs" id="rfPfs"></div></div>
       <ul class="rf-list" id="rfList"></ul><div class="rf-reel" id="rfReel"></div><div class="rf-marks"></div>
     </div><div class="rf-win" id="rfWin"></div>`;
   // text only, never innerHTML: rebuilding would restart the caret on every entry
   const set=(sel,v)=>{ const el=c.querySelector(sel); if(el.textContent!==v) el.textContent=v; };
   const pool=rfPool(), kw=rfKw();
   set("#rfPhase", rf.open ? "Entries open" : "Entries closed");
+  set("#rfPrize", M.prize?.()||"");
   set("#rfTop", rf.open ? "Type" : "Entries closed");
   set("#rfKw", kw);
   set("#rfBottom", rf.open ? (rf.slots ? "and a slot name" : "in chat to enter") : "");
@@ -2876,7 +2980,7 @@ const rfMod=(a,n)=>((a%n)+n)%n;
 let rfPlan=null, rfLastOff=null, rfWasSpinning=false;
 function rfFrame(){
   requestAnimationFrame(rfFrame);
-  if(rf.on && (rf.mode==="PRAG" || rf.mode==="CREW") && appMode===rf.mode) return;   // pwDrawFrame() / crDrawFrame() run these draws
+  if(rf.on && (rf.mode==="PRAG" || rf.mode==="CREW" || rf.mode==="GATES") && appMode===rf.mode) return;   // pwDrawFrame() / crDrawFrame() / gzDrawFrame() run these draws
   const sq=document.getElementById("rfSq");
   if(!sq) return;
   const sp=rf.on ? rf.spin : null;
@@ -2978,7 +3082,7 @@ function rfPanelHtml(){
     </div>
     ${yt.video || !["connected","looking for the stream","off"].includes(rfChat.youtube) ? ytLinkHtml() : ""}
     ${draw}
-    <button class="primary sm big-btn" id="rfDraw"${sp||!pool.length?" disabled":""}>${ic("reel")}Draw a ${what}</button>
+    <button class="primary sm big-btn" id="rfDraw"${sp||!pool.length||RF_MODES[rf.mode].canDraw?.()===false?" disabled":""}>${ic("reel")}Draw a ${what}</button>
     ${pool.length?`<input class="tier-in" id="rfSearch" style="width:100%;text-align:left" spellcheck="false" placeholder="Search ${pool.length} entries" value="${escapeHtml(rfQuery)}" aria-label="Search entries">
       <div class="rf-names" id="rfNames" style="max-height:160px;overflow-y:auto">${rfNamesHtml()}</div>`
       :`<div class="chint">${rf.open?"Waiting for chat to type the keyword.":"Nobody left to draw."}</div>`}
@@ -5202,12 +5306,229 @@ function crDrawFrame(){
 }
 requestAnimationFrame(crDrawFrame);
 
+/* ================= GATES OF OLYMPUS 2500 (Pragmatic release) =================
+   A keyword raffle in the game's art, triggered by the game: four hard challenges, €50 each. When one
+   happens on stream the operator presses Hit, that row is owed a draw, and its winner goes in the row.
+   Chat types Pragmatic; entries run all show. While they do, the box swaps between the entries and the
+   challenges (gzEntriesNow, on the server clock so every window swaps together). The labels are the
+   operator's to make easier. The teaser counts down to the start. The draw is full canvas (gzDrawFrame)
+   and is no slot: names tumble into the grid and Zeus strikes them out.
+   Art is public/comp/gates/, cut down from the Pragmatic pack (none of the casino's banner art). */
+const GZ_KEY="gates_state_v2", GZ_SYMS=["crown","ring","cup"], GZ_ENT_MS=12000, GZ_CH_MS=12000;
+const GZ_START=["2500x multiplier lands","1,000x+ bonus win","500x+ total multiplier","6 scatters on one spin"];
+function gzFresh(o){ return {prize:50, at:Date.parse("2026-10-01T20:00:00+02:00"), teaser:false, ...o,
+  rows:(o?.rows||GZ_START.map(label=>({label}))).map(r=>({id:uid(), label:r.label, hit:false, name:""}))}; }
+function gzLoad(){ try{ const s=JSON.parse(localStorage.getItem(GZ_KEY)); if(s && Array.isArray(s.rows)) return s; }catch(e){} return null; }
+function gzSave(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(GZ_KEY, JSON.stringify(gz)); }catch(e){} bcast({type:"state"}); }
+let gz=gzLoad()||gzFresh();
+const gzWon=r=>!!r.name.trim();
+const gzTaken=()=>gz.rows.filter(gzWon).length;
+/* challenges that happened and haven't had their draw yet, in board order: the next draw is for the first */
+const gzDue=()=>gz.rows.filter(r=>r.hit && !gzWon(r));
+const gzEur=v=>"€"+Number(v).toLocaleString("en-US");
+const gzEntriesNow=()=>netNow()%(GZ_ENT_MS+GZ_CH_MS)<GZ_ENT_MS;
+function gzPlay(m){ sfx(m.hit?"zap":"winner"); takeover("tk-gates", m.hit?"bolt":"crown", m.hit?"Challenge hit":"Zeus has chosen", m.name, m.sub, m.hit?3600:4200); }
+function gzFx(m){ m={type:"fx", fx:"gates", ...m}; bcast(m); gzPlay(m); }
+function gzSaveWin(){
+  gz.rows.forEach(r=>{ if(gzWon(r) && !r.shown){ r.shown=true; r.wonAt=netNow(); gzFx({name:r.name, sub:`${gzEur(gz.prize)} · ${r.label}`}); } });
+  if(gzTaken()===gz.rows.length) rfStop("GATES");   // every challenge won: entries are done
+  gzSave();
+}
+/* Hit marks a challenge as happened (it's owed a draw); pressing it again takes that back, until it's won */
+function gzHit(id){
+  const r=gz.rows.find(x=>x.id===id); if(!r || gzWon(r)) return;
+  if(rf.spin){ toast("Finish the draw first", true); return; }   // the draw is for the first due row: keep it put
+  r.hit=!r.hit; gzSave(); gzRender();
+  if(r.hit) gzFx({hit:true, name:r.label, sub:`${gzEur(gz.prize)} giveaway`});
+}
+function gzUndo(){
+  const w=gz.rows.filter(gzWon).sort((a,b)=>(b.wonAt||0)-(a.wonAt||0))[0];
+  if(!w){ toast("Nothing to undo"); return; }
+  const was=w.name; w.name=""; delete w.chat; delete w.shown; delete w.wonAt;   // still hit: it's owed a draw again
+  gzSave(); gzRender(); toast(`Took ${was} off ${w.label}`);
+}
+function gzConfirmReset(){
+  const go=()=>{ rfStop("GATES"); gz=gzFresh({prize:gz.prize, at:gz.at, teaser:gz.teaser, rows:gz.rows}); gzSave(); gzRender(); };
+  if(!(rf.on && rf.mode==="GATES") && !gz.rows.some(r=>r.hit)) return go();
+  showConfirm("Start a new giveaway? This stops entries and clears the hits and winners. The challenges, prize and date stay.","Start new",go);
+}
+function gzRender(){ gzRenderDisplay(); if(!DISPLAY_ONLY) gzRenderControl(); }
+function gzRenderDisplay(){
+  const c=$("#displayContent");
+  if(lbTakeover(c) || rfTakeover(c)) return;
+  if(gz.teaser && !(rf.on && rf.mode==="GATES")) return gzTeaserView(c);
+  const open=rf.on && rf.mode==="GATES" && rf.open, due=gzDue();
+  const cta = gzTaken()===gz.rows.length ? "All challenges won" : due.length ? "Giveaway due!" : open ? `Type <b>${escapeHtml(RF_MODES.GATES.kw)}</b> in chat` : "Entries open soon";
+  c.innerHTML=`<div class="gz-logo" role="img" aria-label="Gates of Olympus 2500"></div>
+    <div class="gz-cta${due.length?" due":""}"><span>${gz.rows.length} × ${gzEur(gz.prize)}</span><em>${cta}</em></div>
+    <div class="gz-chs">${gz.rows.map((r,i)=>{ const won=gzWon(r), st=won?" won":r.hit?" due":"";
+      return `<div class="gz-ch${st}"><i style="background-image:url(gates/${won?"orb":"sym-"+GZ_SYMS[i%3]}.webp)"></i>
+        <div><span>${escapeHtml(r.label)}</span>${won?`<small>${escapeHtml(r.name)}</small>`:r.hit?`<small>Hit! Drawing a winner</small>`:""}</div><b>${gzEur(gz.prize)}</b></div>`; }).join("")}</div>
+    <div class="gz-zeus" role="img" aria-label="Zeus"></div>`;
+}
+/* while entries run, the box swaps between them and the board: re-render on the swap */
+let gzShown=null;
+setInterval(()=>{
+  if(appMode!=="GATES" || !(rf.on && rf.mode==="GATES") || rf.spin){ gzShown=null; return; }
+  const e=gzEntriesNow(); if(e!==gzShown){ const first=gzShown===null; gzShown=e; if(!first) gzRenderDisplay(); }
+},250);
+/* The teaser moves on by itself: the date, then Tomorrow, Today, and Live once it's time (Stockholm calendar).
+   The interval below re-renders when that changes; the countdown ticks in the [data-cd] interval. */
+function gzWhen(at){
+  const now=netNow(); if(now>=at) return "Live now";
+  const day=ms=>Date.parse(new Intl.DateTimeFormat("en-CA",{timeZone:CR_TZ}).format(ms));
+  const d=Math.round((day(at)-day(now))/864e5), full=crWhen(at), time=full.split(" · ")[1];
+  return d===0 ? `Today · ${time}` : d===1 ? `Tomorrow · ${time}` : full;
+}
+function gzTeaserView(c){
+  const live=netNow()>=gz.at, n=gz.rows.length, total=gzEur(gz.prize*n);
+  c.innerHTML=`<div class="gz-tz${live?" live":""}"><div class="gz-logo" role="img" aria-label="Gates of Olympus 2500"></div>
+    <b class="prize" style="font-size:${total.length<=5?104:total.length<=7?84:64}px">${total}</b>
+    <div class="give">Giveaway</div><div class="split">${n} challenges × ${gzEur(gz.prize)}</div>
+    <div class="when">${escapeHtml(gzWhen(gz.at))}</div>
+    ${live ? `<div class="cd">Keyword<b>${escapeHtml(RF_MODES.GATES.kw)}</b></div>` : `<div class="cd">Starts in<b data-cd="${gz.at}">${crCountdown(gz.at)}</b></div>`}</div>
+    <div class="gz-zeus" role="img" aria-label="Zeus"></div>`;
+}
+let gzWas="";
+setInterval(()=>{ if(appMode!=="GATES" || !gz.teaser) return; const k=gzWhen(gz.at); if(k!==gzWas){ gzWas=k; gzRenderDisplay(); } },1000);
+function gzRenderControl(){
+  $("#undoBtn").disabled=!gzTaken();
+  const due=gzDue().length;
+  const rows=gz.rows.map((r,i)=>{ const won=gzWon(r);
+    return `<div class="crow"><div class="idx">${i+1}</div>
+      <input class="tier-in" data-gz-lab="${r.id}" maxlength="30" spellcheck="false" style="flex:1;min-width:0;text-align:left" value="${escapeHtml(r.label)}" aria-label="Challenge ${i+1}">
+      ${won ? `${rfLogo(r.chat?.platform)}<span class="choose-tag ok">${escapeHtml(r.name)}</span>`
+        : `<button class="btn${r.hit?" on":""}" data-gz-hit="${r.id}">${ic("bolt")}${r.hit?"Hit · due":"Hit"}</button>`}</div>`; }).join("");
+  $("#controlBody").innerHTML=`<div class="page-h">Gates of Olympus 2500</div>
+    ${summaryHtml([["Keyword",RF_MODES.GATES.kw], ["Prizes",`${gz.rows.length} × ${gzEur(gz.prize)}`], ["Won",`${gzTaken()} of ${gz.rows.length}${due?` · ${due} due`:""}`]])}
+    <div class="section"><div class="section-h">Challenges · press Hit when one happens</div><div class="crows">${rows}</div></div>
+    <div class="section"><div class="section-h">Giveaway</div><div class="crow plain">
+      <span class="clab sm">€ each</span><input class="tier-in" id="gzPrize" type="number" min="1" step="1" style="width:90px" value="${gz.prize}" aria-label="Prize per challenge in euro">
+      <span class="clab sm">Starts</span><input class="tier-in" id="gzAt" type="datetime-local" style="width:210px" value="${new Date(gz.at-new Date(gz.at).getTimezoneOffset()*60000).toISOString().slice(0,16)}" aria-label="Start date and time">
+      <span class="clab sm">Teaser</span><div class="seg"><button class="${gz.teaser?"on":""}" data-gztz="1">On stream</button><button class="${gz.teaser?"":"on"}" data-gztz="0">Off</button></div></div></div>
+    ${rfSection()}
+    <div class="actionbar"><button class="btn" id="gzNewBtn">${ic("new")}New giveaway</button><button class="btn" id="gzTestBtn">${ic("bolt")}Load 1,400 test entries</button></div>`;
+  $("#gzNewBtn").onclick=gzConfirmReset;
+  document.querySelectorAll("[data-gz-hit]").forEach(b=>b.onclick=()=>gzHit(b.dataset.gzHit));
+  document.querySelectorAll("[data-gz-lab]").forEach(i=>i.onchange=()=>{ const r=gz.rows.find(x=>x.id===i.dataset.gzLab); r.label=i.value.trim()||r.label; gzSave(); gzRender(); });
+  document.querySelectorAll("[data-gztz]").forEach(b=>b.onclick=()=>{ gz.teaser=b.dataset.gztz==="1"; gzSave(); gzRender(); });
+  $("#gzPrize").onchange=e=>{ const v=Math.round(+e.target.value); if(v>=1){ gz.prize=v; gzSave(); } gzRender(); };
+  $("#gzAt").onchange=e=>{ const v=new Date(e.target.value).getTime(); if(v) gz.at=v; gzSave(); gzRender(); };   // datetime-local is this PC's time
+  $("#gzTestBtn").onclick=rfTestEntries;
+  rfWire();
+}
+/* ---- The draw, both windows, straight from rf.spin (a 1080 stage in the box: a 4-wide grid, no Zeus).
+   1. Tumbles: the game's 6×5 grid fills with names, column by column from the bottom, and tumbles
+      GZ_TUMBLES times; the last fill holds the winner somewhere.
+   2. Strikes: Zeus's lightning takes out half the grid a round (30 → 15 → 8 → 4 → 2 → 1), the rounds
+      further apart as it gets closer; the last two pulse before the final bolt.
+   3. The last one standing flies to the middle and becomes the 2500x orb with the name and the claim. */
+const GZ_DRAW_MS=[18000,19500], GZ_FADE_MS=2200, GZ_CW=236, GZ_CH=128, GZ_GAP=12, GZ_TOP=300;
+const GZ_TUMBLES=5, GZ_TUMBLE_S=.85, GZ_FALL=.42, GZ_FLY=.9;
+let gzPlan=null, gzLast=null;
+function gzDrawPlan(sp, W){
+  const pool=rfSpinPool(sp), N=pool.length, winner=pool.find(e=>rfId(e)===sp.winner);
+  if(!winner) return null;
+  const S=pool.slice(), rnd=pwRng(sp.seed);
+  for(let i=N-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [S[i],S[j]]=[S[j],S[i]]; }
+  const wide=W>=1920, cols=wide?6:4, rows=5, n=cols*rows, move=(sp.duration-GZ_FADE_MS)/1000;
+  const gw=cols*(GZ_CW+GZ_GAP)-GZ_GAP, left=wide?90:(W-gw)/2, wc=Math.floor(rnd()*n), last=GZ_TUMBLES-1;
+  const xy=i=>[left+(i%cols)*(GZ_CW+GZ_GAP), GZ_TOP+Math.floor(i/cols)*(GZ_CH+GZ_GAP)];
+  // the winner shows once, in its cell of the last fill; anywhere else it gets the next name in the shuffle
+  const name=(k,i)=>{ if(k===last && i===wc) return winner; let e=S[rfMod(k*n+i,N)]; if(e===winner && N>1) e=S[rfMod(k*n+i+1,N)]; return e; };
+  const sym=Array.from({length:GZ_TUMBLES*n},()=>GZ_SYMS[Math.floor(rnd()*GZ_SYMS.length)]);
+  // who goes in which round: half the standing cells (rounded down) each time, the winner never
+  const order=[...Array(n).keys()].filter(i=>i!==wc);
+  for(let i=order.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [order[i],order[j]]=[order[j],order[i]]; }
+  const sizes=[]; for(let a=n; a>1; ){ const k=Math.max(1, a-Math.ceil(a/2)); sizes.push(k); a-=k; }
+  const s0=GZ_TUMBLES*GZ_TUMBLE_S+.9, s1=move-.35, R=sizes.length, hit=new Array(n).fill(Infinity), rounds=[];
+  let o=0;
+  sizes.forEach((k,r)=>{ const at=s0+(s1-s0)*Math.pow(R>1 ? r/(R-1) : 1, 1.25), step=Math.min(.12, .9/k); rounds.push(at);
+    for(let j=0;j<k;j++) hit[order[o++]]=at+j*step; });
+  // one bolt per cell, from the sky down to its middle
+  const bolts=[...Array(n).keys()].map(i=>{ const [x,y]=xy(i), cx=x+GZ_CW/2, cy=y+GZ_CH/2, x0=cx+(rnd()-.5)*220, pts=[];
+    for(let s=0;s<=8;s++){ const f=s/8; pts.push(`${(x0+(cx-x0)*f+(s&&s<8?(rnd()-.5)*70:0)).toFixed(0)},${(-40+(cy+40)*f).toFixed(0)}`); }
+    return "M"+pts.join("L"); });
+  return {at:sp.startedAt, W, cols, rows, n, gw, left, xy, move, wc, name, sym, hit, rounds, fin:order[n-2], teaseFrom:rounds[R-2]+.6,
+    bolts, N, row:gzDue()[0]?.label||"", redraw:rf.entries.some(e=>e.st==="missed")};
+}
+function gzDrawFrame(){
+  requestAnimationFrame(gzDrawFrame);
+  const sp = rf.on && rf.mode==="GATES" && appMode==="GATES" ? rf.spin : null;
+  let ov=document.getElementById("gzDraw");
+  if(!sp){
+    if(ov && !ov.classList.contains("out")){ ov.classList.add("out"); ov.id=""; setTimeout(()=>ov.remove(),900); }
+    gzPlan=null; gzLast=null; return;
+  }
+  if(ov && ov.classList.contains("fixed")!==(DISPLAY_ONLY && document.body.classList.contains("canvas"))){ ov.remove(); ov=null; }
+  if(!ov) ov=pwDrawMount("gzDraw", "pw-draw gz-draw");
+  const stage=ov.firstChild, W=parseFloat(stage.style.width), H=parseFloat(stage.style.height);
+  const hw=ov.offsetWidth, hh=ov.offsetHeight, kk=Math.min(hw/W, hh/H);
+  stage.style.transform=`translate(${(hw-W*kk)/2}px,${(hh-H*kk)/2}px) scale(${kk})`;
+  if(!gzPlan || gzPlan.at!==sp.startedAt || gzPlan.W!==W){
+    gzPlan=gzDrawPlan(sp, W); if(!gzPlan) return;
+    ov.style.setProperty("--el", -Math.max(0, netNow()-sp.startedAt)/1000+"s");
+    const p=gzPlan;
+    stage.innerHTML=`<div class="gz-dbg"></div><div class="gz-dzeus"></div>
+      <div class="gz-dhead" style="left:${p.left}px;width:${p.gw}px"><i></i><b>${p.redraw?"<em>Redraw</em> · ":""}${escapeHtml(p.row)} · ${gzEur(gz.prize)} · ${p.N.toLocaleString("en-US")} in the draw</b></div>
+      ${[...Array(p.n).keys()].map(i=>{ const [x,y]=p.xy(i); return `<div class="gz-cell" style="left:${x}px;top:${y}px;width:${GZ_CW}px;height:${GZ_CH}px;opacity:0"><i class="gz-sym"></i><div class="gz-n"></div></div>`; }).join("")}
+      <svg class="gz-bolts" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${p.bolts.map(d=>`<path d="${d}"/>`).join("")}</svg>
+      <div class="gz-win"><div class="gz-worb"><i></i></div><small>Zeus has chosen</small><span class="gz-wname"></span><em>${gzEur(gz.prize)} · ${escapeHtml(p.row)}</em><div class="gz-wclaim"></div></div>`;
+  }
+  const p=gzPlan, now=netNow(), t=(now-sp.startedAt-GZ_FADE_MS)/1000, landed=now>=rfSpinEnd(sp);
+  const cells=stage.querySelectorAll(".gz-cell"), bolts=stage.querySelectorAll(".gz-bolts path");
+  let strike=false;
+  cells.forEach((el,i)=>{
+    const col=i%p.cols, row=Math.floor(i/p.cols), u=t-(col*.05+(p.rows-1-row)*.04);   // a column lands bottom first
+    const k=Math.min(GZ_TUMBLES-1, Math.floor(u/GZ_TUMBLE_S)), v=u-k*GZ_TUMBLE_S;
+    let y=0, x=0, op=1, sc=1, br=1;
+    if(u<0) op=0;
+    else if(k<GZ_TUMBLES-1 && v>GZ_TUMBLE_S-.2){ const w=(v-GZ_TUMBLE_S+.2)/.2; y=w*w*260; op=1-w; }   // falls out ahead of the next fill
+    else if(v<GZ_FALL){ const w=v/GZ_FALL; y=-(1-w*w)*(GZ_TOP+row*(GZ_CH+GZ_GAP)+GZ_CH); }               // falls in, gathering speed
+    else if(v<GZ_FALL+.14) y=-Math.sin(Math.PI*(v-GZ_FALL)/.14)*12;                                         // and bounces once
+    if(u>=0 && el.dataset.k!==String(k)){ el.dataset.k=k; el.lastChild.innerHTML=rfNameHtml(p.name(k,i)); el.firstChild.style.backgroundImage=`url(gates/sym-${p.sym[k*p.n+i]}.webp)`; }
+    const dt=t-p.hit[i];
+    if(dt>=0){
+      bolts[i].style.opacity = dt<.3 ? 1-dt/.3 : 0;
+      if(dt<.3) strike=true;
+      if(dt<.1) br=3; else { sc=1+(dt-.1)*1.2; op=Math.max(0, 1-(dt-.1)/.35); br=2; }
+    } else if(bolts[i].style.opacity) bolts[i].style.opacity="";
+    if(i===p.wc && t>=p.move){   // the last one standing flies to the middle
+      const w=Math.min(1,(t-p.move)/GZ_FLY), e=1-Math.pow(1-w,3), [cx,cy]=p.xy(i);
+      x=(p.W/2-cx-GZ_CW/2)*e; y=(540-cy-GZ_CH/2)*e; sc=1+e*1.4;
+    }
+    el.style.transform=`translate(${x}px,${y}px) scale(${sc})`;
+    el.style.opacity=op;
+    el.style.filter = br===1 ? "" : `brightness(${br})`;
+    el.classList.toggle("alive", p.hit[i]>t);
+    el.classList.toggle("win", landed && i===p.wc);
+  });
+  ov.classList.toggle("strike", strike);
+  ov.classList.toggle("tease", t>=p.teaseFrom && t<p.hit[p.fin]);
+  ov.classList.toggle("landed", landed);
+  // a tick per fill, a thunder per round, the win once; only for what this window saw happen
+  const was=gzLast; gzLast = landed ? Infinity : t;
+  if(was!==null && was!==Infinity){
+    for(let k=0;k<GZ_TUMBLES;k++) if(was<k*GZ_TUMBLE_S && t>=k*GZ_TUMBLE_S) sfx("tick");
+    if(p.rounds.some(r=>was<r && t>=r)) sfx("zap");
+    if(landed) sfx("winner");
+  }
+  if(landed){
+    const e=rfWinner(sp), pf=(e&&e.platform||"").toUpperCase();
+    const nm=stage.querySelector(".gz-wname"), cl=stage.querySelector(".gz-wclaim");
+    if(e && nm.textContent!==e.name){ nm.textContent=e.name; nm.style.fontSize=(e.name.length<=12?120:e.name.length<=18?96:72)+"px"; }
+    const html = sp.claimed ? `<p class="ok">Claimed on ${pf}</p>` : `<p>Type in ${pf} chat to claim</p><b>${rfSecs(rfClaimEnd(sp))}</b>`;
+    if(cl.innerHTML!==html) cl.innerHTML=html;
+  }
+}
+requestAnimationFrame(gzDrawFrame);
+
 /* ================= STREAM STUDIO TABS =================
    The desktop app shows this page under three of its tabs (the fourth is the
    wheel). There is one stream box, so a tab switch is the Home button with a
    filter: the stream follows the panel, Home lists only that tab's formats, and
    coming back to a tab reopens the format it was on. Leaving a live format asks. */
-const SECTION={LMS:"comp", H2H:"comp", BRACKET:"comp", LEAGUE:"comp", WHEEL:"comp", TADA:"special", PRAG:"special", KEYWORD:"keyword", BINGO:"special", BOARD:"special", CREW:"special"};
+const SECTION={LMS:"comp", H2H:"comp", BRACKET:"comp", LEAGUE:"comp", WHEEL:"comp", TADA:"special", PRAG:"special", KEYWORD:"keyword", BINGO:"special", BOARD:"special", CREW:"special", GATES:"special"};
 let homeSection=null;   // null in a plain browser tab: everything
 const lastIn={};        // tab -> the format it was last on
 window.addEventListener("message", e=>{
@@ -5243,6 +5564,7 @@ function renderApp(){
   $("#display").classList.toggle("tada", appMode==="TADA");
   $("#display").classList.toggle("prag", appMode==="PRAG");
   $("#display").classList.toggle("crew", appMode==="CREW");
+  $("#display").classList.toggle("gates", appMode==="GATES");
   $("#display").classList.toggle("bb3", appMode==="BOARD");
   $("#display").classList.toggle("bingo", appMode==="BINGO");
   tellShell();
@@ -5266,6 +5588,7 @@ function renderApp(){
   if(appMode==="BINGO") return bgRender();
   if(appMode==="BOARD") return bdRender();
   if(appMode==="CREW") return crRender();
+  if(appMode==="GATES") return gzRender();
 }
 /* Relax Bingo is its own page (/bingo/, own relay and lock). As a format here it only
    puts that page's board in this stream box, so OBS keeps the one competitions source. */
@@ -5303,6 +5626,7 @@ function modeStatus(m){
           : m==="PRAG" ? {started:rf.on && rf.mode==="PRAG", done:false, round:null, names:!!pw.winners.length}
           : m==="KEYWORD" ? {started:rf.on && rf.mode==="KEYWORD", done:false, round:null, names:!!kw.winners.length}
           : m==="CREW" ? {started:(rf.on && rf.mode==="CREW") || crTaken()>0, done:crTaken()===CR_N, round:null, names:crTaken()>0}
+          : m==="GATES" ? {started:(rf.on && rf.mode==="GATES") || gz.rows.some(r=>r.hit), done:gzTaken()===gz.rows.length, round:null, names:gz.rows.some(r=>r.hit)}
           : m==="BOARD" ? {started:bd.cells.some(c=>c.n>0), done:false, round:null, names:!!bd.winners.length}
           : {started:lg.started, done:!!lg.winnerId, round:lg.round, names:named(lg.players)};
   if(s.started) return s.done ? {cls:"done", text:"Finished"} : {cls:"live", text:s.round?`Live · Round ${s.round}`:"Live"};
@@ -5329,8 +5653,7 @@ function menuControlView(){
       ${card("KEYWORD","Pick any keyword and title. Chat types it, draw winners one at a time, each one claims in chat.")}
       ${card("PRAG","Pragmatic Play Friday. Chat types Pragmatic, draw winners one at a time, and each one gets a spin on the wheel. The prizes scroll on stream.")}
       ${card("BOARD","Buffalo Blitz 3: 16 challenges, each with a count and a prize. Tick them as they happen on stream. A full challenge is a giveaway: chat types the keyword, draw a winner.")}
-      ${card("CREW","Slotmill visit: Dead Man's Crew. Chat types Slotmill, draw 5 winners of €100 each. Themed in the game's art.")}
-      ${card("BINGO","3x3 bingo in Money Train 5 or The Racaroon 2. Its board shows in the stream box, run from its own panel.")}
+      ${card("GATES","Gates of Olympus 2500 release. Four in-game challenges, €50 each: when one happens, chat types Pragmatic and its winner is drawn. Countdown teaser, lightning draw.")}
     </div>`;
 }
 function menuLeaderboardView(){
@@ -5444,6 +5767,7 @@ $("#undoBtn").onclick=()=>{
   else if(appMode==="KEYWORD") kwUndo();
   else if(appMode==="BOARD") bdUndo();
   else if(appMode==="CREW") crUndo();
+  else if(appMode==="GATES") gzUndo();
 };
 $("#resetBtn").onclick=()=>{
   if(appMode==="LMS") confirmReset();
@@ -5456,6 +5780,7 @@ $("#resetBtn").onclick=()=>{
   else if(appMode==="KEYWORD") kwConfirmReset();
   else if(appMode==="BOARD") bdConfirmReset();
   else if(appMode==="CREW") crConfirmReset();
+  else if(appMode==="GATES") gzConfirmReset();
 };
 fetch("/api/info").then(r=>r.json()).then(j=>{ VERSION=j.version; $("#verLabel").textContent="v"+VERSION; }).catch(()=>{});   // every mode, not just LMS
 $("#soundBtn").onclick=toggleSound; updateSoundBtn();
@@ -5491,7 +5816,7 @@ if(DISPLAY_ONLY){
   fitBox(); addEventListener("resize", fitBox);
   const refreshFromStorage=()=>{
     state=load()||fresh(); h2h=h2hLoad()||h2hFresh();
-    bk=bkLoad()||bkFresh(); lg=lgLoad()||lgFresh(); wh=whLoad()||whFresh(); td=tdLoad()||tdFresh(); pw=pwLoad()||pwFresh(); kw=kwLoad()||kwFresh(); bd=bdLoad()||bdFresh(); cr=crLoad()||crFresh();
+    bk=bkLoad()||bkFresh(); lg=lgLoad()||lgFresh(); wh=whLoad()||whFresh(); td=tdLoad()||tdFresh(); pw=pwLoad()||pwFresh(); kw=kwLoad()||kwFresh(); bd=bdLoad()||bdFresh(); cr=crLoad()||crFresh(); gz=gzLoad()||gzFresh();
     appMode=loadMode(); lb=lbLoad(); rf=rfLoad();
     renderApp();
   };
@@ -5506,6 +5831,7 @@ if(DISPLAY_ONLY){
     else if(m.fx==="board") bdPlay(m);
     else if(m.fx==="tada") tdPlayWin(m);
     else if(m.fx==="crew") crPlay(m);
+    else if(m.fx==="gates") gzPlay(m);
   };
   if(syncBC) syncBC.onmessage=e=>{
     const m=e.data||{};
@@ -5520,7 +5846,7 @@ if(DISPLAY_ONLY){
   setInterval(()=>{
     let raw="";
     try{
-      raw=[KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,CR_KEY].map(k=>localStorage.getItem(k)||"").join("");
+      raw=[KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,CR_KEY,GZ_KEY].map(k=>localStorage.getItem(k)||"").join("");
     }catch(e){ return; }
     if(raw!==lastRaw){ lastRaw=raw; refreshFromStorage(); }
   },1000);

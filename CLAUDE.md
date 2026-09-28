@@ -37,8 +37,16 @@ the competitions box shows `/bingo/#display` in an iframe, so OBS keeps the one 
 **Challenge Board** (`BOARD`, `board_state_v1`, Special Giveaways) is Playtech's Buffalo Blitz 3 board: 16 challenges
 as scrolling rows (closest to done on top), each needing 3 (`BD_NEED`) with a prize; a tick runs a buffalo along the bar (`c.from`/`c.at`) (the pool on stream is their sum, €2,000 by default). A full one owes a giveaway: `RF_MODES.BOARD.setup()` puts the keyword entries on the box only while one is due
 (`bdDue()`), and each winner row keeps the `cell` it was drawn for.
+**Retired from Home (4.7.0):** Relax Bingo and Dead Man's Crew. Their code stays; each comes back with its `card(...)`
+line in `menuControlView()` and its name in `loadMode()`'s list.
 **Dead Man's Crew** (`CREW`, `crew_state_v1`, Special Giveaways) is the Slotmill visit raffle: keyword `Slotmill`,
 five fixed €100 seats; its draw is a full-canvas slot spin (`crDrawFrame`, like Prag's) with a captain win tier per seat; art in `public/comp/crew/` (cut down from the pack in `Dead_Mans_Crew/`, which is gitignored).
+**Gates of Olympus 2500** (`GATES`, `gates_state_v2`, Special Giveaways) is the Pragmatic release raffle: keyword `Pragmatic`,
+four in-game challenges at € each (labels editable, to make them easier). **Hit** makes a row due (`gzDue()`); Draw only works
+while one is, and its winner goes in that row. While entries run the box swaps entries/board every 12s (`gzEntriesNow`, server
+clock). The teaser counts down and moves from the date to Tomorrow/Today/Live by itself (`gzWhen`). Its draw is no slot on purpose: names tumble into the 6×5 grid, then lightning
+takes out half a round until one is left (`gzDrawFrame`). Art in `public/comp/gates/`, from the Pragmatic assets in
+`Banner ads\Emperia x Gates 2500` (never the Emperia files or the `animatic/` banner work).
 
 ## Rules that matter
 
