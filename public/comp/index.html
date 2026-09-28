@@ -400,7 +400,7 @@
   .pw-draw.fixed{position:fixed;z-index:9999}
   /* our own chat panel where the stream's chat sits, themed per draw; the display reads chat all show (chatAdd) */
   .dchat{position:absolute;left:var(--cx);top:var(--cy);transform:scale(var(--k,1));transform-origin:0 0;display:flex;flex-direction:column;
-    border-radius:14px;overflow:hidden;background:var(--dc-bg);box-shadow:inset 0 0 0 2px var(--dc-line),0 12px 40px rgba(0,0,0,.55);
+    border-radius:14px;overflow:hidden;background:var(--dc-bg);will-change:transform;box-shadow:inset 0 0 0 2px var(--dc-line),0 12px 40px rgba(0,0,0,.55);
     font-family:var(--cond);color:#fff;animation:pwhead .6s cubic-bezier(.16,1,.3,1) calc(1s + var(--el,0s)) both;
     --dc-a:var(--prag-orange);--dc-line:rgba(242,145,32,.45);--dc-bg:rgba(10,10,14,.82)}
   .cr-draw .dchat{--dc-a:#5DFFC0;--dc-line:rgba(93,255,192,.4);--dc-bg:rgba(4,16,12,.8)}
@@ -523,10 +523,10 @@
      blows its gold out and the winner rides up into the Express, the ten seats at the top */
   .td-draw{background:#1A0804}
   .td-draw .dchat{--dc-a:#FFB000;--dc-line:rgba(255,176,0,.45);--dc-bg:rgba(30,10,4,.84)}
-  .td-scene{position:absolute;inset:0}
+  .td-scene{position:absolute;inset:0;will-change:transform}
   .td-draw.landed .td-scene{animation:tdshake .5s linear 1.35s}
   @keyframes tdshake{20%{translate:-14px 8px}40%{translate:12px -10px}60%{translate:-8px 6px}80%{translate:5px -3px}}
-  .td-dbg{position:absolute;inset:0;background:url(tada/bg.webp) center 60%/cover;animation:crzoom 30s linear both}
+  .td-dbg{position:absolute;inset:0;background:url(tada/bg.webp) center 60%/cover}
   .td-bridge{position:absolute;left:0;right:0;top:771px;bottom:0;background:url(tada/trestle.webp) 0 0/293px 409px repeat-x;
     -webkit-mask-image:linear-gradient(#000 45%,rgba(0,0,0,.35));mask-image:linear-gradient(#000 45%,rgba(0,0,0,.35))}   /* sinks into the gorge */
   .td-rail{position:absolute;left:0;right:0;top:739px;height:39px;background:url(tada/rail.webp) 0 0/531px 39px repeat-x}
@@ -541,13 +541,13 @@
     color:#FFE7A0;white-space:nowrap;text-shadow:0 2px 3px #000,0 0 6px rgba(0,0,0,.8)}
   .td-plate span{overflow:hidden;text-overflow:ellipsis;min-width:0}
   .td-plate .pf{flex:none;width:.8em;height:.8em}
-  .td-wh{position:absolute;top:130px;width:84px;height:84px;background:url(tada/wheel.webp) center/contain no-repeat;rotate:var(--rot,0deg)}
+  .td-wh{position:absolute;top:130px;width:84px;height:84px;will-change:transform;background:url(tada/wheel.webp) center/contain no-repeat}
   .td-wh.a{left:76px}
   .td-wh.b{left:223px}
   .td-loco{position:absolute;left:0;top:466px;width:573px;height:274px;will-change:transform;background:url(tada/engine.webp) center/100% 100% no-repeat}
   /* its wheels turn (each at its own speed, from --dist, the px travelled) and the rods follow the crank pins */
   .td-loco i.w{position:absolute;left:calc(var(--x) - var(--r));top:calc(var(--y) - var(--r));width:calc(var(--r) * 2);height:calc(var(--r) * 2);
-    background:center/contain no-repeat;rotate:calc(var(--dist,0) * 57.2958deg / var(--rn))}
+    background:center/contain no-repeat;will-change:transform}
   .td-loco i.rod{position:absolute;left:0;top:0;height:10px;border-radius:5px;transform-origin:5px 5px;
     background:linear-gradient(#FFF0B0,#E8B04A 45%,#8A5210);box-shadow:0 0 0 1.5px #4A2A08,0 2px 3px rgba(0,0,0,.5)}
   .td-loco i.rod::before,.td-loco i.rod::after{content:"";position:absolute;top:-2px;width:14px;height:14px;border-radius:50%;
@@ -562,8 +562,9 @@
   @keyframes tdpuff{0%{opacity:.95;transform:scale(.5)}100%{opacity:0;transform:translate(-150px,-90px) scale(2.2)}}
   .td-mark{position:absolute;top:438px;width:426px;height:318px;border-radius:22px;pointer-events:none;background:linear-gradient(rgba(255,200,90,.16),rgba(255,200,90,.03));
     box-shadow:inset 0 0 0 5px #FFD76A,inset 0 0 0 8px rgba(90,40,0,.55),0 0 0 3px #8A4A10,0 0 40px rgba(255,190,60,.5);animation:pwhead .6s cubic-bezier(.16,1,.3,1) calc(1s + var(--el,0s)) both}
-  .td-draw.tease .td-mark{animation:tdtease .45s ease-in-out infinite alternate}
-  @keyframes tdtease{to{box-shadow:inset 0 0 0 5px #fff,inset 0 0 0 8px rgba(90,40,0,.55),0 0 0 3px #FFB000,0 0 90px rgba(255,190,60,.95)}}
+  .td-mark::after{content:"";position:absolute;inset:0;border-radius:inherit;opacity:0;box-shadow:inset 0 0 0 5px #fff,0 0 0 3px #FFB000,0 0 90px rgba(255,190,60,.95)}
+  .td-draw.tease .td-mark::after{animation:tdtease .45s ease-in-out infinite alternate}
+  @keyframes tdtease{to{opacity:1}}
   .td-draw.landed .td-train .td-cart:not(.win){opacity:.3;filter:grayscale(.6) brightness(.6)}
   :is(.td-cart.win,.td-wcart) .td-plate{background:linear-gradient(#FFE9A8,#E8A21C);color:#2A1600;text-shadow:none}
   /* landed: the dynamite drops onto the winner's gold, bounces, and blows it out of the cart */
@@ -588,18 +589,18 @@
   .td-dhead b{display:flex;align-items:center;gap:12px;padding:6px 20px;border-radius:10px;background:rgba(36,12,4,.84);box-shadow:inset 0 0 0 1px rgba(255,190,90,.4);font-size:30px;letter-spacing:.1em;color:#FFE0B0;font-variant-numeric:tabular-nums}
   .td-dhead b em{font-style:normal;color:#FFB000}
   /* the Express: the ten seats as a parked train, filled as winners claim */
-  .td-xp{position:absolute;top:212px;left:50%;display:flex;align-items:flex-end;gap:6px;padding:10px 16px 8px;border-radius:16px;translate:-50% 0;
+  .td-xp{position:absolute;top:212px;left:50%;will-change:transform;display:flex;align-items:flex-end;gap:6px;padding:10px 16px 8px;border-radius:16px;translate:-50% 0;
     background:rgba(30,10,4,.78);box-shadow:inset 0 0 0 2px rgba(255,190,90,.35),0 10px 30px rgba(0,0,0,.45);animation:pwhead .6s cubic-bezier(.16,1,.3,1) calc(.8s + var(--el,0s)) both}
   .td-xl{flex:none;align-self:flex-end;width:150px;height:72px;margin:0 4px 26px 0;background:url(tada/engine.webp) center/contain no-repeat;scale:-1 1}
   .td-xs{flex:none;width:var(--sw);display:flex;flex-direction:column;align-items:center;gap:4px}
   .td-xs i{width:100%}
   .td-xs span{max-width:100%;font-size:17px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#9A7A5A}
   .td-xs.on span{color:#FFE7A0}
-  .td-xs.now i{animation:tdnow .6s ease-in-out infinite alternate}
+  .td-xs.now i::after{content:"";position:absolute;inset:-4px;border-radius:10px;box-shadow:0 0 14px 5px rgba(255,176,0,.8);animation:tdnow .6s ease-in-out infinite alternate}
   .td-xs.now span{color:#FFB000}
-  @keyframes tdnow{to{filter:drop-shadow(0 0 10px #FFB000) brightness(1.25)}}
+  @keyframes tdnow{from{opacity:.15}}
   /* the win: the winner's cart comes up big, with the seat on its plate */
-  .td-win{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;opacity:0;text-align:center;text-transform:uppercase;
+  .td-win{position:absolute;inset:0;z-index:3;will-change:opacity;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;opacity:0;text-align:center;text-transform:uppercase;
     background:radial-gradient(circle at 50% 34%,rgba(130,44,8,.55),rgba(20,6,2,.95) 70%),url(tada/bg.webp) center 60%/cover}
   .td-draw.landed .td-win{opacity:1;transition:opacity .6s 2.1s}
   .td-wcart{position:relative;top:auto;left:auto;flex:none;scale:1.3;margin:90px 0 40px}
@@ -1936,16 +1937,23 @@ function tone(freq,t0,dur,type,vol){
   o.start(t); o.stop(t+dur+0.05);
 }
 /* Drop a file in public/comp/sfx/ named after the sound (winner.mp3, tick.mp3, whistle.mp3 ...) and it plays
-   instead of the tone. A name without a file is found out once (its 404) and keeps the tone from then on. */
-const SFX_FILE={};   // name -> Audio to clone, or false: no file
+   instead of the tone. Each file is decoded once and played from memory (WebAudio): a draw ticks several times
+   a second, and a new <audio> per tick was real work for three OBS sources. A name without a file keeps the tone. */
+const SFX_BUF={};   // name -> AudioBuffer, a Promise while it loads, or false: no file
+function sfxLoad(name){
+  const ctx=actx(); if(!ctx) return Promise.resolve(false);
+  return SFX_BUF[name] ??= fetch(`sfx/${name}.mp3`).then(r=>{ if(!r.ok) throw 0; return r.arrayBuffer(); })
+    .then(a=>ctx.decodeAudioData(a)).then(b=>SFX_BUF[name]=b, ()=>SFX_BUF[name]=false);
+}
 function sfx(name){
   if(!soundOn) return;
-  const f=SFX_FILE[name];
-  if(f===false) return sfxTone(name);
-  if(f){ f.cloneNode().play().catch(()=>{}); return; }   // a clone each time, so fast ticks overlap
-  const a=SFX_FILE[name]=new Audio(`sfx/${name}.mp3`);
-  a.play().catch(()=>{ if(a.error){ SFX_FILE[name]=false; sfxTone(name); } });
+  const ctx=actx(); if(!ctx) return;
+  if(ctx.state==="suspended") ctx.resume();
+  const play=b=>{ if(!b) return sfxTone(name); const s=ctx.createBufferSource(); s.buffer=b; s.connect(ctx.destination); s.start(); };
+  const b=SFX_BUF[name];
+  if(b instanceof AudioBuffer || b===false) play(b); else sfxLoad(name).then(play);
 }
+setTimeout(()=>["tick","stop","brake","whistle","boom","winner","match","zap","coin","life"].forEach(sfxLoad), 1500);   // ready before the first draw
 function sfxTone(name){
   const ctx=actx(); if(!ctx) return;
   if(ctx.state==="suspended") ctx.resume();
@@ -2997,7 +3005,8 @@ const rfSecs=until=>Math.max(0,Math.ceil((until-netNow())/1000))+"s";
 const rfSpinEnd=sp=>sp.startedAt+sp.duration;
 const rfClaimEnd=sp=>rfSpinEnd(sp)+(sp.claimMs||RF_CLAIM_MS);
 const rfPool=()=>rf.entries.filter(e=>!e.st);          // not won, not missed
-const rfWinner=sp=>rf.entries.find(e=>rfId(e)===sp.winner);
+let rfWinC={};   // the last lookup: every draw asks each frame, and the entries can run to thousands
+const rfWinner=sp=>{ if(rfWinC.w!==sp.winner || rfWinC.a!==rf.entries){ rfWinC={w:sp.winner, a:rf.entries, e:rf.entries.find(e=>rfId(e)===sp.winner)}; } return rfWinC.e; };
 /* What the reel spins over: everyone in when Draw was pressed, newest first —
    the list's own order, so the reel starts exactly where the list was. Joins
    during the spin wait for the next draw. */
@@ -5072,12 +5081,12 @@ const tdPlateFs=n=>n.length<=8 ? 24 : n.length<=12 ? 20 : 17;
 /* the engine's wheels in stage px on the 573-wide engine (centre x, y, radius), and the crosshead the main rod runs to */
 const TD_ENG={rear1:[63.8,234,21.6], rear2:[109.5,235.1,22.7], drv1:[194.6,216.2,48.5], drv2:[309,216.2,48.5], front:[465.6,245.5,25.1]}, TD_XHEAD=[377,223.2], TD_CRANK=17;
 const tdLocoHtml=()=>`<div class="td-loco"><i class="puff"></i><i class="puff"></i><i class="puff"></i>${Object.entries(TD_ENG).map(([k,[x,y,r]])=>
-  `<i class="w" style="--x:${x}px;--y:${y}px;--r:${r}px;--rn:${r};background-image:url(tada/eng-${k}.webp)"></i>`).join("")}<i class="rod c"></i><i class="rod m"></i></div>`;
+  `<i class="w" style="--x:${x}px;--y:${y}px;--r:${r}px;background-image:url(tada/eng-${k}.webp)"></i>`).join("")}<i class="rod c"></i><i class="rod m"></i></div>`;
 /* the crank pins sit TD_CRANK out on the driving wheels: the coupling rod joins them, the main rod runs from the
    second one to the crosshead, which slides along with the pin */
 function tdRods(loco, dist){
   const a=dist/TD_ENG.drv1[2], px=TD_CRANK*Math.cos(a), py=TD_CRANK*Math.sin(a);
-  const [x1,y1]=TD_ENG.drv1, [x2]=TD_ENG.drv2, c=loco.querySelector(".rod.c"), m=loco.querySelector(".rod.m");
+  const [x1,y1]=TD_ENG.drv1, [x2]=TD_ENG.drv2, c=loco._c||(loco._c=loco.querySelector(".rod.c")), m=loco._m||(loco._m=loco.querySelector(".rod.m"));
   c.style.width=(x2-x1+10)+"px"; c.style.transform=`translate(${(x1+px-5).toFixed(1)}px,${(y1+py-5).toFixed(1)}px)`;
   const mx=x2+px, my=y1+py, hx=TD_XHEAD[0]+px, hy=TD_XHEAD[1], len=Math.hypot(hx-mx, hy-my);
   m.style.width=(len+10)+"px"; m.style.transform=`translate(${(mx-5).toFixed(1)}px,${(my-5).toFixed(1)}px) rotate(${Math.atan2(hy-my, hx-mx).toFixed(3)}rad)`;
@@ -5110,9 +5119,7 @@ function tdDrawFrame(){
   }
   if(ov && ov.classList.contains("fixed")!==(DISPLAY_ONLY && document.body.classList.contains("canvas"))){ ov.remove(); ov=null; }
   if(!ov) ov=pwDrawMount("tdDraw", "pw-draw td-draw");
-  const stage=ov.firstChild, W=parseFloat(stage.style.width), H=parseFloat(stage.style.height);
-  const hw=ov.offsetWidth, hh=ov.offsetHeight, kk=Math.min(hw/W, hh/H);
-  stage.style.transform=`translate(${ov.classList.contains("fixed")?0:(hw-W*kk)/2}px,${(hh-H*kk)/2}px) scale(${kk})`;
+  const stage=ov.firstChild, [W,H]=drawFit(ov);
   if(!tdPlan || tdPlan.at!==sp.startedAt || tdPlan.W!==W){
     tdPlan=tdDrawPlan(sp, W); if(!tdPlan) return;
     ov.style.setProperty("--el", -Math.max(0, netNow()-sp.startedAt)/1000+"s");
@@ -5131,22 +5138,26 @@ function tdDrawFrame(){
   }
   const p=tdPlan, now=netNow(), t=(now-sp.startedAt-TD_FADE_MS)/1000, landed=now>=rfSpinEnd(sp);
   const d = landed ? p.end : p.scale*crDist(Math.min(t,p.move), TD_V, p.move, TD_DEC, TD_RAMP);
-  const train=stage.querySelector(".td-train");
-  train.style.setProperty("--rot", (d*TD_CP/(Math.PI*TD_WHEEL)*360%360).toFixed(1)+"deg");
+  const train=stage._train||(stage._train=stage.querySelector(".td-train"));
+  const rot=(d*TD_CP/(Math.PI*TD_WHEEL)*360%360).toFixed(1)+"deg";
   // each cart keeps its own element while it's on the track, so nothing is rewritten under the eye
-  const lx=d*TD_CP-TD_LW, loco=train.firstChild;
+  const lx=d*TD_CP-TD_LW, loco=train._loco||(train._loco=train.firstChild);
+  if(!loco._w){ loco._w=[...loco.querySelectorAll("i.w")]; loco._w.forEach(w=>{ w._r=parseFloat(w.style.getPropertyValue("--r")); }); }
   loco.style.transform=`translateX(${lx.toFixed(1)}px)`; loco.style.display = lx>W ? "none" : "";
-  if(lx>-TD_LW && lx<W){ loco.style.setProperty("--dist", (d*TD_CP).toFixed(1)); tdRods(loco, d*TD_CP); }
-  const carts=train.carts||(train.carts=new Map()), seen=new Set();
-  for(let r=Math.max(0,Math.ceil(d-1-(W+TD_LW)/TD_CP)); r<=Math.floor(d-TD_LW/TD_CP); r++){
-    seen.add(r);
+  if(lx>-TD_LW && lx<W){ const dist=d*TD_CP; (loco._w||(loco._w=[...loco.querySelectorAll("i.w")])).forEach(w=>{ w.style.rotate=(dist/w._r*57.2958%360).toFixed(1)+"deg"; }); tdRods(loco, dist); }
+  // each cart on the track keeps its element; one that leaves goes back to the pool and comes in again with the next name
+  const carts=train.carts||(train.carts=new Map()), pool=train.pool||(train.pool=[]), lo=Math.max(0,Math.ceil(d-1-(W+TD_LW)/TD_CP)), hi=Math.floor(d-TD_LW/TD_CP);
+  carts.forEach((c,r)=>{ if(r<lo || r>hi){ c.style.visibility="hidden"; pool.push(c); carts.delete(r); } });
+  for(let r=lo; r<=hi; r++){
     let c=carts.get(r);
-    if(!c){ const e=p.name(r); c=document.createElement("div"); c.className="td-cart"+(r%2?" alt":"");
-      c.innerHTML=tdCartHtml(rfNameHtml(e)); c.querySelector(".td-plate").style.fontSize=tdPlateFs(e.name)+"px"; train.appendChild(c); carts.set(r,c); }
-    c.style.transform=`translateX(${((d-r-1)*TD_CP-TD_LW).toFixed(1)}px)`;
-    c.classList.toggle("win", landed && r===p.kw);
+    if(!c){ const e=p.name(r);
+      if(pool.length){ c=pool.pop(); c.style.visibility=""; }
+      else { c=document.createElement("div"); c.className="td-cart"; c.innerHTML=tdCartHtml(""); c._plate=c.querySelector(".td-plate"); c._wh=c.querySelectorAll(".td-wh"); train.appendChild(c); }
+      c.classList.toggle("alt", r%2===1); c._plate.innerHTML=rfNameHtml(e); c._plate.style.fontSize=tdPlateFs(e.name)+"px"; c._x=null; carts.set(r,c); }
+    const x=((d-r-1)*TD_CP-TD_LW).toFixed(1);
+    if(c._x!==x){ c._x=x; c.style.transform=`translateX(${x}px)`; c._wh[0].style.rotate=c._wh[1].style.rotate=rot; }
+    const win=landed && r===p.kw; if(c._win!==win){ c._win=win; c.classList.toggle("win", win); }
   }
-  carts.forEach((c,r)=>{ if(!seen.has(r)){ c.remove(); carts.delete(r); } });
   ov.classList.toggle("tease", !landed && t>p.move-2.2);
   ov.classList.toggle("landed", landed);
   // the whistle as it starts, a tick per cart, the stop, the blast and the win; only for what this window saw happen
@@ -5158,13 +5169,16 @@ function tdDrawFrame(){
   }
   if(landed){
     const e=rfWinner(sp), pf=(e&&e.platform||"").toUpperCase();
-    const nm=stage.querySelector(".td-wname"), cl=stage.querySelector(".td-wclaim"), seatNow=stage.querySelector(".td-xs.now span");
-    if(e && nm.textContent!==e.name){ nm.textContent=e.name; nm.style.fontSize=(e.name.length<=12?120:e.name.length<=18?96:72)+"px"; if(seatNow) seatNow.textContent=e.name; }
+    const W_=stage._w||(stage._w={nm:stage.querySelector(".td-wname"), cl:stage.querySelector(".td-wclaim"), seat:stage.querySelector(".td-xs.now span")});
+    if(e && W_.name!==e.name){ W_.name=e.name; W_.nm.textContent=e.name; W_.nm.style.fontSize=(e.name.length<=12?120:e.name.length<=18?96:72)+"px"; if(W_.seat) W_.seat.textContent=e.name; }
     const html = sp.claimed ? `<p class="ok">Claimed on ${pf}</p>` : `<p>Type in ${pf} chat to claim</p><b>${rfSecs(rfClaimEnd(sp))}</b>`;
-    if(cl.innerHTML!==html) cl.innerHTML=html;
+    if(W_.html!==html){ W_.html=html; W_.cl.innerHTML=html; }   // only when it changes (the countdown: once a second)
   }
 }
 requestAnimationFrame(tdDrawFrame);
+// the art is fetched and decoded when the page opens, so the draw's first frames don't wait for it
+const TD_ART=["bg.webp","trestle.webp","rail.webp","engine.webp","cart.webp","heap.webp","wheel.webp","nugget.webp","dynamite.svg","loco.webp",
+  "eng-drv1.webp","eng-drv2.webp","eng-front.webp","eng-rear1.webp","eng-rear2.webp","seat-full.webp","seat-empty.webp"].map(f=>{ const i=new Image(); i.src="tada/"+f; i.decode?.().catch(()=>{}); return i; });
 
 /* ================= PRAG-WHEEL =================
    Pragmatic Play Friday. Chat types "Pragmatic" (fixed keyword), winners are drawn
@@ -5271,6 +5285,18 @@ function pwDrawPlan(sp, W, H){
   const name=(c,r)=>{ if(c===mid && r===kw) return winner; let e=S[(c*step+r)%N]; if(e===winner && N>1) e=S[(c*step+r+1)%N]; return e; };
   return {at:sp.startedAt, W, H, cols, mid, kw, lead, end:kw+lead, move, name, N, redraw:rf.entries.some(e=>e.st==="missed")};
 }
+/* Scales a draw's stage to its overlay. The overlay's size is only measured again when it changes (a ResizeObserver
+   clears the cached fit): reading offsetWidth every frame forced a layout per frame, which three OBS sources felt. */
+function drawFit(ov){
+  const stage=ov.firstChild;
+  let f=ov._fit;
+  if(!f){ f=ov._fit={W:parseFloat(stage.style.width), H:parseFloat(stage.style.height), k:0}; new ResizeObserver(()=>{ f.k=0; }).observe(ov); }
+  if(!f.k){   // offset sizes, not the bounding box: the host is already scaled on the display window
+    const hw=ov.offsetWidth, hh=ov.offsetHeight; f.k=Math.min(hw/f.W, hh/f.H);
+    stage.style.transform=`translate(${ov.classList.contains("fixed")?0:(hw-f.W*f.k)/2}px,${(hh-f.H*f.k)/2}px) scale(${f.k})`;
+  }
+  return [f.W, f.H];
+}
 function pwDrawMount(id="pwDraw", cls="pw-draw"){
   const fixed=DISPLAY_ONLY && document.body.classList.contains("canvas");
   // full-canvas: the stage is the screen left of the chat; --sr is the rest, for backgrounds to reach under it
@@ -5293,10 +5319,7 @@ function pwDrawFrame(){
   // OBS can change the source's shape mid-draw: remount full-canvas or boxed to match
   if(ov && ov.classList.contains("fixed")!==(DISPLAY_ONLY && document.body.classList.contains("canvas"))){ ov.remove(); ov=null; }
   if(!ov) ov=pwDrawMount();
-  const stage=ov.firstChild, W=parseFloat(stage.style.width), H=parseFloat(stage.style.height);
-  // offset sizes, not the bounding box: the host is already scaled on the display window
-  const hw=ov.offsetWidth, hh=ov.offsetHeight, kk=Math.min(hw/W, hh/H);
-  stage.style.transform=`translate(${ov.classList.contains("fixed")?0:(hw-W*kk)/2}px,${(hh-H*kk)/2}px) scale(${kk})`;
+  const stage=ov.firstChild, [W,H]=drawFit(ov);
   if(!pwPlan || pwPlan.at!==sp.startedAt || pwPlan.W!==W){
     pwPlan=pwDrawPlan(sp, W, H); if(!pwPlan) return;
     ov.style.setProperty("--el", -Math.max(0, netNow()-sp.startedAt)/1000+"s");   // a reroll replays the intro
@@ -5707,9 +5730,7 @@ function crDrawFrame(){
   }
   if(ov && ov.classList.contains("fixed")!==(DISPLAY_ONLY && document.body.classList.contains("canvas"))){ ov.remove(); ov=null; }
   if(!ov) ov=pwDrawMount("crDraw", "pw-draw cr-draw");
-  const stage=ov.firstChild, W=parseFloat(stage.style.width), H=parseFloat(stage.style.height);
-  const hw=ov.offsetWidth, hh=ov.offsetHeight, kk=Math.min(hw/W, hh/H);
-  stage.style.transform=`translate(${ov.classList.contains("fixed")?0:(hw-W*kk)/2}px,${(hh-H*kk)/2}px) scale(${kk})`;
+  const stage=ov.firstChild, [W,H]=drawFit(ov);
   if(!crPlan || crPlan.at!==sp.startedAt || crPlan.W!==W){
     crPlan=crDrawPlan(sp, W); if(!crPlan) return;
     ov.style.setProperty("--el", -Math.max(0, netNow()-sp.startedAt)/1000+"s");
@@ -5915,9 +5936,7 @@ function gzDrawFrame(){
   }
   if(ov && ov.classList.contains("fixed")!==(DISPLAY_ONLY && document.body.classList.contains("canvas"))){ ov.remove(); ov=null; }
   if(!ov) ov=pwDrawMount("gzDraw", "pw-draw gz-draw");
-  const stage=ov.firstChild, W=parseFloat(stage.style.width), H=parseFloat(stage.style.height);
-  const hw=ov.offsetWidth, hh=ov.offsetHeight, kk=Math.min(hw/W, hh/H);
-  stage.style.transform=`translate(${ov.classList.contains("fixed")?0:(hw-W*kk)/2}px,${(hh-H*kk)/2}px) scale(${kk})`;
+  const stage=ov.firstChild, [W,H]=drawFit(ov);
   if(!gzPlan || gzPlan.at!==sp.startedAt || gzPlan.W!==W){
     gzPlan=gzDrawPlan(sp, W); if(!gzPlan) return;
     ov.style.setProperty("--el", -Math.max(0, netNow()-sp.startedAt)/1000+"s");
