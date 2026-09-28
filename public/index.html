@@ -37,6 +37,12 @@
     --name:#eaf1fb;        /* a viewer's handle                     */
     --dead:#46597a;        /* a prize nobody has won yet            */
     --lift:0 2px 4px rgba(0,0,0,.85), 0 0 16px rgba(0,0,0,.6);
+    /* NEON: a near-white core, the tube's colour glowing round it, and the dark
+       lift last (underneath) so it still reads over a bright loop. */
+    --neon-gold:0 0 2px #fff4cc, 0 0 8px rgba(255,200,70,.95), 0 0 18px rgba(240,170,40,.7),
+                0 0 34px rgba(240,150,30,.45), 0 2px 4px rgba(0,0,0,.9);
+    --neon-blue:0 0 2px #e8f4ff, 0 0 7px rgba(110,190,255,.85), 0 0 16px rgba(60,140,230,.5),
+                0 2px 4px rgba(0,0,0,.9);
 
     /* HOW FAR DOWN THE TOP SIGN SITS. Title and sponsor logo move together off
        this one number, because they are one sign — and the only thing that ever
@@ -83,6 +89,12 @@
 
   #wheel { position:absolute; left:650px; top:290px; }
   .spins { will-change:transform; }
+  /* The room's light on the disc. It does NOT turn: the segments pass under a
+     fixed highlight, which is what makes the wheel read as an object. */
+  #sheen { position:absolute; left:650px; top:290px; width:620px; height:620px; border-radius:50%;
+           pointer-events:none;
+           background:radial-gradient(ellipse 70% 55% at 38% 22%, rgba(255,255,255,.22), rgba(255,255,255,0) 70%),
+                      radial-gradient(circle, rgba(0,0,0,0) 62%, rgba(0,0,0,.32) 100%); }
 
   /* Boxes only. Every one of these is a mount for a delivered file — see
      slots.js — and the page paints nothing inside them. */
@@ -109,7 +121,7 @@
             padding:0 14px; display:flex; align-items:center;
             font-family:var(--disp); font-weight:700; font-size:34px;
             text-transform:uppercase; letter-spacing:.14em;
-            color:var(--gold-hi); text-shadow:var(--lift); }
+            color:#fff0c8; text-shadow:var(--neon-gold); }
   .phead::after { content:''; position:absolute; left:14px; right:14px; bottom:0; height:1px;
             background:linear-gradient(90deg,rgba(240,195,60,.55),rgba(240,195,60,.06)); }
 
@@ -117,7 +129,7 @@
   .reel { position:relative; transition:transform .55s cubic-bezier(.35,0,.15,1); }
   .row  { height:56px; box-sizing:border-box; padding:0 14px; font-size:29px;
           display:flex; align-items:center; gap:12px;
-          color:var(--name); text-shadow:var(--lift); }
+          color:#f4f9ff; text-shadow:var(--neon-blue); }
   .row + .row { box-shadow:inset 0 1px 0 rgba(240,195,60,.13); }
   /* Aperture heights are a whole number of rows, and WIN_ROWS in the script is
      the same 5. Change one, change the other. */
@@ -129,10 +141,11 @@
               color:var(--gold-mute); opacity:.7; font-variant-numeric:tabular-nums; }
   .row .who { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .row .pz  { flex:none; font-family:var(--disp); font-weight:700; font-size:30px;
-              color:var(--gold); letter-spacing:.02em; font-variant-numeric:tabular-nums; }
+              color:#ffe6a0; text-shadow:var(--neon-gold); letter-spacing:.02em; font-variant-numeric:tabular-nums; }
   /* Not yet won: the prize stays gold — it is still on offer — and only the name
      goes dark, so an unclaimed row reads as a slot waiting to be filled. */
-  .row.empty .who { color:var(--dead); letter-spacing:.24em; }
+  /* An unwon row is an unlit tube. */
+  .row.empty .who { color:var(--dead); letter-spacing:.24em; text-shadow:var(--lift); }
   .row.empty .rk  { opacity:.4; }
   .row.empty .pz  { opacity:.5; }
   .row.hit { animation:pop .5s ease; }
@@ -188,13 +201,12 @@
   #joinCmd  { position:absolute; left:12px; top:8px; width:561px; height:38px; line-height:38px;
               text-align:center; white-space:nowrap; overflow:hidden;
               font-family:var(--disp); font-size:36px; font-weight:700;
-              color:var(--gold-hi); letter-spacing:.04em;
-              text-shadow:0 2px 4px rgba(0,0,0,.85), 0 0 20px rgba(240,195,60,.6); }
+              color:#fff0c8; letter-spacing:.04em; text-shadow:var(--neon-gold); }
   #joinWhat { position:absolute; left:12px; top:46px; width:561px; height:22px; line-height:22px;
               text-align:center; white-space:nowrap; overflow:hidden;
               font-family:var(--disp); font-size:18px; text-transform:uppercase;
-              color:var(--gold-mute); letter-spacing:.24em; text-indent:.24em;
-              text-shadow:var(--lift); }
+              color:#ffe1a0; letter-spacing:.24em; text-indent:.24em;
+              text-shadow:0 0 6px rgba(240,170,40,.8), var(--lift); }
   /* A one-line instruction with no command in it gets the whole plate. */
   #join.oneline #joinCmd  { top:20px; height:44px; line-height:44px; font-size:30px;
                             letter-spacing:.06em; }
@@ -356,6 +368,16 @@
            font-family:var(--disp); font-size:26px; font-weight:700; letter-spacing:.12em;
            text-transform:uppercase; color:var(--gold-hi); text-shadow:var(--lift); }
   #claim.on { display:flex; }
+
+  /* Mid-spin, whoever is under the pointer, over the hub where the winner plate
+     lands — so the plate reads as this name stopping. Gone the moment it does. */
+  #live { position:absolute; left:660px; top:564px; width:600px; height:72px; line-height:72px;
+          border-radius:6px; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+          background:linear-gradient(180deg,#0d2340ee,#061224ee);
+          box-shadow:0 0 0 2px #b08d1e, 0 10px 24px rgba(0,0,0,.55);
+          font-family:var(--disp); font-size:46px; font-weight:700; color:#fff0c8; text-shadow:var(--neon-gold);
+          opacity:0; transition:opacity .25s ease; }
+  #live.on { opacity:1; }
   #claim b  { min-width:2ch; text-align:right; color:var(--gold); font-variant-numeric:tabular-nums; }
   .pf { display:inline-flex; align-items:center; justify-content:center; flex:none;
         width:38px; height:38px; border-radius:6px; text-shadow:none; }
@@ -410,11 +432,13 @@
       <div id="stageclip">
         <div id="stage">
           <canvas id="wheel" class="spins" width="620" height="620"></canvas>
+          <div id="sheen"></div>
           <!-- static body first, turning parts over it — the order the art is built -->
           <div id="rim"><div id="rimstatic"></div><div id="rimspin" class="spins"></div></div>
           <div id="hub"><div id="hubstatic"></div><div id="hubspin" class="spins"></div><div id="hubmark"></div></div>
           <div id="glint"><div class="sw"><div class="g1"></div><div class="g2"></div><div class="g3"></div></div></div>
           <div id="pointer"><div id="blade"></div></div>
+          <div id="live"></div>
         </div>
       </div>
 
@@ -616,6 +640,12 @@
     return lo > 0 ? text.slice(0, lo) + '…' : '…';
   }
 
+  // A hex colour pushed toward white (t > 0) or black (t < 0).
+  function shade(hex, t){
+    const n = parseInt(hex.slice(1), 16), to = t < 0 ? 0 : 255, k = Math.abs(t);
+    return 'rgb(' + [n>>16, n>>8&255, n&255].map(c => Math.round(c + (to - c)*k)).join(',') + ')';
+  }
+
   function paintSegments(goldIdx){
     // S.pool is a fresh array off each snapshot, so identity is exactly the
     // right test: same array, same picture.
@@ -634,9 +664,15 @@
       // never let the wrap-around segment share a shade with segment 0
       let ci = i % BLUES.length;
       if (i === pool.length-1 && ci === 0) ci = 3;
-      cx.fillStyle = (i===goldIdx) ? GOLD : BLUES[ci];
-      cx.fill();
-      cx.strokeStyle = HAIR; cx.lineWidth = 1.5; cx.stroke();
+      // Shaded, not flat: dark at the hub, the segment's own colour through the
+      // names, a lit lip at the rim. The dividers are a groove with gold in it.
+      const base = (i===goldIdx) ? GOLD : BLUES[ci];
+      const g = cx.createRadialGradient(CXY,CXY,70,CXY,CXY,R-8);
+      g.addColorStop(0, shade(base,-.35)); g.addColorStop(.6, base);
+      g.addColorStop(.93, shade(base,.12)); g.addColorStop(1, shade(base,-.25));
+      cx.fillStyle = g; cx.fill();
+      cx.strokeStyle = 'rgba(0,0,0,.45)'; cx.lineWidth = 3.5; cx.stroke();
+      cx.strokeStyle = HAIR; cx.lineWidth = 1.2; cx.stroke();
 
       const span = a1-a0;
       const size = Math.min(LABEL_MAXSIZE, Math.max(LABEL_MIN, span * LABEL_MID));
@@ -650,6 +686,9 @@
       cx.fillStyle = (i===goldIdx) ? '#061224' : (ci>=4 ? '#0a1e38' : '#eaf3ff');
       cx.font = '600 '+size.toFixed(1)+'px Segoe UI, sans-serif';
       cx.textAlign='right'; cx.textBaseline='middle';
+      const lightText = !(i===goldIdx || ci>=4);
+      cx.shadowColor = lightText ? 'rgba(0,0,0,.75)' : 'rgba(255,255,255,.35)';
+      cx.shadowBlur = lightText ? 4 : 2; cx.shadowOffsetY = lightText ? 1 : 0;
       cx.fillText(clipText(cx, e.name, room), LABEL_R, 0); cx.restore();
     });
   }
@@ -774,13 +813,32 @@
     if (!S) return;
     if (S.phase === 'spinning' && S.spin){
       const k = Math.min(1, (Date.now() - S.spin.startedAt) / S.spin.duration);
-      drawWheel(S.spin.startAngle + (S.spin.endAngle - S.spin.startAngle)*ease(k, S.spin.duration), -1);
+      const a = S.spin.startAngle + (S.spin.endAngle - S.spin.startAngle)*ease(k, S.spin.duration);
+      drawWheel(a, -1);
+      showLive(a);
     } else if (S.driftRate){
       const now = performance.now();
       if (now - lastDrift < DRIFT_MS) return;
       lastDrift = now;
       drawWheel(restingAngle(), -1);
     }
+  }
+
+  // The segment at twelve o'clock. Segments start at the top and run clockwise
+  // by weight, and the disc is turned clockwise by `angle`, so the pointer sits
+  // at (-angle) of the way round — the same sum paintSegments() lays them out by.
+  let liveIdx = -1;
+  function underPointer(angle){
+    const tot = S.pool.reduce((s,e)=>s+e.weight,0);
+    const at = (((-angle) % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI) / (2*Math.PI) * tot;
+    let acc = 0;
+    for (let i=0;i<S.pool.length;i++){ acc += S.pool[i].weight; if (at < acc) return i; }
+    return S.pool.length - 1;
+  }
+  function showLive(angle){
+    const i = S.pool.length ? underPointer(angle) : -1;
+    if (i !== liveIdx){ liveIdx = i; $('live').textContent = i < 0 ? '' : S.pool[i].name; }
+    $('live').classList.add('on');
   }
 
   function drawResting(){
@@ -843,7 +901,7 @@
     $('studio').classList.toggle('textswap', on);
   }
 
-  // "!COMPETITIONS TO SEE THEM ALL" reads as two things: the command, and
+  // "!COMPETITIONS TO SEE ALL LIVE COMPETITIONS" reads as two things: the command, and
   // what it gets you. Split on the first space when the string opens with a
   // command so the command carries the size; otherwise it is one line.
   function renderJoin(){
@@ -1040,6 +1098,7 @@
   function applyPhase(){
     phaseTimers.forEach(clearTimeout); phaseTimers = [];
     const t = S.timings, stage = $('stage');
+    if (S.phase !== 'spinning'){ $('live').classList.remove('on'); liveIdx = -1; }
     if (S.phase !== 'revealing'){ if (S.phase !== 'claiming') $('plate').classList.remove('show');
                                   $('winfx').classList.remove('show'); $('fxconf').classList.remove('burst'); }
     if (S.phase !== 'swapping'){ stage.classList.remove('gone'); WA.stinger(false, 0); screenSwap(false, 0); }

@@ -81,7 +81,7 @@ const DRIFTING_PHASES = ['ready', 'complete', 'swapping'];
 
 // What the plate under the chat frame tells viewers. A chat command and what it
 // does, and the page splits it on the first space after the command.
-const DEFAULT_JOIN = '!COMPETITIONS TO SEE THEM ALL';
+const DEFAULT_JOIN = '!COMPETITIONS TO SEE ALL LIVE COMPETITIONS';
 
 // The chat wheel. Its title stands where the sheet wheel's competition title does;
 // both are set from the control page and kept in config.json.
@@ -1118,7 +1118,8 @@ function readConfig() {
   // Both of these are written back when missing, so an existing install gets
   // the key to edit rather than having to know it exists.
   let grew = false;
-  if (cfg.joinText === undefined) { cfg.joinText = DEFAULT_JOIN; grew = true; }
+  // The old default is replaced too; a line someone typed themselves is left alone.
+  if (cfg.joinText === undefined || cfg.joinText === '!COMPETITIONS TO SEE THEM ALL') { cfg.joinText = DEFAULT_JOIN; grew = true; }
   if (cfg.sound === undefined) { cfg.sound = Object.assign({}, DEFAULT_SOUND); grew = true; }
   if (cfg.chatKeyword === undefined) { cfg.chatKeyword = DEFAULT_KEYWORD; grew = true; }
   if (cfg.chatTitle === undefined) { cfg.chatTitle = DEFAULT_CHAT_TITLE; grew = true; }
