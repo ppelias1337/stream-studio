@@ -44,13 +44,17 @@ five fixed €100 seats; its draw is a full-canvas slot spin (`crDrawFrame`, lik
 **Gates of Olympus 2500** (`GATES`, `gates_state_v2`, Special Giveaways) is the Pragmatic release raffle: keyword `Pragmatic`,
 four in-game challenges at € each (labels editable, to make them easier). **Hit** makes a row due (`gzDue()`); Draw only works
 while one is, and its winner goes in that row. While entries run the box swaps entries/board every 12s (`gzEntriesNow`, server
-clock). The teaser counts down and moves from the date to Tomorrow/Today/Live by itself (`gzWhen`). Its draw is no slot on purpose: names tumble into the 6×5 grid, then lightning
+clock). The teaser counts down and moves from the date to Tomorrow/Today/Live by itself (`gzWhen`). Its draw is no slot on purpose: names tumble into the 4×5 grid, then lightning
 takes out half a round until one is left (`gzDrawFrame`). Art in `public/comp/gates/`, from the Pragmatic assets in
 `Banner ads\Emperia x Gates 2500` (never the Emperia files or the `animatic/` banner work).
 
 ## Rules that matter
 
 - **The stream PC hosts.** OBS there uses `http://127.0.0.1:8787/comp/#display` and `http://127.0.0.1:8787/`.
+  As a full 16:9 source, full-screen draws play left of the chat and cover it with their own themed chat panel
+  (`.dchat`). The display reads chat all show for that (`chatAdd`, show only: never entries or claims), Twitch
+  prefilled from recent-messages.robotty.de. Emotes: Twitch/Kick/YouTube's own plus 7TV and BTTV (`chatEmotes`).
+  `&chat=twitch` shows only Twitch messages (for the Twitch stream, which may show no other chat).
   Stream Deck URLs are unchanged (`/api/spin` etc). The play PC needs nothing installed:
   `http://<stream-pc-ip>:8787/app` in a browser works (**OBS links** in the tab bar lists the addresses).
   Reaching the server by IP over plain http is not a secure context — in the app on a playing PC as

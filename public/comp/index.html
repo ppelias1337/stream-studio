@@ -394,10 +394,32 @@
   .pw-nums .btn{flex-direction:column;justify-content:center;height:62px;padding:6px 4px;gap:2px}
   .pw-nums .btn b{font-size:24px;line-height:1}
   .pw-nums .btn small{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;font-weight:600;color:var(--muted)}
-  /* The Prag-Wheel draw takes the whole screen: in OBS (wide source) the full 1920x1080 canvas, on the panel
+  /* The Prag-Wheel draw takes the whole screen: in OBS (wide source) the 1920x1080 canvas, played left of the chat, on the panel
      monitor and a square source the box. The stage is laid out at its own size and scaled to fit. */
   .pw-draw{position:absolute;inset:0;z-index:50;pointer-events:none;overflow:hidden;background:#000;animation:pwdin .8s ease var(--el,0s) both}
   .pw-draw.fixed{position:fixed;z-index:9999}
+  /* our own chat panel where the stream's chat sits, themed per draw; the display reads chat all show (chatAdd) */
+  .dchat{position:absolute;left:var(--cx);top:var(--cy);transform:scale(var(--k,1));transform-origin:0 0;display:flex;flex-direction:column;
+    border-radius:14px;overflow:hidden;background:var(--dc-bg);box-shadow:inset 0 0 0 2px var(--dc-line),0 12px 40px rgba(0,0,0,.55);
+    font-family:var(--cond);color:#fff;animation:pwhead .6s cubic-bezier(.16,1,.3,1) calc(1s + var(--el,0s)) both;
+    --dc-a:var(--prag-orange);--dc-line:rgba(242,145,32,.45);--dc-bg:rgba(10,10,14,.82)}
+  .cr-draw .dchat{--dc-a:#5DFFC0;--dc-line:rgba(93,255,192,.4);--dc-bg:rgba(4,16,12,.8)}
+  .gz-draw .dchat{--dc-a:#FFCF5A;--dc-line:rgba(200,170,255,.4);--dc-bg:rgba(20,8,48,.82)}
+  .dchat h4{margin:0;padding:14px 20px;font-size:22px;letter-spacing:.14em;text-transform:uppercase;color:var(--dc-a);box-shadow:inset 0 -2px 0 var(--dc-line)}
+  .dchat-l{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;padding:12px 14px;overflow:hidden;
+    -webkit-mask-image:linear-gradient(transparent,#000 70px);mask-image:linear-gradient(transparent,#000 70px)}
+  .dchat-l p{flex:none;margin:0;padding:8px 12px;border-radius:10px;background:rgba(255,255,255,.06);font-size:21px;font-weight:600;line-height:1.3;overflow-wrap:anywhere;animation:dcin .35s ease both}
+  .dchat-l b{margin-right:6px;font-weight:800;text-shadow:0 0 10px rgba(0,0,0,.6),0 1px 2px rgba(0,0,0,.9)}
+  .dchat-l .emo{height:1.5em;vertical-align:-.4em;margin:-.15em 1px}
+  .dchat-l .pf{width:1em;height:1em;margin-right:7px;vertical-align:.04em}   /* centred on the name's capitals */
+  @keyframes dcin{from{opacity:0;transform:translateY(10px)}}
+  /* the draw is put first in body, so the box (which sits over the chat) steps aside while it runs */
+  .pw-draw.fixed ~ .display{visibility:hidden}
+  /* full-screen layers run on under the chat hole; their content stays centred left of it */
+  .pw-draw.fixed :is(.cr-dbg,.gz-dbg,.cr-tier,.gz-win){right:calc(-1 * var(--sr))}
+  .pw-draw.fixed :is(.cr-tier,.gz-win){padding-right:var(--sr)}
+  .pw-draw.fixed .cr-tier>i{right:calc(var(--sr) + 20px)}
+  .pw-draw.fixed .gz-dzeus{right:0;width:420px;height:770px}
   .pw-draw.out{animation:pwdout .9s ease both}
   @keyframes pwdin{from{opacity:0}}
   @keyframes pwdout{to{opacity:0}}
@@ -2343,9 +2365,9 @@ function winnerControls(){
 /* Viewer points by finishing place. A player drawn from chat knows their platform
    (p.chat), so their command is ready to copy; a hand-typed name is paid by hand. */
 const LMS_POINTS=[3500,1500,750], LMS_POINTS_REST=100;   // winner, 2nd, 3rd; everyone else
-/* YouTube points are Streamlabs Cloudbot loyalty, so it's Cloudbot's own command —
-   copy only: nothing sends to YouTube chat from here (see PAY_SEND). */
-const PAY_CMD={twitch:(n,pts)=>`!bonus ${n} ${pts}`, kick:(n,pts)=>`!points add ${n} ${pts}`, youtube:(n,pts)=>`!addpoints ${n} ${pts}`};
+/* YouTube points are Streamlabs Cloudbot loyalty, so it's Cloudbot's own command,
+   sent to YouTube chat as the connected account (see PAY_SEND). */
+const PAY_CMD={twitch:(n,pts)=>`!bonus ${n} ${pts}`, kick:(n,pts)=>`!points add ${n} ${pts}`, youtube:(n,pts)=>`!pointsadd ${n} ${pts}`};
 /* Everyone whose place is settled: the eliminated (elimSeq 1 = last place) and the
    winner. So mid-game this is the players already out, and each can be paid then. */
 function lmsPayout(){
@@ -2402,7 +2424,7 @@ const payRefresh=()=>{ if(DISPLAY_ONLY) return;
   else if(appMode==="BRACKET"){ bkRenderControl(); bkWire(); }
   else if(appMode==="WHEEL") whRenderControl(); };
 const connPill=(pf,login,id)=>`<span class="conn-pill">${rfLogo(pf)}${ic("check")}${escapeHtml(login)}<button id="${id}" title="Disconnect" aria-label="Disconnect ${pf}">${ic("x")}</button></span>`;
-const connHtml=()=>`<div class="conn-row">${twConnHtml()}${kkConnHtml()}</div>`;
+const connHtml=()=>`<div class="conn-row">${twConnHtml()}${kkConnHtml()}${ypConnHtml()}</div>`;
 function twConnHtml(){
   if(tw) return connPill("twitch", tw.login, "twDisconnect");
   if(twPending) return `<div class="crow plain">${rfLogo("twitch")}<span class="clab sm">On the streamer account, open <a href="${escapeHtml(twPending.uri)}" target="_blank" rel="noopener">twitch.tv/activate</a> and enter <b>${escapeHtml(twPending.code)}</b></span><button class="btn" id="twCancel">Cancel</button></div>`;
@@ -2499,6 +2521,69 @@ async function kkApi(path, init={}){
   if(r.status===401){ await kkRefresh(); r=await go(); }
   return r.json();
 }
+/* YouTube payout: sends !pointsadd as the account that connected (the streamer) through
+   the YouTube Data API. Google's device sign-in (an OAuth client of type "TVs and Limited
+   Input devices", scope youtube) still wants the client secret, so like Kick the operator
+   pastes Client ID + secret once; those and the tokens stay in this browser (YP_KEY is not
+   synced). Each chat line costs 50 of the Google project's 10,000 daily quota units. */
+const YP_KEY="pay_youtube_v1", YP_SCOPE="https://www.googleapis.com/auth/youtube";
+let yp=(()=>{ try{ return JSON.parse(localStorage.getItem(YP_KEY))||{}; }catch(e){ return {}; } })();
+let ypPending=null, ypChat=null;   // ypChat: {vid, id} of the live chat last sent to
+function ypSave(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(YP_KEY, JSON.stringify(yp)); }catch(e){} }
+const ypForm=(path, body)=>fetch("/google/"+path,{method:"POST", body:new URLSearchParams({client_id:yp.clientId, client_secret:yp.secret, ...body})}).then(r=>r.json());
+function ypConnHtml(){
+  const row=inner=>`<div class="crow plain">${rfLogo("youtube")}${inner}</div>`;
+  if(yp.access) return connPill("youtube", yp.login, "ypDisconnect");
+  if(!yp.clientId || !yp.secret) return row(`<span class="clab sm">Google app</span><input class="tier-in" id="ypId" placeholder="Client ID" style="width:170px" spellcheck="false" aria-label="Google Client ID"><input class="tier-in" id="ypSecret" type="password" placeholder="Client secret" style="width:170px" aria-label="Google Client secret"><button class="btn" id="ypSaveApp">Save</button>`);
+  if(ypPending) return row(`<span class="clab sm">On the streamer's Google account, open <a href="${escapeHtml(ypPending.uri)}" target="_blank" rel="noopener">${escapeHtml(ypPending.uri.replace(/^https?:\/\//,""))}</a> and enter <b>${escapeHtml(ypPending.code)}</b></span><button class="btn" id="ypCancel">Cancel</button>`);
+  return row(`<span class="clab sm">YouTube points are copied by hand until connected</span><button class="btn" id="ypConnect">Connect YouTube</button><button class="btn" id="ypForget">Change app</button>`);
+}
+async function ypConnect(){
+  try{
+    const d=await ypForm("device/code",{scope:YP_SCOPE});
+    if(!d.device_code) throw new Error("Google refused: "+(d.error_description||d.error||"check the Client ID"));
+    const me={code:d.user_code, uri:d.verification_url||d.verification_uri}; ypPending=me; payRefresh();
+    const until=Date.now()+d.expires_in*1000;
+    let every=(d.interval||5)*1000;
+    while(ypPending===me && Date.now()<until){
+      await new Promise(ok=>setTimeout(ok,every));
+      if(ypPending!==me) return;   // cancelled
+      const t=await ypForm("token",{device_code:d.device_code, grant_type:"urn:ietf:params:oauth:grant-type:device_code"});
+      if(t.access_token){
+        Object.assign(yp,{access:t.access_token, refresh:t.refresh_token, expiresAt:Date.now()+t.expires_in*1000});
+        const ch=await ypApi("channels?part=snippet&mine=true");
+        yp.login=ch.items?.[0]?.snippet?.title || "YouTube";
+        ypPending=null; ypSave(); payRefresh(); toast(`YouTube connected as ${yp.login}`);
+        return;
+      }
+      if(t.error==="slow_down") every+=5000;
+      else if(t.error!=="authorization_pending") throw new Error("Google refused: "+(t.error_description||t.error));
+    }
+    throw new Error("YouTube connect timed out");
+  }catch(e){ ["access","refresh","expiresAt"].forEach(k=>delete yp[k]); ypPending=null; ypSave(); payRefresh(); toast(e.message, true); }
+}
+async function ypRefresh(){
+  const t=await ypForm("token",{grant_type:"refresh_token", refresh_token:yp.refresh});
+  if(!t.access_token){ delete yp.access; ypSave(); payRefresh(); throw new Error("YouTube login expired. Connect YouTube again"); }
+  Object.assign(yp,{access:t.access_token, expiresAt:Date.now()+t.expires_in*1000}); ypSave();   // Google keeps the same refresh token
+}
+async function ypApi(path, init={}){
+  if(Date.now()>yp.expiresAt-60000) await ypRefresh();
+  const go=()=>fetch("https://www.googleapis.com/youtube/v3/"+path,{...init, headers:{"Authorization":"Bearer "+yp.access, "Content-Type":"application/json"}});
+  let r=await go();
+  if(r.status===401){ await ypRefresh(); r=await go(); }
+  return r.json();
+}
+// the live chat of the stream the chat reader follows (same override link, same channel /live)
+async function ypChatId(){
+  const vid=await ytFindVid();
+  if(!vid) throw new Error("the channel isn't live");
+  if(ypChat?.vid===vid) return ypChat.id;
+  const v=await ypApi("videos?part=liveStreamingDetails&id="+vid);
+  const id=v.items?.[0]?.liveStreamingDetails?.activeLiveChatId;
+  if(!id) throw new Error(v.error?.message || "no live chat on that stream");
+  ypChat={vid, id}; return id;
+}
 
 /* One sender per platform; paySend walks the unpaid rows for it, marking each as it lands. */
 const PAY_SEND={
@@ -2510,6 +2595,11 @@ const PAY_SEND={
   kick:{label:"Kick", ready:()=>!!kk.access, send:async cmd=>{
     const res=await kkApi("chat",{method:"POST", body:JSON.stringify({type:"user", broadcaster_user_id:kk.broadcasterId, content:cmd})});
     if(!res.data || !res.data.is_sent) throw new Error(res.message || "Kick didn't send it");
+  }},
+  youtube:{label:"YouTube", ready:()=>!!yp.access, send:async cmd=>{
+    const liveChatId=await ypChatId();
+    const res=await ypApi("liveChatMessages?part=snippet",{method:"POST", body:JSON.stringify({snippet:{liveChatId, type:"textMessageEvent", textMessageDetails:{messageText:cmd}}})});
+    if(!res.id){ ypChat=null; throw new Error(res.error?.message || "YouTube didn't send it"); }
   }},
 };
 /* Sends queue behind each other. They used to bail out when one was already
@@ -2619,6 +2709,13 @@ function payWire(mode="LMS"){
   on("#kkCancel", ()=>{ delete kk.pending; kkSave(); payRefresh(); });
   on("#kkDisconnect", ()=>{ ["access","refresh","expiresAt","login","broadcasterId"].forEach(k=>delete kk[k]); kkSave(); payRefresh(); });
   on("#kkForget", ()=>{ kk={}; kkSave(); payRefresh(); });
+  on("#ypSaveApp", ()=>{ const id=$("#ypId").value.trim(), sec=$("#ypSecret").value.trim();
+    if(!id || !sec){ toast("Paste both the Client ID and the Client secret", true); return; }
+    yp={clientId:id, secret:sec}; ypSave(); payRefresh(); });
+  on("#ypConnect", ypConnect);
+  on("#ypCancel", ()=>{ ypPending=null; payRefresh(); });
+  on("#ypDisconnect", ()=>{ ["access","refresh","expiresAt","login"].forEach(k=>delete yp[k]); ypChat=null; ypSave(); payRefresh(); });
+  on("#ypForget", ()=>{ yp={}; ypPending=null; ypChat=null; ypSave(); payRefresh(); });
   document.querySelectorAll("[data-pay-send]").forEach(b=>{ b.onclick=()=>paySend(b.dataset.paySend, mode); });
 }
 
@@ -2679,7 +2776,7 @@ const RF_CLAIM_MS=60000;
 const RF_SPIN_MS=[11000,13000];   // drawn per spin, so back-to-back draws don't run to the same stopwatch
 const RF_REVEAL_MS=4000;          // the popup stays up at least this long, even for an instant claim
 const RF_ROW=48;                // reel row height in px — keep in step with .rf-sq --r
-const RF_TWITCH="casinodaddy";
+const RF_TWITCH="casinodaddy", RF_TWITCH_ID="121228500";   // the id: for the 7TV/BTTV emote lists
 const RF_KICK_ROOM=4534770;   // kick.com/api/v2/channels/casinodaddy -> chatroom.id (a local file can't look it up: CORS)
 const RF_PF={   // Simple Icons paths, same as Wheel Studio
   twitch:"M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z",
@@ -2792,8 +2889,71 @@ function rfSocket(platform, url, hello, onFrame, keepalive){
   },30000);
   open();
 }
+/* The display reads chat too, only to show it in the draws' chat panel (never entries or claims). */
+const CHAT=[], CHAT_MAX=40;
+const CHAT_HIDE=new Set(["botrix","degen_bot","kickbot","casinodaddy","streamelements","streamlabs"]);   // bots and the channel itself
+/* Name colours are made to pop on the dark panels: the viewer's hue, fully saturated, at a lightness that
+   reads. No colour, or a greyish/white one that would blend with the message text, gets a hue per name. */
+function chatColor(c, name){
+  const [r,g,b]=/^#[0-9a-f]{6}$/i.test(c||"") ? [1,3,5].map(i=>parseInt(c.slice(i,i+2),16)/255) : [1,1,1];
+  const mx=Math.max(r,g,b), mn=Math.min(r,g,b), d=mx-mn;
+  let h;
+  if(d<.2){ let n=0; for(const ch of String(name)) n=(n*31+ch.charCodeAt(0))>>>0; h=[0,28,48,130,165,195,215,265,300,330][n%10]; }
+  else h=Math.round(60*(mx===r ? ((g-b)/d+6)%6 : mx===g ? (b-r)/d+2 : (r-g)/d+4));
+  const l = h>=200 && h<=280 ? 68 : 60;   // blues and violets need more light to read on dark
+  return `hsl(${h},100%,${l}%)`;
+}
+/* Emotes: Twitch's and Kick's own come in the message, YouTube member ones in its runs, and 7TV/BTTV
+   (the same channel set on Twitch and Kick) are words, looked up in EMO. */
+const EMO={};
+async function chatEmotes(){
+  const j=u=>fetch(u).then(r=>r.json()).catch(()=>({}));
+  const sv=set=>((set||{}).emotes||[]).forEach(e=>{ const h=e.data&&e.data.host; if(h) EMO[e.name]="https:"+h.url+"/2x.webp"; });
+  const bt=l=>(l||[]).forEach(e=>{ EMO[e.code]=`https://cdn.betterttv.net/emote/${e.id}/2x`; });
+  const [bg,sg,bc,sc]=await Promise.all([j("https://api.betterttv.net/3/cached/emotes/global"), j("https://7tv.io/v3/emote-sets/global"),
+    j("https://api.betterttv.net/3/cached/users/twitch/"+RF_TWITCH_ID), j("https://7tv.io/v3/users/twitch/"+RF_TWITCH_ID)]);
+  bt(Array.isArray(bg)?bg:[]); sv(sg); bt(bc.channelEmotes); bt(bc.sharedEmotes); sv(sc.emote_set);   // the channel's win over globals
+}
+const emoImg=(src, alt)=>`<img class="emo" src="${escapeHtml(src)}" alt="${escapeHtml(alt)}">`;
+const chatWords=t=>String(t).split(/(\s+)/).map(w=>Object.hasOwn(EMO,w) ? emoImg(EMO[w], w) : escapeHtml(w)).join("");
+function chatBody(platform, text, extra){
+  if(platform==="twitch" && extra){   // emotes tag: id:start-end,start-end/id:… in code points
+    const cp=Array.from(text), at=[];
+    extra.split("/").forEach(e=>{ const [id,r]=e.split(":"); (r||"").split(",").forEach(x=>{ const [a,b]=x.split("-").map(Number); if(b>=a) at.push([a,b,id]); }); });
+    at.sort((p,q)=>p[0]-q[0]);
+    let out="", i=0;
+    at.forEach(([a,b,id])=>{ if(a<i) return; out+=chatWords(cp.slice(i,a).join(""))+emoImg(`https://static-cdn.jtvnw.net/emoticons/v2/${id}/default/dark/2.0`, cp.slice(a,b+1).join("")); i=b+1; });
+    return out+chatWords(cp.slice(i).join(""));
+  }
+  if(platform==="youtube" && extra) return extra.map(x=>x.text!=null ? chatWords(x.text)
+    : x.emoji ? (x.emoji.isCustomEmoji && x.emoji.image ? emoImg(x.emoji.image.thumbnails.at(-1).url, (x.emoji.shortcuts||[""])[0]) : escapeHtml(x.emoji.emojiId||"")) : "").join("");
+  if(platform==="kick") return String(text).split(/(\[emote:\d+:[^\]]*\])/).map(t=>{ const m=/^\[emote:(\d+):([^\]]*)\]$/.exec(t);
+    return m ? emoImg(`https://files.kick.com/emotes/${m[1]}/fullsize`, m[2]) : chatWords(t); }).join("");
+  return chatWords(text);
+}
+// &chat=twitch on the display URL: only that platform's messages (a Twitch-only stream may show nothing else)
+const CHAT_ONLY=(location.hash.match(/[&]chat=(\w+)/)||[])[1];
+function chatAdd(platform, user, name, text, color, ts, extra){
+  if(CHAT_ONLY && platform!==CHAT_ONLY) return;
+  if(/^\s*!/.test(text) || CHAT_HIDE.has(String(name).toLowerCase()) || CHAT_HIDE.has(String(user).toLowerCase())) return;   // commands and bots
+  const col=chatColor(color, name);
+  const h=`<p>${rfLogo(platform)}<b style="color:${col}">${escapeHtml(name)}</b>${chatBody(platform, text, extra)}</p>`;
+  // the Twitch and YouTube backlogs land out of order: keep the panel in time order (ms)
+  const t=+ts||Date.now(), late=CHAT.length && t<CHAT[CHAT.length-1].t;
+  CHAT.push({t,h}); if(late) CHAT.sort((a,b)=>a.t-b.t); if(CHAT.length>CHAT_MAX) CHAT.shift();
+  document.querySelectorAll(".dchat-l").forEach(l=>{
+    if(late) return l.innerHTML=CHAT.map(c=>c.h).join("");
+    l.insertAdjacentHTML("beforeend", h); while(l.children.length>CHAT_MAX) l.firstChild.remove(); });
+}
+const chatMsg=DISPLAY_ONLY ? chatAdd : rfChatMsg;
+function twPriv(line){
+  const m=/^(?:@(\S+) )?:(\w+)!\S+ PRIVMSG #\w+ :(.*)$/.exec(line);
+  if(!m) return;
+  const dn=/(?:^|;)display-name=([^;]*)/.exec(m[1]||""), user=m[2].toLowerCase(), col=/(?:^|;)color=([^;]*)/.exec(m[1]||""), ts=/(?:^|;)tmi-sent-ts=(\d+)/.exec(m[1]||""), em=/(?:^|;)emotes=([^;]*)/.exec(m[1]||"");
+  chatMsg("twitch", user, dn && dn[1].toLowerCase()===user ? dn[1] : m[2], m[3], col&&col[1], ts&&ts[1], em&&em[1]);
+}
 function rfStartChat(){
-  if(rfChat.started || DISPLAY_ONLY) return;
+  if(rfChat.started) return;
   rfChat.started=true;
   // Twitch: anonymous IRC (justinfan guest login) — official, no account.
   rfSocket("twitch", "wss://irc-ws.chat.twitch.tv:443", ws=>{
@@ -2803,10 +2963,7 @@ function rfStartChat(){
   }, (frame, ws)=>frame.split("\r\n").forEach(line=>{
     if(line.startsWith("PING")) return ws.send("PONG"+line.slice(4));
     if(/^:\S+ 366 /.test(line)){ rfChat.twitch="connected"; rfDirty=true; return; }
-    const m=/^(?:@(\S+) )?:(\w+)!\S+ PRIVMSG #\w+ :(.*)$/.exec(line);
-    if(!m) return;
-    const dn=/(?:^|;)display-name=([^;]*)/.exec(m[1]||""), user=m[2].toLowerCase();
-    rfChatMsg("twitch", user, dn && dn[1].toLowerCase()===user ? dn[1] : m[2], m[3]);
+    twPriv(line);
   }), "PING :comp");
   rfSocket("kick", "wss://ws-us2.pusher.com/app/32cbd69e4b950bf97679?protocol=7&client=js&version=8.4.0&flash=false",
     ws=>ws.send(JSON.stringify({event:"pusher:subscribe", data:{auth:"", channel:"chatrooms."+RF_KICK_ROOM+".v2"}})),
@@ -2818,7 +2975,7 @@ function rfStartChat(){
         if(!/ChatMessageEvent$/.test(m.event||"")) return;
         const d=JSON.parse(m.data);
         if(d && d.sender && typeof d.content==="string")
-          rfChatMsg("kick", String(d.sender.slug||d.sender.username).toLowerCase(), d.sender.username, d.content);
+          chatMsg("kick", String(d.sender.slug||d.sender.username).toLowerCase(), d.sender.username, d.content, d.sender.identity&&d.sender.identity.color);
       }catch(e){}
     }, '{"event":"pusher:ping","data":{}}');
   ytStart();
@@ -2840,10 +2997,10 @@ const ytVid=s=>{ s=String(s||"").trim(); const m=/(?:v=|\/live\/|\/video\/|youtu
 const ytCall=(path, body)=>fetch("/yt/"+path, {method:"POST",
   body:JSON.stringify(Object.assign({context:{client:{clientName:"WEB", clientVersion:"2.20250910.00.00"}}}, body)),
   signal:AbortSignal.timeout(10000)}).then(r=>{ if(!r.ok) throw new Error("HTTP "+r.status); return r.json(); });
+const ytFindVid=async()=>ytVid(yt.video) || (((await ytCall("navigation/resolve_url", {url:"https://www.youtube.com/"+RF_YOUTUBE+"/live"})).endpoint||{}).watchEndpoint||{}).videoId;
 const ytText=r=>(r.runs||[]).map(x=>x.text||(x.emoji&&x.emoji.shortcuts&&x.emoji.shortcuts[0])||"").join("");
 let ytRun=0;
 async function ytStart(){
-  if(DISPLAY_ONLY) return;
   const run=++ytRun, alive=()=>run===ytRun;      // a new ytStart() retires the old loop
   const wait=ms=>new Promise(r=>setTimeout(r,ms));
   const say=t=>{ if(alive() && rfChat.youtube!==t){ rfChat.youtube=t; rfDirty=true; } };
@@ -2851,8 +3008,7 @@ async function ytStart(){
   say("looking for the stream");
   while(alive()){
     try{
-      let vid=ytVid(yt.video);
-      if(!vid) vid=(((await ytCall("navigation/resolve_url", {url:"https://www.youtube.com/"+RF_YOUTUBE+"/live"})).endpoint||{}).watchEndpoint||{}).videoId;
+      const vid=await ytFindVid();
       if(!vid){ say("not live, checking every 30s"); await wait(30000); continue; }
       const lcr=((((await ytCall("next", {videoId:vid})).contents||{}).twoColumnWatchNextResults||{}).conversationBar||{}).liveChatRenderer;
       let cont=lcr && (((lcr.continuations||[])[0]||{}).reloadContinuationData||{}).continuation;
@@ -2862,8 +3018,8 @@ async function ytStart(){
         const lc=((await ytCall("live_chat/get_live_chat", {continuation:cont})).continuationContents||{}).liveChatContinuation||{};
         (lc.actions||[]).forEach(a=>{
           const m=a.addChatItemAction && a.addChatItemAction.item.liveChatTextMessageRenderer;
-          if(!m || Number(m.timestampUsec)<since || !alive()) return;
-          rfChatMsg("youtube", m.authorExternalChannelId, (m.authorName&&m.authorName.simpleText||"").replace(/^@/,""), ytText(m.message||{}));
+          if(!m || (!DISPLAY_ONLY && Number(m.timestampUsec)<since) || !alive()) return;   // the display wants the backlog
+          chatMsg("youtube", m.authorExternalChannelId, (m.authorName&&m.authorName.simpleText||"").replace(/^@/,""), ytText(m.message||{}), "", Number(m.timestampUsec)/1000, (m.message||{}).runs);
         });
         const c=(lc.continuations||[])[0]||{};
         const d=c.invalidationContinuationData||c.timedContinuationData||c.reloadContinuationData||{};
@@ -4823,11 +4979,13 @@ function pwDrawPlan(sp, W, H){
 }
 function pwDrawMount(id="pwDraw", cls="pw-draw"){
   const fixed=DISPLAY_ONLY && document.body.classList.contains("canvas");
-  const W=fixed?1920:1080, H=1080;
+  // full-canvas: the stage is the screen left of the chat; --sr is the rest, for backgrounds to reach under it
+  const W=fixed?CANVAS.x:1080, H=1080;
   const ov=document.createElement("div");
   ov.id=id; ov.className=cls+(fixed?" fixed":""); ov.setAttribute("aria-hidden","true");
-  ov.innerHTML=`<div class="pw-stage" style="width:${W}px;height:${H}px"></div>`;
-  (fixed?document.body:$("#display")).appendChild(ov);
+  ov.innerHTML=`<div class="pw-stage" style="width:${W}px;height:${H}px;--sr:${1920-W}px"></div>`;
+  if(fixed) ov.insertAdjacentHTML("beforeend", `<div class="dchat" style="width:${CANVAS.s}px;height:${CANVAS.h}px"><h4>Live chat</h4><div class="dchat-l">${CHAT.map(c=>c.h).join("")}</div></div>`);
+  if(fixed) document.body.prepend(ov); else $("#display").appendChild(ov);
   return ov;
 }
 function pwDrawFrame(){
@@ -4844,7 +5002,7 @@ function pwDrawFrame(){
   const stage=ov.firstChild, W=parseFloat(stage.style.width), H=parseFloat(stage.style.height);
   // offset sizes, not the bounding box: the host is already scaled on the display window
   const hw=ov.offsetWidth, hh=ov.offsetHeight, kk=Math.min(hw/W, hh/H);
-  stage.style.transform=`translate(${(hw-W*kk)/2}px,${(hh-H*kk)/2}px) scale(${kk})`;
+  stage.style.transform=`translate(${ov.classList.contains("fixed")?0:(hw-W*kk)/2}px,${(hh-H*kk)/2}px) scale(${kk})`;
   if(!pwPlan || pwPlan.at!==sp.startedAt || pwPlan.W!==W){
     pwPlan=pwDrawPlan(sp, W, H); if(!pwPlan) return;
     ov.style.setProperty("--el", -Math.max(0, netNow()-sp.startedAt)/1000+"s");   // a reroll replays the intro
@@ -5230,10 +5388,10 @@ function crDrawPlan(sp, W){
   if(!winner) return null;
   const S=pool.slice(), rnd=pwRng(sp.seed);
   for(let i=N-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [S[i],S[j]]=[S[j],S[i]]; }
-  const move=(sp.duration-CR_FADE_MS)/1000, wide=W>=1920;
+  const move=(sp.duration-CR_FADE_MS)/1000;
   // reel kinds left to right; the symbol reels stop left to right, a beat apart, the last one just
   // before the names start slowing; the names stop at the end of the draw
-  const kinds = wide ? ["s","s","n","s","s"] : ["s","n","s"];
+  const kinds = ["s","n","s"];   // five would not fit left of the chat
   const nSym=kinds.length-1, lastSym=move-CR_NAME_DEC-.2;
   let j=0;
   const reels=kinds.map(k=>{
@@ -5257,7 +5415,7 @@ function crDrawFrame(){
   if(!ov) ov=pwDrawMount("crDraw", "pw-draw cr-draw");
   const stage=ov.firstChild, W=parseFloat(stage.style.width), H=parseFloat(stage.style.height);
   const hw=ov.offsetWidth, hh=ov.offsetHeight, kk=Math.min(hw/W, hh/H);
-  stage.style.transform=`translate(${(hw-W*kk)/2}px,${(hh-H*kk)/2}px) scale(${kk})`;
+  stage.style.transform=`translate(${ov.classList.contains("fixed")?0:(hw-W*kk)/2}px,${(hh-H*kk)/2}px) scale(${kk})`;
   if(!crPlan || crPlan.at!==sp.startedAt || crPlan.W!==W){
     crPlan=crDrawPlan(sp, W); if(!crPlan) return;
     ov.style.setProperty("--el", -Math.max(0, netNow()-sp.startedAt)/1000+"s");
@@ -5417,8 +5575,8 @@ function gzRenderControl(){
   $("#gzTestBtn").onclick=rfTestEntries;
   rfWire();
 }
-/* ---- The draw, both windows, straight from rf.spin (a 1080 stage in the box: a 4-wide grid, no Zeus).
-   1. Tumbles: the game's 6×5 grid fills with names, column by column from the bottom, and tumbles
+/* ---- The draw, both windows, straight from rf.spin (a 1080 stage in the box, no Zeus; left of the chat on a full canvas).
+   1. Tumbles: the game's grid (4×5) fills with names, column by column from the bottom, and tumbles
       GZ_TUMBLES times; the last fill holds the winner somewhere.
    2. Strikes: Zeus's lightning takes out half the grid a round (30 → 15 → 8 → 4 → 2 → 1), the rounds
       further apart as it gets closer; the last two pulse before the final bolt.
@@ -5431,8 +5589,9 @@ function gzDrawPlan(sp, W){
   if(!winner) return null;
   const S=pool.slice(), rnd=pwRng(sp.seed);
   for(let i=N-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [S[i],S[j]]=[S[j],S[i]]; }
-  const wide=W>=1920, cols=wide?6:4, rows=5, n=cols*rows, move=(sp.duration-GZ_FADE_MS)/1000;
-  const gw=cols*(GZ_CW+GZ_GAP)-GZ_GAP, left=wide?90:(W-gw)/2, wc=Math.floor(rnd()*n), last=GZ_TUMBLES-1;
+  // full-canvas: the grid sits left, Zeus stands between it and the chat
+  const cols=4, rows=5, n=cols*rows, move=(sp.duration-GZ_FADE_MS)/1000;
+  const gw=cols*(GZ_CW+GZ_GAP)-GZ_GAP, left=W>1080?40:(W-gw)/2, wc=Math.floor(rnd()*n), last=GZ_TUMBLES-1;
   const xy=i=>[left+(i%cols)*(GZ_CW+GZ_GAP), GZ_TOP+Math.floor(i/cols)*(GZ_CH+GZ_GAP)];
   // the winner shows once, in its cell of the last fill; anywhere else it gets the next name in the shuffle
   const name=(k,i)=>{ if(k===last && i===wc) return winner; let e=S[rfMod(k*n+i,N)]; if(e===winner && N>1) e=S[rfMod(k*n+i+1,N)]; return e; };
@@ -5464,7 +5623,7 @@ function gzDrawFrame(){
   if(!ov) ov=pwDrawMount("gzDraw", "pw-draw gz-draw");
   const stage=ov.firstChild, W=parseFloat(stage.style.width), H=parseFloat(stage.style.height);
   const hw=ov.offsetWidth, hh=ov.offsetHeight, kk=Math.min(hw/W, hh/H);
-  stage.style.transform=`translate(${(hw-W*kk)/2}px,${(hh-H*kk)/2}px) scale(${kk})`;
+  stage.style.transform=`translate(${ov.classList.contains("fixed")?0:(hw-W*kk)/2}px,${(hh-H*kk)/2}px) scale(${kk})`;
   if(!gzPlan || gzPlan.at!==sp.startedAt || gzPlan.W!==W){
     gzPlan=gzDrawPlan(sp, W); if(!gzPlan) return;
     ov.style.setProperty("--el", -Math.max(0, netNow()-sp.startedAt)/1000+"s");
@@ -5796,14 +5955,15 @@ $("#confirmNo").onclick=()=>{ const cb=confirmNoCb; hideConfirm(); if(cb) cb(); 
 $("#confirmOverlay").addEventListener("click",e=>{ if(e.target===e.currentTarget){ const cb=confirmNoCb; hideConfirm(); if(cb) cb(); } });
 document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ closeHelp(); const cb=confirmNoCb; hideConfirm(); if(cb) cb(); } });
 
+// the box is laid out at 450px and scaled to whatever square the OBS source is.
+// A wide (16:9) source is the whole overlay canvas: the box goes to its spot
+// over the chat, in 1080p pixels — tune with &x= &y= &s= in the URL. Full-screen
+// draws play left of the chat and put our own chat panel there (s wide, h tall).
+const CANVAS={x:1461, y:73, s:451, h:667};
+location.hash.replace(/[&](x|y|s|h)=(\d+)/g, (_,k,v)=>{ CANVAS[k]=+v; });
 if(DISPLAY_ONLY){
   document.body.classList.add("display-only");
   document.title="Stream Competitions — Display";
-  // the box is laid out at 450px and scaled to whatever square the OBS source is.
-  // A wide (16:9) source is the whole overlay canvas: the box goes to its spot
-  // over the chat, in 1080p pixels — tune with &x= &y= &s= in the URL.
-  const CANVAS={x:1461, y:73, s:451};
-  location.hash.replace(/[&](x|y|s)=(\d+)/g, (_,k,v)=>{ CANVAS[k]=+v; });
   const fitBox=()=>{
     const wide=innerWidth/innerHeight>1.4, st=document.body.style;
     document.body.classList.toggle("canvas", wide);
@@ -5812,8 +5972,14 @@ if(DISPLAY_ONLY){
     st.setProperty("--fit", CANVAS.s/450*k);
     st.setProperty("--cx", CANVAS.x*k+"px");
     st.setProperty("--cy", CANVAS.y*k+"px");
+    st.setProperty("--k", k);
   };
   fitBox(); addEventListener("resize", fitBox);
+  if(document.body.classList.contains("canvas")){   // only a full-canvas source shows the chat panel
+    // Twitch keeps no backlog for us: a public cache of recent chat fills the panel first
+    chatEmotes().then(()=>fetch("https://recent-messages.robotty.de/api/v2/recent-messages/"+RF_TWITCH+"?limit="+CHAT_MAX)).then(r=>r.json())
+      .then(j=>(j.messages||[]).forEach(twPriv)).catch(()=>{}).finally(rfStartChat);
+  }
   const refreshFromStorage=()=>{
     state=load()||fresh(); h2h=h2hLoad()||h2hFresh();
     bk=bkLoad()||bkFresh(); lg=lgLoad()||lgFresh(); wh=whLoad()||whFresh(); td=tdLoad()||tdFresh(); pw=pwLoad()||pwFresh(); kw=kwLoad()||kwFresh(); bd=bdLoad()||bdFresh(); cr=crLoad()||crFresh(); gz=gzLoad()||gzFresh();

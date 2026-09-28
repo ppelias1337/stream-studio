@@ -1029,6 +1029,18 @@ const server = http.createServer(async (req, res) => {
     } catch (e) { return sendJson(res, { error: e.message }, 502); }
   }
 
+  // Google's device sign-in for YouTube payouts (the page's yp*). Passed through rather than
+  // called from the page so a playing PC never depends on Google's CORS for these two.
+  if ((pathname === '/google/device/code' || pathname === '/google/token') && req.method === 'POST') {
+    try {
+      const r = await fetch('https://oauth2.googleapis.com' + pathname.slice(7), {
+        method: 'POST', body: await readBody(req), signal: AbortSignal.timeout(10000),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+      res.writeHead(r.status, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
+      return res.end(await r.text());
+    } catch (e) { return sendJson(res, { error: e.message }, 502); }
+  }
+
   // Kick's sign-in needs a SHA-256 PKCE challenge, and crypto.subtle only exists on a secure
   // origin — which a playing PC reaching this server by IP is not, app or browser. Hashing it
   // here works the same from every panel. The verifier is one-use and never leaves the LAN.
