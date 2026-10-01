@@ -17,11 +17,12 @@ public/app.html    the window: 4 tabs over two iframes
 public/connect.html  the playing PC's first screen: the stream PC's address
 moved.html         hand-out page for the old Stream Competitions bookmark
 public/comp/index.html  Stream Competitions (the old index.html, see its own notes below)
-public/bingo/index.html  Relax Bingo (copied from C:\Users\elias\Relax Bingo), synced via /bingo/sync
+public/bingo/index.html  The Racaroon 2 Bingo, was Relax Bingo (copied from C:\Users\elias\Relax Bingo), synced via /bingo/sync
 public/bingo/assets/  MT5 art, cut down from the Money Train 5 asset pack in Downloads (not in the repo);
                    the draw is its Extra Graphics\Train with Blank Reels.png, names roll in the reel window
-public/bingo/rr2/  The Racaroon 2 art, cut from the game's public screenshots/key art (no pack yet)
-public/comp/bb3/   Buffalo Blitz 3 art for the Challenge Board, same source
+public/bingo/rr2/  The Racaroon 2 art, cut down from Playtech's pack in Playtech/ (gitignored, ~960 MB)
+public/comp/bb3/   Buffalo Blitz 3 art for the Challenge Board, same pack. Playtech/ASSETS.md says what every
+                   image in both packs is (note: the jpticker "-novalue" files are the ones WITH values)
 public/*           Wheel Studio pages (index.html = OBS studio, control.html = operator)
 ```
 
@@ -29,15 +30,24 @@ Tabs: **Stream Competitions**, **Keyword**, **Special Giveaways** are all the on
 iframe. The shell posts `{studioTab}` and the page filters Home by `SECTION` (Keyword opens the
 `KEYWORD` format directly). The page posts `{studioSection}` back so the shell highlights the right tab.
 There is one stream box, so switching tabs is the Home button with a filter, and leaving a live
-format asks first. **Wheel Studio** is `/control` in the second iframe. **Relax Bingo** is a card on
+format asks first. **Wheel Studio** is `/control` in the second iframe. **The Racaroon 2 Bingo** (was Relax Bingo) is a card on
 Special Giveaways Home. It opens `/bingo/` in a third iframe, which stays loaded because it reads chat. Pressing
-Special Giveaways again goes back. Bingo has its own relay instance (`bingo-state.json`, its own lock). The bingo
-panel's **Game** picks Money Train 5 or The Racaroon 2 (€1,500: 8 lines at €125 + full board €500); a switch brings that game's art, challenges, prizes and keyword. On stream it's the `BINGO` format:
+Special Giveaways again goes back. The Racaroon 2's draw is its own (`rdHtml`/`rdFrame`): names climb the game's
+jackpot bars and the winner's turns GRAND. In the box it plays inside the bingo box; on a full canvas the bingo in the
+box posts `{bingoDraw}` and the competitions page frames `/bingo/#draw&w=` over the canvas with its chat panel (`bgDrawSync`).
+Money Train 5 keeps the train reel. The bingo raffle runs itself: a completed line opens entries, each draw is for the
+oldest line still without a winner (completion order), and the stream shows the raffle only while one is owed (`onRaffle()`);
+there is no stage picker or board/raffle switch any more. Bingo has its own relay instance (`bingo-state.json`, its own lock). The bingo
+game is locked to The Racaroon 2 (€2,000: 8 lines at €150 + full board €800; a board saved before that gets it once, `pot2000` flag): Money Train 5 is retired (its `<option>` in `#game` is gone and `load()` turns an MT5 board into a fresh Racaroon one; the code and art stay). On stream it's the `BINGO` format:
 the competitions box shows `/bingo/#display` in an iframe, so OBS keeps the one `/comp/#display` source.
 **Challenge Board** (`BOARD`, `board_state_v1`, Special Giveaways) is Playtech's Buffalo Blitz 3 board: 16 challenges
-as scrolling rows (closest to done on top), each needing 3 (`BD_NEED`) with a prize; a tick runs a buffalo along the bar (`c.from`/`c.at`) (the pool on stream is their sum, €2,000 by default). A full one owes a giveaway: `RF_MODES.BOARD.setup()` puts the keyword entries on the box only while one is due
-(`bdDue()`), and each winner row keeps the `cell` it was drawn for.
-**Retired from Home:** Relax Bingo and Dead Man's Crew (4.7.0), Gates of Olympus 2500 (after 4.9.0). Their code stays; each comes back with its `card(...)`
+as scrolling rows (closest to done on top), each needing 3 (`BD_NEED`) with a prize; a tick runs a buffalo along the bar (`c.from`/`c.at`) (the pool on stream is their sum: 16 × €125 = €2,000 by default, `BD_PRIZE`; a board saved before the even split is set to €125 each once, `even` flag). A full one owes a giveaway: `RF_MODES.BOARD.setup()` puts the keyword entries on the box only while one is due
+(`bdDue()`), and each winner row keeps the `cell` it was drawn for. Rows wear the game's symbol by their words (`bdIcon`).
+Its draw is full canvas (`bdDrawFrame`): the splash herd charges out of the sunset either side (scenery, no names), the names
+roll in one blue reel window in front, and on the stop the winner becomes the feature coin of their challenge's pot (Buffalo
+Gold green, Big Grid blue, Buffalo Cash and the rest red) and drops into it; the pot bursts, lightning strikes, then the win
+screen. (A herd with a name on every buffalo was tried first: too messy to follow.)
+**Retired from Home:** Dead Man's Crew (4.7.0), Gates of Olympus 2500 (after 4.9.0). The bingo came back after 4.10.1 as The Racaroon 2 Bingo. Their code stays; each comes back with its `card(...)`
 line in `menuControlView()` and its name in `loadMode()`'s list.
 **Dead Man's Crew** (`CREW`, `crew_state_v1`, Special Giveaways) is the Slotmill visit raffle: keyword `Slotmill`,
 five fixed €100 seats; its draw is a full-canvas slot spin (`crDrawFrame`, like Prag's) with a captain win tier per seat; art in `public/comp/crew/` (cut down from the pack in `Dead_Mans_Crew/`, which is gitignored).
@@ -87,6 +97,8 @@ takes out half a round until one is left (`gzDrawFrame`). Art in `public/comp/ga
   Competitions are on disk and survive.
 - YouTube chat goes through the server's `/yt/*` passthrough (youtubei only answers a `file://`
   page from a browser, and the page is served over http now).
+- **Test draw** (formats with their own draw: Challenge Board, TaDa, Prag, Crew, Gates; and the bingo panel): 1,400 made-up names and the real draw on stream, 15s claim, then the entries close and nothing is kept (`sp.test` / `S.rf.test`). Refused while real chat is entering.
+- Sound effects: the competitions page plays everything through one gain (`SFX_VOL`, 0.25); the bingo panel's slider is scaled by 0.3. Both were far too loud on stream.
 - Version: `package.json` only. The competitions header reads it from `/api/info`.
 
 ## Run, test, release

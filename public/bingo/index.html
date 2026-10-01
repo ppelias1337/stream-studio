@@ -56,6 +56,9 @@ body:not(.display) .monitor .box{transform:scale(.75);transform-origin:0 0}
 .hd{position:absolute;left:20px;right:22px;top:18px;height:80px;display:flex;align-items:center;justify-content:space-between}
 .logo{width:404px;height:auto;filter:drop-shadow(0 4px 6px rgba(0,0,0,.6))}
 .bingo{font-size:52px;letter-spacing:.05em;color:#fff1e0;text-shadow:0 0 6px var(--neon),0 0 16px var(--neon),0 0 32px #ff3d0a}
+.bingo.pot{display:flex;flex-direction:column;align-items:flex-end;line-height:.9}
+.bingo.pot b{font-size:60px;letter-spacing:.01em;text-shadow:none}
+.bingo.pot span{font-size:26px;letter-spacing:.16em}
 
 .frame{position:absolute;left:18px;right:18px;background:rgba(14,11,8,.62);border-radius:6px;
   box-shadow:inset 0 0 0 2px #06080c,0 0 0 3px #59636f,0 0 0 5px #1b2027}
@@ -216,8 +219,7 @@ body:not(.display) .monitor .box{transform:scale(.75);transform-origin:0 0}
     linear-gradient(180deg,#fff0a8 0%,#f7c948 38%,#d99a22 72%,#b8781a 100%)}
 .g-rr2 .tile.hot{color:#ffe0f0}
 .g-rr2 .tile.hot::after{box-shadow:inset 0 0 0 2px #ff9ccf,inset 0 0 26px rgba(255,79,163,.5),0 0 18px rgba(255,79,163,.7)}
-.g-rr2 .tile.wild{background:#0b2a8a}
-.g-rr2 .tile.wild img{top:0;height:100%;width:100%;object-fit:cover}
+.g-rr2 .tile.wild{background:radial-gradient(closest-side,#8a1030,#4a0620 80%,#2a0414)}
 .g-rr2 .beams{filter:drop-shadow(0 0 5px var(--neon)) drop-shadow(0 0 12px #c2127a)}
 .g-rr2 .beams line{stroke:#ff3d96}
 .g-rr2 .pip:not(.on){background:#200a30;box-shadow:inset 0 0 0 2px #12041c}
@@ -227,14 +229,60 @@ body:not(.display) .monitor .box{transform:scale(.75);transform-origin:0 0}
 .g-rr2 .rv .band{background:linear-gradient(180deg,#ff5fae,#b3166e);text-shadow:0 2px 0 #4a0630}
 .g-rr2 .rv-prize{background:#1c0828}
 .g-rr2 .rule::before,.g-rr2 .rule::after{background:#5a2a78}
-/* the draw: the raccoon peeks over a gold-framed reel window, which drops in from the top */
 .g-rr2 .drawfx{background:radial-gradient(130% 70% at 50% 0,rgba(255,79,163,.2),transparent 62%),linear-gradient(180deg,rgba(20,4,28,.35),rgba(20,4,28,.8)),var(--station) center/cover}
-.g-rr2 .trainwrap{top:170px;width:500px;height:400px;margin-left:-250px;animation-name:rrin}
-@keyframes rrin{from{transform:translateY(-140%)}}
-.g-rr2 .trainwrap.done{filter:brightness(.62) saturate(.9)}
-.g-rr2 .trainwrap img{position:absolute;left:50%;top:-138px;width:150px;height:auto;margin-left:-75px;filter:drop-shadow(0 6px 12px rgba(0,0,0,.6))}
-.g-rr2 .tw{left:0;top:0;width:100%;height:100%;border-radius:14px;background:linear-gradient(180deg,#4a1873,#26083d);
-  box-shadow:inset 0 0 0 3px #14041f,0 0 0 4px #d9a53a,0 0 0 8px #7a4a0a,0 0 0 10px #f7c948,0 18px 40px rgba(0,0,0,.7),0 0 40px rgba(255,79,163,.4)}
+/* ---------- The Racaroon 2 draw (rdHtml/rdFrame): the names climb the game's jackpot bars, the winner's turns GRAND.
+   A 1080-tall stage: scaled into the box here, full canvas left of the chat in OBS (#draw, framed by the competitions page). */
+.rdd{position:absolute;left:0;top:0;height:1080px;overflow:hidden;transform-origin:0 0;font-family:var(--cond);font-weight:700;color:#fff;text-transform:uppercase}
+.drawfx .rdd{transform:scale(.5556)}   /* 1080 → the 600 box */
+.rd-bg{position:absolute;inset:0;background:radial-gradient(60% 50% at 50% 55%,rgba(255,79,163,.22),transparent 70%),linear-gradient(rgba(30,6,42,.35),rgba(30,6,42,.7)),url(rr2/bg-draw.webp) center/cover}
+.rd-mac{position:absolute;width:150px;filter:blur(3px) drop-shadow(0 8px 12px rgba(0,0,0,.4));opacity:.75;animation:rdbob 4s ease-in-out infinite alternate}
+@keyframes rdbob{to{transform:translateY(-26px) rotate(8deg)}}
+.rd-head{position:absolute;top:18px;left:0;right:0;z-index:30;display:flex;flex-direction:column;align-items:center;gap:4px}
+.rd-head img{width:430px;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
+.rd-head b{padding:6px 24px;border-radius:12px;background:rgba(30,6,42,.82);box-shadow:inset 0 0 0 2px #d9a53a;font-size:42px;letter-spacing:.06em;color:#ffe0f0;font-variant-numeric:tabular-nums}
+.rd-he,.rd-she{position:absolute;bottom:0;z-index:5;filter:drop-shadow(0 12px 24px rgba(0,0,0,.6));animation:rdin .8s cubic-bezier(.16,1,.3,1) .5s both}
+.rd-he{left:max(-110px,calc(50% - 760px));height:600px}
+.rd-she{right:max(-70px,calc(50% - 730px));height:520px;animation-delay:.7s}
+@keyframes rdin{from{opacity:0;transform:translateY(160px)}}
+.rdd.landed .rd-he{content:url(rr2/raccoon-box.webp)}
+.rdd.landed .rd-she{content:url(rr2/girl-kiss.webp)}
+.rd-reel{position:absolute;left:50%;top:180px;width:700px;height:800px;margin-left:-350px;z-index:10;
+  -webkit-mask-image:linear-gradient(transparent,#000 22%,#000 80%,transparent);mask-image:linear-gradient(transparent,#000 22%,#000 80%,transparent)}
+.rd-row{position:absolute;left:10px;right:10px;top:0;height:292px;display:flex;align-items:center;justify-content:center;gap:14px;padding:92px 60px 0;
+  background:center/100% auto no-repeat;font-size:58px;text-transform:none;white-space:nowrap;text-shadow:0 3px 0 rgba(0,0,0,.55),0 0 12px rgba(0,0,0,.5);will-change:transform}
+.rd-row span{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.rd-row .pf{width:.8em;height:.8em}
+.rd-row.tk-mini{background-image:url(rr2/tk-mini.webp)}
+.rd-row.tk-minor{background-image:url(rr2/tk-minor.webp)}
+.rd-row.tk-major{background-image:url(rr2/tk-major.webp)}
+.rd-row.tk-mega{background-image:url(rr2/tk-mega.webp)}
+.rdd.landed .rd-row:not(.rd-won){opacity:0;transition:opacity .5s}
+.rd-row.rd-won{background:url(rr2/tk-grand.webp) center 72%/100% auto no-repeat;padding-top:78px;font-size:64px;animation:rdwin .7s cubic-bezier(.3,1.6,.5,1) both}
+@keyframes rdwin{from{scale:.8}}
+/* the pick line: gold ticks either side of the middle bar */
+.rd-sel{position:absolute;left:50%;top:581px;z-index:11;width:760px;margin-left:-380px;height:0}
+.rd-sel::before,.rd-sel::after{content:"";position:absolute;top:-26px;border:26px solid transparent;filter:drop-shadow(0 0 10px rgba(255,79,163,.9))}
+.rd-sel::before{left:-30px;border-left-color:#f7c948}
+.rd-sel::after{right:-30px;border-right-color:#f7c948}
+.rdd.landed .rd-sel{opacity:0;transition:opacity .3s}
+.rd-win{position:absolute;left:50%;top:680px;z-index:12;display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 40px 18px;border-radius:22px;translate:-50% 0;white-space:nowrap;opacity:0;text-align:center;
+  background:rgba(30,6,42,.84);box-shadow:inset 0 0 0 2px #d9a53a,0 12px 30px rgba(0,0,0,.5)}   /* a plate: the claim line runs over the racaroon's white chest */
+.rdd.landed .rd-win{opacity:1;transition:opacity .5s .6s}
+.rd-win small{font-size:58px;letter-spacing:.14em;color:#ffd0ea;text-shadow:0 0 12px #ff4fa3,0 3px 0 #4a0630}
+.rd-claim p{font-size:46px;letter-spacing:.05em;color:#ffe0f0;text-shadow:0 2px 8px rgba(0,0,0,.8)}
+.rd-claim p.ok{color:#7fffb0}
+.rd-claim b{display:block;font-size:120px;line-height:1;color:var(--gold);font-variant-numeric:tabular-nums;text-shadow:0 4px 0 #3b2600}
+.rd-heart{position:absolute;left:calc(50% + 250px);top:400px;z-index:13;width:220px;opacity:0}
+.rdd.landed .rd-heart{animation:rdheart .8s cubic-bezier(.3,1.6,.5,1) .5s both}
+@keyframes rdheart{from{opacity:0;transform:scale(.2) rotate(-40deg)}to{opacity:1}}
+.rd-rain img{position:absolute;top:-160px;left:var(--x);z-index:20;width:120px;opacity:0}
+.rdd.landed .rd-rain img{animation:rdrain 2.6s cubic-bezier(.4,0,.8,.6) var(--d) both}
+@keyframes rdrain{0%{opacity:1;transform:translateY(0) rotate(0)}100%{opacity:1;transform:translateY(1320px) rotate(var(--r))}}
+/* #draw: the page is only the draw, the hall runs on under the competitions page's chat panel */
+body.display.drawpage{min-height:100vh;background:linear-gradient(rgba(30,6,42,.35),rgba(30,6,42,.7)),url(rr2/bg-draw.webp) left center/cover no-repeat #1a0626;overflow:hidden}
+body.drawpage .monitor,body.drawpage .monitor-label,body.drawpage .control{display:none}
+body.drawpage .rdd{transform:scale(var(--k,1))}
+body.drawpage .rd-bg{background:radial-gradient(60% 50% at 50% 55%,rgba(255,79,163,.22),transparent 70%)}
 .g-rr2 .tk{background:repeating-linear-gradient(-45deg,rgba(255,255,255,.07) 0 26px,transparent 26px 52px),linear-gradient(180deg,#ff5fae 0%,#b3166e 55%,#4a0a4a 100%)}
 .g-rr2 .tk .rail{height:18px;background:repeating-linear-gradient(90deg,#f7c948 0 22px,#b8781a 22px 26px)}
 .g-rr2 .tk .char{left:auto;right:6px;translate:none;bottom:40px;height:330px}
@@ -389,18 +437,18 @@ select.in option{background:var(--panel-2)}
 
 <div class="control">
   <div class="control-top">
-    <div class="ctitle"><span>Relax Bingo</span><span class="ver" id="ver"></span></div>
+    <div class="ctitle"><span>The Racaroon 2 Bingo</span><span class="ver" id="ver"></span></div>
     <div class="ctop-btns">
       <button class="top-btn" id="backBtn" title="Back to Special Giveaways. The bingo stays on stream."><svg class="ic"><use href="#i-back"/></svg>Special Giveaways</button>
       <button class="top-btn danger" id="resetBoard" title="Clear the marks, lines and winners"><svg class="ic"><use href="#i-new"/></svg>New board</button>
       <span class="gap"></span>
-      <select class="in" id="game" aria-label="Game"><option value="mt5">Money Train 5</option><option value="rr2">The Racaroon 2</option></select>
+      <select class="in" id="game" aria-label="Game" hidden><option value="rr2">The Racaroon 2</option></select>
       <button class="help-btn" id="soundBtn" aria-label="Toggle sounds"><svg class="ic"><use href="#i-sound"/></svg></button>
       <button class="help-btn" id="helpBtn" title="How this works" aria-label="Help"><svg class="ic"><use href="#i-help"/></svg></button>
     </div>
   </div>
   <div class="control-body">
-    <div class="livehead"><h1 class="page-h" id="gameName">Money Train 5</h1><span class="meta" id="lineCount"></span></div>
+    <div class="livehead"><h1 class="page-h" id="gameName">The Racaroon 2</h1><span class="meta" id="lineCount"></span></div>
 
     <div class="cells" id="cells"></div>
 
@@ -451,11 +499,11 @@ select.in option{background:var(--panel-2)}
 <div class="help-overlay" id="helpOverlay">
   <div class="help-modal">
     <button class="help-close" id="helpClose" aria-label="Close"><svg class="ic"><use href="#i-x"/></svg></button>
-    <h2>Relax Bingo</h2>
+    <h2>The Racaroon 2 Bingo</h2>
     <h3>Board</h3>
     <p>Edit a challenge any time; the stream updates as you type. <b>Mark done</b> on a tile. Lines and the full board are found by themselves and get their takeover on stream.</p>
     <h3>Keyword raffle</h3>
-    <p>Chat types the keyword on Twitch, Kick or YouTube. <b>Draw a winner</b> spins the entries on stream, and the winner has the claim time to type anything in chat. A claim is saved against the stage. <b>Back to board</b> keeps everyone in for the next line, minus the winner. Past winners can't enter again, under the same name on any platform.</p>
+    <p>When a line is done, entries open by themselves and the stream shows the keyword. Chat types it on Twitch, Kick or YouTube. <b>Draw</b> spins the entries for the oldest line still without a winner, so draws go in the order lines were completed. The winner has the claim time to type anything in chat. When every finished line has its winner, the stream goes back to the board by itself. Everyone stays in for the next line, minus the winners.</p>
     <h3>Guess the next tile</h3>
     <p>Chat types <b>!1</b> to <b>!9</b> to guess which tile gets marked next. Everyone who picked it gets <b>+1 ticket in every raffle</b> for the rest of the board. Un-marking a misclick gives the round back. Tickets clear with <b>New board</b>.</p>
     <h3>Sound</h3>
@@ -478,7 +526,9 @@ select.in option{background:var(--panel-2)}
 const VERSION="1.4.0";
 /* /bingo/ = control panel (owns and writes state). /bingo/#display = OBS
    source: renders only the box, mirrors the server (sync), never writes. */
-const DISPLAY=location.hash.replace(/^#/,"")==="display";
+// #draw is the Racaroon draw alone, full canvas: the competitions page frames it over OBS's canvas ("w" is the width left of the chat)
+const DRAWPAGE=/^#draw\b/.test(location.hash), DRAW_W=+(location.hash.match(/[&]w=(\d+)/)||[])[1]||1461;
+const DISPLAY=location.hash.replace(/^#/,"")==="display" || DRAWPAGE;
 const KEY="mt5_bingo_v1";   // don't rename mid-show: a running board lives under it
 const LINES={r0:[0,1,2],r1:[3,4,5],r2:[6,7,8],c0:[0,3,6],c1:[1,4,7],c2:[2,5,8],d0:[0,4,8],d1:[2,4,6]};
 const LINE_NAME={r0:"Top row",r1:"Middle row",r2:"Bottom row",c0:"Left column",c1:"Middle column",c2:"Right column",d0:"Diagonal ↘",d1:"Diagonal ↙"};
@@ -487,14 +537,14 @@ const FX_MS=5000, REVEAL_MS=3000, ROW=88, STAMP_MS=600, RESULT_MS=6000;   // ROW
 const ARRIVE=1700, STEPS=330;   // the train is in before the reel moves, and 330 names run past however many entered
 const WILD=4;   // the centre is free: always marked, shown as the wild symbol
 /* One page, two games. The operator picks the game in the panel; it dresses the box (art in
-   assets/ for Money Train 5, rr2/ for The Racaroon 2, cut from its public screenshots) and
+   assets/ for Money Train 5, rr2/ for The Racaroon 2, cut from Playtech's pack, see Playtech/ASSETS.md) and
    brings that game's challenges, prizes and keyword. */
 const GAMES={
   mt5:{name:"Money Train 5", kw:"MT5", teaser:"€500", prizes:[...Array(8).fill("€50"),"€100"],
     cells:["Basegame Bonus","10000x win","Reach Station 20",
       "Bonus ends with every position filled","Wild","100x win from Base",
       "Reach Station 10 from base","1000x win","Arms Dealer converts 4 bonus symbols"]},
-  rr2:{name:"The Racaroon 2", kw:"Racaroon", teaser:"€1,500", prizes:[...Array(8).fill("€125"),"€500"],
+  rr2:{name:"The Racaroon 2", kw:"Racaroon", teaser:"€2,000", prizes:[...Array(8).fill("€150"),"€800"],   // 8 × €150 + €800 = €2,000
     cells:["Racaroon Respins","Macaron jackpot","5x heart multiplier",
       "100x win","Wild","Respins with 12+ prizes",
       "500x win","Bonus buy pays 200x","1000x win"]},
@@ -504,15 +554,21 @@ const PF={twitch:"M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L
   kick:"M1.333 0h8v5.333H12V2.667h2.667V0h8v8H20v2.667h-2.667v2.666H20V16h2.667v8h-8v-2.667H12v-2.666H9.333V24h-8Z",
   youtube:"M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"};
 
-const rfFresh=(keyword=GAMES.mt5.kw,claimSecs=60,stage=0)=>({on:false,open:false,keyword,claimSecs,stage,entries:[],spin:null,won:null});
-const fresh=()=>({game:"mt5", cells:GAMES.mt5.cells.map(t=>({t,d:false})), lines:[], prizes:[...GAMES.mt5.prizes], winners:{}, winnerLog:[], fx:null,
+const rfFresh=(keyword=GAMES.rr2.kw,claimSecs=60,stage=0)=>({on:false,open:false,keyword,claimSecs,stage,entries:[],spin:null,won:null});
+const fresh=()=>({game:"rr2", cells:GAMES.rr2.cells.map(t=>({t,d:false})), lines:[], prizes:[...GAMES.rr2.prizes], winners:{}, winnerLog:[], fx:null,
   view:"board", chat:{twitch:"casinodaddy",kickRoom:"4534770",youtube:"@casinodaddyofficial"}, rf:rfFresh(),
   guess:{on:false, picks:{}, bonus:{}, last:null},   // picks: eid→cell this round; bonus: eid→extra raffle tickets
   sound:{on:true, vol:70},
-  teaser:{on:false, prize:"€500", at:Date.parse("2026-09-24T14:00:00+02:00"), shownAt:0}});
+  teaser:{on:false, prize:GAMES.rr2.teaser, at:Date.parse("2026-09-24T14:00:00+02:00"), shownAt:0}});
 function load(raw){
   let s=fresh();
   try{ const v=JSON.parse(raw===undefined?localStorage.getItem(KEY):raw); if(v&&Array.isArray(v.cells)) s=Object.assign(s,v); }catch(e){}
+  // Money Train 5 is retired: only The Racaroon 2 can be played. A board saved on MT5 comes back as a fresh Racaroon one.
+  // Its code and art stay; its <option> in #game brings it back.
+  if(s.game!=="rr2"){ const g=GAMES.rr2;
+    Object.assign(s,{game:"rr2", cells:g.cells.map(t=>({t,d:false})), lines:[], prizes:[...g.prizes], winners:{}, winnerLog:[], fx:null, rf:rfFresh(g.kw, s.rf?.claimSecs)});
+    s.teaser.prize=g.teaser; }
+  if(!s.pot2000){ s.prizes=[...GAMES.rr2.prizes]; s.teaser.prize=GAMES.rr2.teaser; s.pot2000=true; }   // once: the €2,000 split replaces the old €1,500 one; edits after that stay
   s.cells[WILD].d=true;
   if(s.chat.youtube===undefined) s.chat.youtube="@casinodaddyofficial";   // a board saved before YouTube
   return s;
@@ -606,19 +662,29 @@ function toggleCell(i){
   S.lines.push(...added);
   if(added.length){
     S.fx={id:now, at:now, from:S.lines.length-added.length+1, to:S.lines.length, full:allDone()};
-    if(!S.rf.spin&&!S.rf.won) S.rf.stage=nextStage();   // entries stay open all game, so the running raffle moves on to the new line
+    // the draws run in the order the lines were completed: a new line opens entries if they aren't, and the stream
+    // puts up the keyword by itself (onRaffle); entries stay open all game
+    if(!S.rf.on) S.rf={...rfFresh(S.rf.keyword,S.rf.claimSecs), on:true, open:true};
+    if(!S.rf.spin&&!S.rf.won) S.rf.stage=nextStage();
   }
   save(); renderAll();
 }
 const nextStage=()=>{ for(let n=1;n<=9;n++) if(stageDone(n)&&!S.winners[n]) return n; return 0; };
+/* What the stream shows is not a switch: the raffle while a completed line is owed its winner (or a draw or its
+   winner card is up), the board once every owed draw is won. */
+const onRaffle=()=>S.rf.on&&!!(S.rf.spin||S.rf.won||nextStage());
 
 /* ================= stream box ================= */
-const header=()=>`<div class="hd"><img class="logo" src="${RR()?"rr2":"assets"}/logo.webp" alt="${G().name}"><div class="bingo">Bingo</div></div>`;
+// what the whole board pays: the prizes' euro amounts added up ("€125", "125", "€1,000"); prizes without a number count 0
+const pot=()=>S.prizes.reduce((t,p)=>t+(+String(p).replace(/[^\d.]/g,"")||0),0);
+const header=()=>{ const n=pot();
+  return `<div class="hd"><img class="logo" src="${RR()?"rr2":"assets"}/logo.webp" alt="${G().name}">`
+    +(n ? `<div class="bingo pot"><b class="gold-t">€${n.toLocaleString("en-US")}</b><span>Bingo giveaway</span></div>` : `<div class="bingo">Bingo</div>`)+`</div>`; };
 // one per line, in completion order; full board gets the logo with the crew
 const CHARS=["collector","necromancer","sniper","payer","arms-dealer","bomber","pyro","ticketmaster"];
-const RR_CHARS=["raccoon","cake"];
+const RR_CHARS=["raccoon","girl"], RD_TK=["mini","minor","major","mega"], RD_MACS=["orange","purple","green","pink"];   // RD_: the Racaroon draw's bars and macarons
 [...CHARS,"logo","logo-crew","train",1,2,3,4,5].forEach(n=>{ new Image().src=`assets/${typeof n==="number"?"station"+n:n}.webp`; });   // warm the cache so a takeover never pops in late
-["bg","logo","wild",...RR_CHARS].forEach(n=>{ new Image().src=`rr2/${n}.webp`; });
+["bg","bg-draw","logo","wild","raccoon-collect","raccoon-box","girl-kiss","heart",...RR_CHARS,...RD_TK.map(t=>"tk-"+t),"tk-grand",...RD_MACS.map(m=>"mac-"+m)].forEach(n=>{ new Image().src=`rr2/${n}.webp`; });
 // the game's five stations, one step further along the line every two lines
 const stationNo=()=>Math.min(5,1+Math.floor(S.lines.length/2));
 // one tile short of a line: the tile chat should be rooting for
@@ -687,6 +753,7 @@ function raffleView(){
    runs on a negative delay, so a reload mid-draw finds the train already in. */
 function drawFxHtml(){
   const R=S.rf, sp=R.spin, spinning=sp && netNow()<spinEnd(sp);
+  if(RR() && sp) return rdHtml(sp, 1080);   // the Racaroon draw carries its own winner and claim
   const w=winCard();
   const train=sp ? `<div class="trainwrap${spinning?"":" done"}" style="animation-delay:${-(netNow()-sp.startedAt)}ms">
       <img src="${RR()?"rr2/raccoon.webp":"assets/train.webp"}" alt="">
@@ -695,7 +762,7 @@ function drawFxHtml(){
   return train+w;
 }
 function updateDrawFx(){
-  const dfx=$("#drawfx"), R=S.rf, showing=R.on && S.view==="raffle" && (R.spin || R.won);
+  const dfx=$("#drawfx"), R=S.rf, showing=R.on && !!(R.spin || R.won);
   dfx.classList.toggle("on", showing);
   if(!showing){ dfx._html=""; dfx.innerHTML=""; return; }
   const html=drawFxHtml();
@@ -718,8 +785,13 @@ function teaserView(){
     <div class="give steel-t">Giveaway</div><div class="when">${esc(whenText(T.at))}</div>
     <div class="cd">Starts in<b data-cd="${T.at}">${countdown(T.at)}</b></div></div>`;
 }
+let postedAt;
 function renderBox(){
-  const raffle=S.rf.on&&S.view==="raffle";
+  const raffle=onRaffle();
+  const rdAt=RR()&&raffle&&S.rf.spin ? S.rf.spin.startedAt : 0;
+  if(DRAWPAGE){ const el=$("#fsdraw"), html=rdAt ? rdHtml(S.rf.spin, DRAW_W) : ""; if(el._html!==html){ el._html=html; el.innerHTML=html; } return; }
+  // in the competitions box: tell that page when to put the Racaroon draw full canvas
+  if(DISPLAY && parent!==window && rdAt!==postedAt){ postedAt=rdAt; parent.postMessage({bingoDraw:rdAt},"*"); }
   document.body.classList.toggle("g-rr2", RR());
   if(S.teaser.on){ $("#boxInner").innerHTML=teaserView(); updateDrawFx(); checkFx(); return; }   // the crew logo is the header
   document.body.classList.toggle("g-rr2", RR());
@@ -796,6 +868,52 @@ function frame(){
 }
 requestAnimationFrame(frame);
 
+/* The Racaroon 2 draw, both windows, straight from S.rf.spin. The entries run down a ladder of the game's
+   jackpot bars (mini, minor, major, mega, over and over), a name on each; it slows like the train does and the
+   winner's bar stops between the gold ticks and turns into the GRAND bar. Then the racaroon brings his gift,
+   she blows a kiss, the 10x heart pops and macarons rain. rdHtml is the stage; rdFrame moves the bars. */
+const RD_ROW=250, RD_STEPS=150, RD_IN=1400, RD_MID=400;   // RD_MID: the pick line, in the reel
+function rdHtml(sp, W){
+  const R=S.rf, prize=R.stage?S.prizes[R.stage-1]:"", n=spinPool(sp).length, rnd=(i,k)=>((sp.startedAt/(i+3)*(k+7))%1000)/1000;
+  const float=[[.08,.22],[.86,.3],[.14,.62],[.9,.7]].map(([x,y],i)=>`<img class="rd-mac" src="rr2/mac-${RD_MACS[i]}.webp" alt="" style="left:${Math.round(x*W-75)}px;top:${Math.round(y*1080)}px;animation-delay:${-i*1.3}s">`).join("");
+  const rain=Array.from({length:16},(_,i)=>`<img src="rr2/mac-${RD_MACS[i%4]}.webp" alt="" style="--x:${Math.round(rnd(i,1)*(W-120))}px;--d:${(i*.12+rnd(i,2)*.3).toFixed(2)}s;--r:${Math.round(rnd(i,3)*720-360)}deg">`).join("");
+  return `<div class="rdd" data-at="${sp.startedAt}" style="width:${W}px"><div class="rd-bg"></div>${float}
+    <div class="rd-head"><img src="rr2/logo.webp" alt="The Racaroon 2"><b>${R.test?"Test draw":esc(raffleTitle(R.stage))+(prize?" · "+esc(prize):"")} · ${n.toLocaleString("en-US")} in the draw</b></div>
+    <img class="rd-he" src="rr2/raccoon-collect.webp" alt=""><img class="rd-she" src="rr2/girl.webp" alt="">
+    <div class="rd-reel"></div><div class="rd-sel"></div><img class="rd-heart" src="rr2/heart.webp" alt="">
+    <div class="rd-win"><small>Grand winner</small><div class="rd-claim"></div></div><div class="rd-rain">${rain}</div></div>`;
+}
+function rdFrame(){
+  requestAnimationFrame(rdFrame);
+  const sp=S.rf.spin;
+  document.querySelectorAll(".rdd").forEach(st=>{
+    if(!sp || +st.dataset.at!==sp.startedAt) return;
+    if(!st.plan){
+      const pool=spinPool(sp), N=pool.length, wi=pool.findIndex(e=>eid(e)===sp.winner);
+      if(wi<0) return;
+      st.plan={pool, N, shift:mod(wi-RD_STEPS,N), rows:new Map(), reel:st.querySelector(".rd-reel")};   // the winner's bar is the run's last
+    }
+    const P=st.plan, now=netNow(), landed=now>=spinEnd(sp);
+    const p=Math.max(0,Math.min(1,(now-sp.startedAt-RD_IN)/(sp.duration-RD_IN))), off=RD_STEPS*roll(p), seen=new Set();
+    for(let i=Math.ceil(off-2); i<=Math.floor(off+2); i++){
+      let el=P.rows.get(i);
+      if(!el){ el=document.createElement("div"); el.className="rd-row tk-"+RD_TK[mod(i,4)]; el.style.zIndex=i+1000; el.innerHTML=nameHtml(P.pool[mod(i+P.shift,P.N)]); P.reel.appendChild(el); P.rows.set(i,el); }
+      seen.add(i);
+      el.style.transform=`translateY(${(RD_MID+(off-i)*RD_ROW-190).toFixed(1)}px)`;   // 190: the bar's middle in its art
+      el.classList.toggle("rd-won", landed && i===RD_STEPS);
+    }
+    P.rows.forEach((el,i)=>{ if(!seen.has(i)){ el.remove(); P.rows.delete(i); } });
+    if(Math.floor(off)!==P.base){ if(P.base!==undefined && p<1 && Math.floor(off)%2===0) sfx("tick"); P.base=Math.floor(off); }
+    st.classList.toggle("landed", landed);
+    if(landed){
+      const e=winnerOf(sp), cl=st.querySelector(".rd-claim"); if(!e) return;
+      const html=sp.claimed ? `<p class="ok">Claimed on ${pfName(e.platform)}</p>` : `<p>Type in ${pfName(e.platform)} chat to claim</p><b>${secs(claimEnd(sp))}</b>`;
+      if(cl._html!==html){ cl._html=html; cl.innerHTML=html; }
+    }
+  });
+}
+requestAnimationFrame(rdFrame);
+
 /* ================= control panel ================= */
 function renderAll(){ renderBox(); if(!DISPLAY) renderPanel(); }
 /* Rebuild a section only when its markup changed, and never under the cursor:
@@ -849,15 +967,12 @@ function stagesHtml(){
 function raffleHtml(){
   const R=S.rf;
   if(!R.on){
-    const opts=[0,1,2,3,4,5,6,7,8,9].filter(n=>!n||stageDone(n))
-      .map(n=>`<option value="${n}"${n==R.stage?" selected":""}>${n?stageName(n):"No stage"}${S.winners[n]?" (won)":""}</option>`).join("");
     return `<div class="row">
         <label class="lab">Keyword <input class="in" id="kw" maxlength="30" spellcheck="false" style="width:140px" value="${esc(R.keyword)}"></label>
-        <label class="lab">Raffle for <select class="in" id="stage">${opts}</select></label>
         <label class="lab">Claim time <input class="in" id="claim" type="number" min="5" max="600" step="5" style="width:84px" value="${R.claimSecs}"> s</label>
       </div>
-      <div class="row"><button class="btn primary" id="openBtn">Open entries</button></div>
-      `;
+      <div class="row"><button class="btn primary" id="openBtn">Open entries</button><button class="btn" id="testDrawBtn">Test draw</button></div>
+      <p class="hint">Entries open by themselves when the first line is done. Draws go in the order the lines were completed.</p>`;
   }
   const sp=R.spin;
   let draw="";
@@ -871,14 +986,14 @@ function raffleHtml(){
   }else if(R.won){
     draw=`<div class="drawrow ok">${logo(R.won.platform)}<b>${esc(R.won.name)}</b><span class="tag ok">Won ${esc(stageName(R.won.stage))}</span></div>`;
   }
-  return `<div class="row"><span class="lab">${raffleTitle(R.stage)} · keyword</span><b class="kwv">${esc(R.keyword)}</b><span class="grow"></span>
-      <div class="seg"><button class="btn${S.view!=="raffle"?" on":""}" data-view="board">Stream: board</button><button class="btn${S.view==="raffle"?" on":""}" data-view="raffle">Stream: raffle</button></div></div>
+  const owed=[1,2,3,4,5,6,7,8,9].filter(n=>stageDone(n)&&!S.winners[n]);
+  return `<div class="row"><span class="lab">Keyword</span><b class="kwv">${esc(R.keyword)}</b><span class="grow"></span>
+      <span class="hint">${owed.length ? `Up next: <b>${stageName(owed[0])}</b>${owed.length>1?` · then ${owed.slice(1).map(stageName).join(", ")}`:""}` : "No line waiting. The stream shows the board."}</span></div>
     ${draw}
     <div class="row">
-      <button class="btn primary" id="drawBtn"${sp||!poolOf().length?" disabled":""}>Draw a winner</button>
+      <button class="btn primary" id="drawBtn"${sp||R.won||!poolOf().length||!owed.length?" disabled":""}>Draw ${owed.length?stageName(owed[0]).toLowerCase()+" winner":"a winner"}</button>
       <button class="btn" id="toggleBtn">${R.open?"Close entries":"Reopen entries"}</button>
       <button class="btn" id="testBtn">Test entries</button>
-      <button class="btn" id="nextBtn">Back to board</button>
       <button class="btn danger" id="finishBtn">End raffle</button>
     </div>`;
 }
@@ -899,27 +1014,22 @@ function guessHtml(){
 }
 function wireRaffle(el){
   const R=S.rf, on=(id,fn)=>{ const b=el.querySelector(id); if(b) b.onclick=fn; };
-  const kw=el.querySelector("#kw"), st=el.querySelector("#stage"), cl=el.querySelector("#claim");
+  const kw=el.querySelector("#kw"), cl=el.querySelector("#claim");
   if(kw) kw.onchange=()=>{ const v=kw.value.trim(); if(v) R.keyword=v; kw.value=R.keyword; save(); renderAll(); };
-  if(st) st.onchange=()=>{ R.stage=+st.value; save(); renderAll(); };
   if(cl) cl.onchange=()=>{ const v=Math.round(+cl.value); if(v>=5&&v<=600) R.claimSecs=v; cl.value=R.claimSecs; save(); };
-  on("#openBtn",()=>{ S.rf={...rfFresh(R.keyword,R.claimSecs,R.stage), on:true, open:true}; S.view="raffle"; save(); renderAll(); });
+  on("#openBtn",()=>{ S.rf={...rfFresh(R.keyword,R.claimSecs,nextStage()), on:true, open:true}; save(); renderAll(); });
   on("#drawBtn",draw);
+  on("#testDrawBtn",testDraw);
   on("#claimBtn",()=>{ const sp=S.rf.spin; if(sp&&!sp.claimed){ sp.claimed=true; sp.claimedAt=netNow(); save(); renderAll(); } });
   on("#missBtn",()=>commit(false));
   on("#toggleBtn",()=>{ R.open=!R.open; save(); renderAll(); });
   on("#testBtn",testEntries);
-  on("#nextBtn",()=>{   // entries carry over to the next line; the winner leaves, a no-show gets another go
-    if(R.spin) return toast("Finish the draw first");
-    R.entries=R.entries.filter(e=>e.st!=="won").map(({st,...e})=>e); R.won=null; R.stage=nextStage(); S.view="board"; save(); renderAll();
-  });
   on("#finishBtn",()=>{
     if(R.spin) return toast("Finish the draw first");
     ask("End the raffle? The entry list is cleared and the stream goes back to the board.","End raffle",()=>{
-      S.rf=rfFresh(R.keyword,R.claimSecs); S.rf.stage=nextStage(); S.view="board"; save(); renderAll();
+      S.rf=rfFresh(R.keyword,R.claimSecs); S.rf.stage=nextStage(); save(); renderAll();
     });
   });
-  el.querySelectorAll("[data-view]").forEach(b=>b.onclick=()=>{ S.view=b.dataset.view; save(); renderAll(); });
 }
 /* 1,400 made-up entrants, to show the draw off without a live chat, same as the
    competitions page's Prag-Wheel and Dead Man's Crew. Ordinary entries: Back to
@@ -937,15 +1047,22 @@ function testEntries(){
   }
   save(); renderAll(); toast("1,400 test entries in the draw");
 }
+/* Rehearse the draw on stream: 1,400 made-up names, the full draw, then the raffle closes and nothing is kept
+   (no stage winner, nothing in the sheet). Only before chat is entering. */
+function testDraw(){
+  if(S.rf.on) return toast("End the raffle first");
+  S.rf={...rfFresh(S.rf.keyword,S.rf.claimSecs,nextStage()), on:true, test:true};
+  testEntries(); draw(); S.rf.spin.claimMs=15000; save(); renderAll();
+}
 function draw(){
   const R=S.rf, pool=poolOf();
   if(R.spin) return;
   if(!pool.length) return toast("Nobody left to draw");
   const r=crypto.getRandomValues(new Uint32Array(2));
   let x=r[0]%pool.reduce((n,e)=>n+tickets(e),0);   // weighted by guess tickets
-  R.won=null;
+  R.won=null; R.stage=nextStage();
   R.spin={startedAt:netNow(), duration:25000+r[1]%4000, winner:eid(pool.find(e=>(x-=tickets(e))<0)), count:R.entries.length, claimed:false, claimMs:R.claimSecs*1000};
-  S.view="raffle"; save(); renderAll();
+  save(); renderAll();
 }
 /* The claim resolves: a claim wins the stage, a miss leaves the draw for a redraw. */
 function commit(claimed){
@@ -953,16 +1070,18 @@ function commit(claimed){
   if(!sp) return;
   const e=winnerOf(sp);
   R.spin=null;
+  if(R.test){ S.rf=rfFresh(R.keyword,R.claimSecs,R.stage); save(); renderAll(); return toast("Test draw done. Nothing was kept"); }
   if(e){
     e.st=claimed?"won":"missed";
     if(claimed){
-      R.won={name:e.name, platform:e.platform, stage:R.stage};
+      R.won={name:e.name, platform:e.platform, stage:R.stage, at:netNow()};   // its card stays up RESULT_MS, then the next line or the board
       S.winnerLog.push({name:e.name, platform:e.platform, user:e.user, stage:R.stage});
       if(R.stage) S.winners[R.stage]={name:e.name, platform:e.platform};
     }
     if(!e.test) logResult({id:sp.startedAt+"-"+sp.winner, mode:G().name+" Bingo", winner:`${e.name} (${e.platform})${claimed?"":" did not claim"}`,
       count:sp.count, detail:raffleTitle(R.stage)});
     toast(claimed?`${e.name} won ${raffleTitle(R.stage).toLowerCase()}`:`${e.name} didn't claim. Draw again.`);
+    if(claimed) R.stage=nextStage();
   }
   save(); renderAll();
 }
@@ -1101,7 +1220,7 @@ async function ytStart(){
    Synthesized, no files. Plays from this window; the stream PC picks it up as
    desktop audio. Chrome starts audio only after a click on the page. */
 let ac=null, master=null, noise=null;
-const audio=()=>!DISPLAY&&ac&&S.sound.on&&ac.state==="running"?(master.gain.value=S.sound.vol/100,ac):null;
+const audio=()=>!DISPLAY&&ac&&S.sound.on&&ac.state==="running"?(master.gain.value=S.sound.vol/100*.3,ac):null;   // .3: full volume was far too loud on stream
 function unlockAudio(){
   if(!ac){ try{ ac=new AudioContext(); master=ac.createGain(); master.connect(ac.destination); }catch(e){ return; } }
   if(ac.state==="suspended") ac.resume();
@@ -1142,6 +1261,7 @@ let phase="";
 setInterval(()=>{
   const sp=S.rf.spin, now=netNow();
   if(!DISPLAY&&sp&&(sp.claimed ? now>=Math.max(spinEnd(sp)+REVEAL_MS, sp.claimedAt+2500) : now>=claimEnd(sp))) commit(!!sp.claimed);
+  if(!DISPLAY&&!sp&&S.rf.won&&now>=(S.rf.won.at||0)+RESULT_MS){ S.rf.won=null; save(); renderAll(); }
   if(!DISPLAY&&dirty){ dirty=false; save(); renderAll(); }   // ponytail: batches chat floods to four writes a second
   else if(!DISPLAY&&panelDirty){ panelDirty=false; renderPanel(); }
   // the winner card appears at spin end without any state changing, so watch for it
@@ -1153,6 +1273,8 @@ setInterval(()=>{
 
 if(DISPLAY){
   document.body.classList.add("display");
+  if(DRAWPAGE){ document.body.classList.add("drawpage"); document.body.insertAdjacentHTML("beforeend",`<div id="fsdraw"></div>`);
+    const k=()=>document.body.style.setProperty("--k", innerHeight/1080); k(); addEventListener("resize",k); }
   document.title="Bingo · Display";
   const fit=()=>document.body.style.setProperty("--fit",Math.min(innerWidth,innerHeight)/600);
   fit(); addEventListener("resize",fit);
@@ -1203,7 +1325,7 @@ if(DISPLAY){
   $("#helpBtn").onclick=()=>$("#helpOverlay").classList.add("show");
   $("#helpClose").onclick=()=>$("#helpOverlay").classList.remove("show");
   $("#helpOverlay").onclick=e=>{ if(e.target===e.currentTarget) e.currentTarget.classList.remove("show"); };
-  // back to the competitions page's Relax Bingo, under Special Giveaways; the box keeps the bingo
+  // back to the competitions page's Racaroon 2 Bingo, under Special Giveaways; the box keeps the bingo
   $("#backBtn").onclick=()=>{ if(parent!==window) parent.postMessage({studioBack:"bingo"},"*"); else location.href="/comp/"; };
   $("#confirmYes").onclick=()=>{ const cb=askCb; hideAsk(); if(cb) cb(); };
   $("#confirmNo").onclick=hideAsk;

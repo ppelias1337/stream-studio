@@ -365,14 +365,17 @@
   }
   .display.bb3 .bd-hd{height:60px;box-shadow:inset 0 0 0 1px var(--line)}
   .display.bb3 .bug-title{font-size:0;padding:0 6px;background:rgba(40,10,30,.55)}
-  .display.bb3 .bug-title::before{content:"";flex:none;width:130px;height:58px;background:url(bb3/logo.webp) center/contain no-repeat;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))}
+  .display.bb3 .bug-title::before{content:"";flex:none;width:196px;height:58px;background:url(bb3/logo-line.webp) center/contain no-repeat;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))}
   .display.bb3 .bd-pool{background:linear-gradient(180deg,rgba(255,106,31,.35),rgba(120,20,10,.6));font-size:28px;text-shadow:0 2px 0 #3A1200}
   .display.bb3 .bd-pool small{color:#FFD9B0}
   .display.bb3 .cb-row{background:linear-gradient(180deg,#1C4FC4 0%,#0D2A7A 60%,#081C55 100%);
     box-shadow:inset 0 0 0 1px rgba(255,210,120,.45),inset 0 2px 0 rgba(255,255,255,.14)}
   .display.bb3 .cb-lab{color:#E4ECFF;text-shadow:0 1px 0 #041030}
+  /* the game's own symbol for the challenge (bdIcon): a pot for its feature, the scatter, the wild, the Lucky Box */
+  .display.bb3 .cb-row{grid-template-columns:auto minmax(0,1fr) auto auto}
+  .cb-ic{align-self:center;width:34px;height:30px;margin:-6px -2px -6px -4px;background:center/contain no-repeat;filter:drop-shadow(0 1px 2px rgba(0,0,0,.7))}
   .display.bb3 .cb-fill{background:linear-gradient(90deg,var(--gold),var(--sun))}
-  .display.bb3 .cb-row.done{background:linear-gradient(90deg,rgba(40,18,0,.85),rgba(40,18,0,.55) 60%,rgba(40,18,0,.1)),url(bb3/buffalo.webp) right 30%/42% auto no-repeat,#9A5A10;color:#fff;
+  .display.bb3 .cb-row.done{background:linear-gradient(90deg,rgba(40,18,0,.85),rgba(40,18,0,.55) 60%,rgba(40,18,0,.1)),url(bb3/buffalo.webp) right -14px center/auto 190% no-repeat,#9A5A10;color:#fff;
     box-shadow:inset 0 0 0 2px var(--gold),0 0 12px rgba(255,190,60,.35)}
   .display.bb3 .cb-row.done .cb-lab{color:#fff;text-shadow:0 1px 3px #000}
   .display.bb3 .cb-row.done em,.display.bb3 .cb-row.done b small{color:var(--gold-2);text-shadow:0 1px 3px #000}
@@ -405,6 +408,9 @@
     --dc-a:var(--prag-orange);--dc-line:rgba(242,145,32,.45);--dc-bg:rgba(10,10,14,.82)}
   .cr-draw .dchat{--dc-a:#5DFFC0;--dc-line:rgba(93,255,192,.4);--dc-bg:rgba(4,16,12,.8)}
   .gz-draw .dchat{--dc-a:#FFCF5A;--dc-line:rgba(200,170,255,.4);--dc-bg:rgba(20,8,48,.82)}
+  .bg-draw{background:#1A0626}
+  .bg-draw .dchat{--dc-a:#FF9CCF;--dc-line:rgba(217,165,58,.55);--dc-bg:rgba(30,6,42,.84)}
+  .bg-dframe{position:absolute;left:0;top:0;width:calc(100% + var(--sr));height:100%;border:0;background:transparent}
   .dchat h4{margin:0;padding:14px 20px;font-size:22px;letter-spacing:.14em;text-transform:uppercase;color:var(--dc-a);box-shadow:inset 0 -2px 0 var(--dc-line)}
   .dchat-l{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;padding:12px 14px;overflow:hidden;
     -webkit-mask-image:linear-gradient(transparent,#000 70px);mask-image:linear-gradient(transparent,#000 70px)}
@@ -416,7 +422,7 @@
   /* the draw is put first in body, so the box (which sits over the chat) steps aside while it runs */
   .pw-draw.fixed ~ .display{visibility:hidden}
   /* full-screen layers run on under the chat hole; their content stays centred left of it */
-  .pw-draw.fixed :is(.cr-dbg,.gz-dbg,.cr-tier,.gz-win,.td-dbg,.td-bridge,.td-rail,.td-flash,.td-win){right:calc(-1 * var(--sr))}
+  .pw-draw.fixed :is(.cr-dbg,.gz-dbg,.cr-tier,.gz-win,.td-dbg,.td-bridge,.td-rail,.td-flash,.td-win,.bd-dbg,.bd-dstrike){right:calc(-1 * var(--sr))}
   .pw-draw.fixed :is(.cr-tier,.gz-win,.td-win){padding-right:var(--sr)}
   .pw-draw.fixed .cr-tier>i{right:calc(var(--sr) + 20px)}
   .pw-draw.fixed .gz-dzeus{right:0;width:420px;height:770px}
@@ -803,6 +809,65 @@
   .gz-wclaim p{font-size:38px;letter-spacing:.06em;color:#D9C8FF}
   .gz-wclaim p.ok{color:#7FFFB0}
   .gz-wclaim b{display:inline-block;margin-top:4px;font-size:96px;line-height:1;color:#FFCF5A;font-variant-numeric:tabular-nums}
+
+  /* the Buffalo Blitz 3 draw: the herd charges out of the sunset behind, the names roll in one reel window in front,
+     and the winner drops into its pot as the feature's coin */
+  .bd-draw{background:#1A0A20}
+  .bd-draw .dchat{--dc-a:#FFC93C;--dc-line:rgba(255,160,60,.45);--dc-bg:rgba(30,8,20,.84)}
+  .bd-dbg,.bd-dstrike,.bd-dshade{position:absolute;inset:0}
+  .bd-dbg{background:linear-gradient(rgba(20,6,30,.15),rgba(20,6,30,.05) 40%,rgba(40,14,0,.45)),url(bb3/bg-draw.webp) center/cover;animation:crzoom 30s linear both}
+  .bd-dstrike{background:url(bb3/bg-strike.webp) center 30%/cover;opacity:0;will-change:opacity}
+  .bd-dshade{z-index:1100;background:radial-gradient(60% 55% at 50% 52%,rgba(10,4,24,.55),rgba(10,4,24,.15) 70%,transparent)}   /* the herd is scenery: a veil between it and the reel */
+  .bd-herd{transition:opacity .6s}
+  .bd-bf{position:absolute;left:0;top:0;width:420px;height:600px;margin:-600px 0 0 -210px;transform-origin:50% 100%;will-change:transform,opacity;background:url(bb3/run.webp) center bottom/contain no-repeat}
+  .bd-bf::after{content:"";position:absolute;left:18%;right:18%;bottom:-18px;height:52px;z-index:-1;border-radius:50%;background:radial-gradient(closest-side,rgba(40,10,0,.55),transparent)}   /* painted, not a filter: a blur per buffalo made it crawl */
+  .bd-dhead{position:absolute;top:24px;left:0;right:0;z-index:2000;display:flex;flex-direction:column;align-items:center;gap:6px;text-transform:uppercase;animation:pwhead .6s cubic-bezier(.16,1,.3,1) calc(.6s + var(--el,0s)) both}
+  .bd-dhead i{width:420px;height:200px;margin:-12px 0 -10px;background:url(bb3/logo.webp) center/contain no-repeat;filter:drop-shadow(0 6px 18px rgba(0,0,0,.7))}
+  .bd-dhead b{padding:6px 22px;border-radius:10px;background:rgba(30,8,20,.78);box-shadow:inset 0 0 0 1px rgba(255,190,90,.45);font-size:36px;letter-spacing:.08em;color:#FFE0B0;font-variant-numeric:tabular-nums}
+  .bd-dhead b em{font-style:normal;color:#FFC93C}
+  /* the reel: the game's blue reel in a gold frame, three names showing, the pick line in the middle */
+  .bd-reel{position:absolute;left:50%;top:300px;z-index:1200;width:720px;height:390px;margin-left:-360px;border-radius:22px;overflow:hidden;
+    background:linear-gradient(180deg,#1C4FC4 0%,#0D2A7A 55%,#081C55 100%);
+    box-shadow:inset 0 0 0 3px #041030,0 0 0 4px #FFC93C,0 0 0 8px #7A3A08,0 0 0 10px #FFE58A,0 24px 60px rgba(0,0,0,.6),0 0 60px rgba(255,150,40,.35);
+    animation:crreels .7s cubic-bezier(.16,1,.3,1) calc(1s + var(--el,0s)) both;transition:opacity .5s}
+  .bd-rows{position:absolute;inset:0}
+  /* the fade at the top and bottom is painted over the rows: a mask on moving rows is redrawn every frame */
+  .bd-reel::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(#1C4FC4,rgba(28,79,196,0) 26%,rgba(8,28,85,0) 74%,#081C55)}
+  .bd-row{position:absolute;left:0;right:0;top:0;height:130px;display:flex;align-items:center;justify-content:center;gap:16px;padding:0 30px;will-change:transform;
+    font-size:64px;color:#fff;white-space:nowrap;text-shadow:0 3px 0 #041030,0 0 14px rgba(0,0,0,.6)}
+  .bd-row span{overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .bd-row .pf{width:.8em;height:.8em}
+  .bd-row.win{color:#FFE58A;font-size:74px;text-shadow:0 3px 0 #4A1A00,0 0 30px rgba(255,190,60,.8)}
+  .bd-line{position:absolute;left:0;right:0;top:130px;height:130px;pointer-events:none;border-top:4px solid #FFC93C;border-bottom:4px solid #FFC93C;box-shadow:inset 0 0 30px rgba(255,190,60,.25)}
+  .bd-draw.landed .bd-line{animation:crtease .4s ease-in-out 3 alternate}
+  /* the pots under it; the winner's coin falls into its challenge's pot, which bursts */
+  .bd-pots{position:absolute;left:50%;top:752px;z-index:1150;width:600px;height:266px;margin-left:-300px;background:url(bb3/pots.webp) center/contain no-repeat;
+    animation:bdpots .8s cubic-bezier(.16,1,.3,1) calc(1.2s + var(--el,0s)) both;transition:opacity .5s}
+  .bd-draw.hit .bd-pots{animation:bdbump .5s cubic-bezier(.3,1.6,.5,1)}
+  @keyframes bdpots{from{opacity:0;transform:translateY(80px)}}
+  @keyframes bdbump{40%{transform:scale(1.07,.94)}}
+  .bd-coin{position:absolute;left:0;top:0;z-index:1250;width:200px;height:202px;margin:-101px 0 0 -100px;background:center/contain no-repeat;opacity:0;will-change:transform;filter:drop-shadow(0 0 18px rgba(255,200,80,.8))}
+  .bd-splash{position:absolute;z-index:1190;width:560px;height:210px;margin-left:-280px;background:url(bb3/coins.webp) center/contain no-repeat;opacity:0;pointer-events:none}
+  .bd-draw.hit .bd-splash{animation:bdcoins 1.4s ease-out both}
+  @keyframes bdcoins{0%{opacity:0;transform:translateY(40px) scale(.6)}25%{opacity:1}100%{opacity:0;transform:translateY(-160px) scale(1.2)}}
+  /* then the win: the reel and pots step aside, a buffalo stands in the light, the name beside it */
+  .bd-draw.won :is(.bd-reel,.bd-pots,.bd-herd,.bd-coin){opacity:0 !important}
+  .bd-hero{position:absolute;bottom:40px;z-index:1300;width:460px;height:700px;margin-left:-230px;opacity:0}
+  .bd-hero::after{content:"";position:absolute;inset:0;background:url(bb3/run.webp) center bottom/contain no-repeat}   /* over the burst, which is ::before */
+  .bd-hero::before{content:"";position:absolute;left:-60%;right:-60%;top:-10%;aspect-ratio:1;z-index:-1;background:url(bb3/burst.webp) center/contain no-repeat;animation:bdburst 12s linear infinite}
+  @keyframes bdburst{to{rotate:360deg}}
+  .bd-draw.won .bd-hero{opacity:1;animation:bdhero .8s cubic-bezier(.16,1,.3,1) both}
+  @keyframes bdhero{from{opacity:0;transform:translateY(120px) scale(.85)}}
+  .bd-win{position:absolute;top:250px;bottom:40px;right:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;opacity:0;text-align:center;text-transform:uppercase;z-index:2001}
+  .bd-draw.won .bd-win{opacity:1;transition:opacity .6s .3s}
+  .bd-win small{font-size:44px;letter-spacing:.14em;color:#FFC93C;text-shadow:0 3px 0 #4A1A00}
+  .bd-wname{max-width:100%;line-height:1;color:#fff;text-transform:none;overflow-wrap:anywhere;text-shadow:0 4px 18px rgba(0,0,0,.9)}
+  .bd-draw.won .bd-wname{animation:crslam .7s cubic-bezier(.3,1.5,.5,1) .5s both}
+  .bd-win>em{font-style:normal;font-size:38px;letter-spacing:.08em;color:#FFE0B0;text-shadow:0 2px 8px rgba(0,0,0,.8)}
+  .bd-wclaim p{font-size:40px;letter-spacing:.06em;color:#FFE0B0;text-shadow:0 2px 8px rgba(0,0,0,.8)}
+  .bd-wclaim p.ok{color:#7FFFB0}
+  .bd-wclaim b{display:inline-block;margin-top:2px;font-size:100px;line-height:1;color:#FFC93C;font-variant-numeric:tabular-nums;text-shadow:0 4px 0 #4A1A00}
+  .bd-win>i{width:460px;height:204px;margin-top:6px;background:url(bb3/pots.webp) center bottom/contain no-repeat}
   .rf-name{display:flex;align-items:center;justify-content:center;gap:12px;height:var(--r);font-size:30px;white-space:nowrap;color:var(--text)}
   .rf-name span{overflow:hidden;text-overflow:ellipsis;min-width:0}
   .rf-name .pf{width:.85em;height:.85em}
@@ -1593,7 +1658,7 @@ let state = load() || fresh();
 let appMode = loadMode();
 let navHist=[appMode], navAt=0;   // browser-style back/forward over the formats this panel has visited
 
-function loadMode(){ try{ const m=JSON.parse(localStorage.getItem(MODE_KEY)); return (m==="LMS"||m==="H2H"||m==="BRACKET"||m==="LEAGUE"||m==="WHEEL"||m==="TADA"||m==="PRAG"||m==="KEYWORD"||m==="BOARD")?m:null; }catch(e){ return null; } }
+function loadMode(){ try{ const m=JSON.parse(localStorage.getItem(MODE_KEY)); return (m==="LMS"||m==="H2H"||m==="BRACKET"||m==="LEAGUE"||m==="WHEEL"||m==="TADA"||m==="PRAG"||m==="KEYWORD"||m==="BOARD"||m==="BINGO")?m:null; }catch(e){ return null; } }
 function saveMode(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(MODE_KEY, JSON.stringify(appMode)); }catch(e){} bcast({type:"state"}); }
 
 function fresh(){
@@ -1878,7 +1943,7 @@ let elimToken=0;
 const ELIM_SOUNDS=["sfx/flush.mp3","sfx/trombone.mp3","sfx/ohno.mp3"]; // LMS knockouts cycle through these
 function playElimination(name){
   bcast({type:"fx", fx:"elim", name});
-  if(soundOn) new Audio(ELIM_SOUNDS[elimToken%ELIM_SOUNDS.length]).play().catch(()=>{});
+  if(soundOn){ const a=new Audio(ELIM_SOUNDS[elimToken%ELIM_SOUNDS.length]); a.volume=SFX_VOL; a.play().catch(()=>{}); }
   const my = ++elimToken;
   const content=$("#displayContent"); if(content) content.classList.add("dimmed");
   const el=$("#elim"), nameEl=$("#elimName"), sufEl=$("#elimSuffix");
@@ -1924,7 +1989,10 @@ function highlightMissing(ids){
 const SOUND_KEY="comp_sound_v1";
 let soundOn=(localStorage.getItem(SOUND_KEY)??"1")==="1";
 let audioCtx=null;
-function actx(){ if(!audioCtx){ try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return audioCtx; }
+/* every effect goes through one master gain: the files and tones were far louder than the stream (asked to cut them a lot) */
+const SFX_VOL=.25;
+let sfxOut=null;
+function actx(){ if(!audioCtx){ try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); sfxOut=audioCtx.createGain(); sfxOut.gain.value=SFX_VOL; sfxOut.connect(audioCtx.destination); }catch(e){} } return audioCtx; }
 function tone(freq,t0,dur,type,vol){
   const ctx=actx(); if(!ctx) return;
   const o=ctx.createOscillator(), g=ctx.createGain();
@@ -1933,7 +2001,7 @@ function tone(freq,t0,dur,type,vol){
   g.gain.setValueAtTime(0.0001,t);
   g.gain.exponentialRampToValueAtTime(vol||0.16,t+0.02);
   g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
-  o.connect(g); g.connect(ctx.destination);
+  o.connect(g); g.connect(sfxOut);
   o.start(t); o.stop(t+dur+0.05);
 }
 /* Drop a file in public/comp/sfx/ named after the sound (winner.mp3, tick.mp3, whistle.mp3 ...) and it plays
@@ -1949,7 +2017,7 @@ function sfx(name){
   if(!soundOn) return;
   const ctx=actx(); if(!ctx) return;
   if(ctx.state==="suspended") ctx.resume();
-  const play=b=>{ if(!b) return sfxTone(name); const s=ctx.createBufferSource(); s.buffer=b; s.connect(ctx.destination); s.start(); };
+  const play=b=>{ if(!b) return sfxTone(name); const s=ctx.createBufferSource(); s.buffer=b; s.connect(sfxOut); s.start(); };
   const b=SFX_BUF[name];
   if(b instanceof AudioBuffer || b===false) play(b); else sfxLoad(name).then(play);
 }
@@ -2205,7 +2273,7 @@ function rotateFromId(list,id){
 /* ================= SHARED VIEW PIECES ================= */
 const ic=(n,cls)=>`<svg class="ic${cls?" "+cls:""}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
 const MODE_ICON={LMS:"lms", H2H:"h2h", BRACKET:"bracket", LEAGUE:"league", WHEEL:"reel", TADA:"gift", PRAG:"gift", KEYWORD:"bolt", BINGO:"gift", BOARD:"gift", CREW:"gift", GATES:"gift"};
-const MODE_NAME={LMS:"Last Man Standing", H2H:"Showdown", BRACKET:"Bracket Tournament", LEAGUE:"Points League", WHEEL:"Slot Wheel", TADA:"TaDa Gaming Giveaway", PRAG:"Prag-Wheel", KEYWORD:"Keyword Giveaway", BINGO:"Relax Bingo", BOARD:"Buffalo Blitz 3 Challenges", CREW:"Dead Man's Crew", GATES:"Gates of Olympus 2500"};
+const MODE_NAME={LMS:"Last Man Standing", H2H:"Showdown", BRACKET:"Bracket Tournament", LEAGUE:"Points League", WHEEL:"Slot Wheel", TADA:"TaDa Gaming Giveaway", PRAG:"Prag-Wheel", KEYWORD:"Keyword Giveaway", BINGO:"The Racaroon 2 Bingo", BOARD:"Buffalo Blitz 3 Challenges", CREW:"Dead Man's Crew", GATES:"Gates of Olympus 2500"};
 
 /* header bug on the stream box */
 function bugHtml(icon, title, phase, tone){
@@ -2963,7 +3031,7 @@ const RF_MODES={
   KEYWORD:{icon:"bolt", get title(){ return kw.title||"Giveaway"; }, log:()=>"", setup:()=>true, roster:()=>kw.winners, display:()=>kwRenderDisplay(), save:()=>kwSave(),
     add:()=>{ const p={id:uid(), name:""}; kw.winners.push(p); return p; }},
   // the box shows the board, and the entries only while a full challenge is owed its winner
-  BOARD:{icon:"gift", get title(){ return BD_TITLE; }, log:row=>{ const c=bdCell(row?.cell||bdDue()[0]?.id); return c ? `${c.label} · ${bdEur(c.prize||0)}` : ""; }, setup:()=>!!rf.spin || bdDue().length>0, roster:()=>[], display:()=>bdRenderDisplay(), save:()=>bdSaveWin(),
+  BOARD:{icon:"gift", get title(){ return BD_TITLE; }, log:row=>{ const c=bdCell(row?.cell||bdDue()[0]?.id); return c ? `${c.label} · ${bdEur(c.prize||0)}` : ""; }, spinMs:()=>BD_DRAW_MS, setup:()=>!!rf.spin || bdDue().length>0, roster:()=>[], display:()=>bdRenderDisplay(), save:()=>bdSaveWin(),
     add:()=>{ const p={id:uid(), name:"", cell:bdDue()[0]?.id||null}; bd.winners.push(p); return p; }},
   // five fixed seats: the entries show until the first is taken, then the crew board; a claim fills the next open seat
   CREW:{icon:"gift", title:"Dead Man's Crew", kw:"Slotmill", prize:()=>`${CR_N} × €${CR_PRIZE}`, log:()=>"€100 seat", spinMs:()=>CR_DRAW_MS, setup:()=>!!rf.spin || !crTaken(), roster:()=>cr.winners, display:()=>crRenderDisplay(), save:()=>crSaveWin(), add:()=>null},
@@ -3209,18 +3277,27 @@ function rfPick(pool, n){
   let t=n%pool.reduce((s,e)=>s+w(e),0);
   return pool.find(e=>(t-=w(e))<0);
 }
-function rfDrawOne(){
+/* A test draw (rfTestDraw) is the real thing on stream with made-up names: nothing is kept. */
+function rfDrawOne(test){
+  test=test===true;   // the Draw button passes its click event
   if(rf.spin) return;
   const G=RF_MODES[rf.mode];
-  if(G.canDraw && !G.canDraw()){ toast(G.noDraw, true); return; }
+  if(!test && G.canDraw && !G.canDraw()){ toast(G.noDraw, true); return; }
   const pool=rfPool();
   if(!pool.length){ toast("Nobody left to draw", true); return; }
   const r=crypto.getRandomValues(new Uint32Array(3));
   const ms=RF_MODES[rf.mode].spinMs?.()||RF_SPIN_MS;   // a format can run its own, longer draw
   rf.spin={ startedAt:netNow(), duration:ms[0]+r[1]%(ms[1]-ms[0]), seed:r[2],
-            winner:rfId(rfPick(pool, r[0])), count:rf.entries.length, claimed:false, claimMs:rf.claimSecs*1000, subLuck:!!rf.subLuck };
+            winner:rfId(rfPick(pool, r[0])), count:rf.entries.length, claimed:false, claimMs:test ? 15000 : rf.claimSecs*1000, subLuck:!!rf.subLuck };
+  if(test) rf.spin.test=true;
   if(rf.slots){ rf.spin.claimed=true; rf.spin.claimedAt=rf.spin.startedAt; }   // a slot has nobody to claim it
   rfFlush();
+}
+/* Rehearse a format's draw on stream: 1,400 made-up names and the full draw, then it all goes away: no winner
+   row, nothing in the sheet (test entries never are), and the entries close. Not while chat is entering. */
+function rfTestDraw(){
+  if(rf.on && rf.entries.some(e=>!e.test)){ toast("Chat is entering. Stop the entries to test", true); return; }
+  rfTestEntries(); rf.open=false; rfDrawOne(true);
 }
 function rfClaim(){
   const sp=rf.spin; if(!sp || sp.claimed) return;
@@ -3235,6 +3312,7 @@ function rfCommit(claimed){
     e.st = claimed ? "won" : "missed";
     const M=RF_MODES[rf.mode], label=e.slot||e.name;
     let full=false, row=null;
+    if(sp.test){ rfStop(rf.mode); renderApp(); toast("Test draw done. Nothing was kept"); return; }
     if(claimed){
       if(M.take) M.take(e);
       else {
@@ -3307,7 +3385,7 @@ const rfMod=(a,n)=>((a%n)+n)%n;
 let rfPlan=null, rfLastOff=null, rfWasSpinning=false;
 function rfFrame(){
   requestAnimationFrame(rfFrame);
-  if(rf.on && (rf.mode==="PRAG" || rf.mode==="CREW" || rf.mode==="GATES" || rf.mode==="TADA") && appMode===rf.mode) return;   // pwDrawFrame() / crDrawFrame() / gzDrawFrame() / tdDrawFrame() run these draws
+  if(rf.on && ["PRAG","CREW","GATES","TADA","BOARD"].includes(rf.mode) && appMode===rf.mode) return;   // pwDrawFrame() / crDrawFrame() / gzDrawFrame() / tdDrawFrame() / bdDrawFrame() run these draws
   const sq=document.getElementById("rfSq");
   if(!sq) return;
   const sp=rf.on ? rf.spin : null;
@@ -3387,6 +3465,7 @@ function rfPanelHtml(){
     <div class="crow plain"><span class="clab sm">Sub luck</span>${segHtml([["1","2×"],["0","Off"]], rf.subLuck?"1":"0", "data-rf-sub")}</div>`;
   if(!rf.on) return `
     <button class="primary sm big-btn" id="rfOpen">${ic("bolt")}Open ${slots?"slot":"keyword"} entries</button>
+    ${RF_MODES[appMode]?.spinMs ? `<button class="btn" id="rfTest">${ic("reel")}Test draw</button>` : ""}
     <div class="crow plain"><span class="clab sm">Keyword</span><input class="tier-in" id="rfKw" style="width:150px" spellcheck="false" value="${escapeHtml(rfKw())}" aria-label="Keyword"${RF_MODES[appMode]?.kw?" disabled":""}></div>
     ${slots?`<div class="chint">Chat types <b>${escapeHtml(rfKw())} Gates of Olympus</b>. One slot per viewer, and a slot already in isn't added twice.</div>`:""}
     ${claimIn}${yt.video?ytLinkHtml():""}`;
@@ -3437,6 +3516,7 @@ function rfWire(){
   if(yv) yv.onchange=()=>{ yt.video=yv.value.trim(); ytSave(); if(rfChat.started) ytStart(); rfRefresh(); };
   const on=(id,fn)=>{ const b=$(id); if(b) b.onclick=fn; };
   on("#rfOpen", rfOpenEntries);
+  on("#rfTest", rfTestDraw);
   on("#rfDraw", rfDrawOne);
   on("#rfClaim", rfClaim);
   on("#rfMiss", ()=>rfCommit(false));
@@ -5495,17 +5575,19 @@ function kwRenderControl(){
    16 challenges, each with a count ("Bonus" x5) and a prize. The operator ticks them
    as they happen; a full one owes chat its prize. Keyword entries run all show, and the
    box shows the board until a giveaway is due (RF_MODES.BOARD.setup).
-   Dressed as Playtech's Buffalo Blitz 3 (art in bb3/, cut from the game's public
-   screenshots); the prize pool on stream is the sum of the cells' prizes. */
+   Dressed as Playtech's Buffalo Blitz 3 (art in bb3/, cut down from Playtech's pack in Playtech/,
+   see Playtech/ASSETS.md); the prize pool on stream is the sum of the cells' prizes.
+   The draw is full canvas (bdDrawFrame): a stampede with a name on every buffalo. */
 const BD_KEY="board_state_v1", BD_TITLE="Buffalo Blitz 3 Challenges";
 const BD_NEED=3, BD_RUN_MS=1800, BD_SCROLL_MS=40000;   // every challenge is done at 3; the buffalo's run; one scroll down and back
-const BD_START=[["Buffalo Gold",100],["Big Grid",100],["Buffalo Cash",100],["Free Games",100],
-  ["100x win",100],["250x win",125],["500x win",150],["1000x win",400],
-  ["Full reel of buffalo",100],["Wild in a win",75],["Retrigger",100],["14,400 ways",125],
-  ["Lucky Box buy",100],["Dead bonus",75],["Chat's pick",100],["Playtech's pick",150]];
-function bdFresh(){ return {cells:BD_START.map(([label,prize])=>({id:uid(), label, prize, n:0})), winners:[]}; }
+const BD_PRIZE=125;   // every challenge the same: 16 × €125 = €2,000
+const BD_START=["Buffalo Gold","Big Grid","Buffalo Cash","Free Games","100x win","250x win","500x win","1000x win",
+  "Full reel of buffalo","Wild in a win","Retrigger","14,400 ways","Lucky Box buy","Dead bonus","Chat's pick","Playtech's pick"].map(l=>[l,BD_PRIZE]);
+function bdFresh(){ return {cells:BD_START.map(([label,prize])=>({id:uid(), label, prize, n:0})), winners:[], even:true}; }
 // a board from before prizes is the old generic one: start the Buffalo Blitz board instead
-function bdLoad(){ try{ const s=JSON.parse(localStorage.getItem(BD_KEY)); if(s && Array.isArray(s.cells) && Array.isArray(s.winners) && s.cells.some(c=>c.prize)) return s; }catch(e){} return null; }
+function bdLoad(){ try{ const s=JSON.parse(localStorage.getItem(BD_KEY)); if(s && Array.isArray(s.cells) && Array.isArray(s.winners) && s.cells.some(c=>c.prize)){
+  if(!s.even){ s.cells.forEach(c=>{ c.prize=BD_PRIZE; }); s.even=true; }   // once: a board from before the even split gets €125 each; edits after that stay
+  return s; } }catch(e){} return null; }
 const bdPool=()=>bd.cells.reduce((t,c)=>t+(c.prize||0),0);
 const bdEur=n=>"€"+n.toLocaleString("en-US");
 function bdSave(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(BD_KEY, JSON.stringify(bd)); }catch(e){} bcast({type:"state"}); }
@@ -5514,6 +5596,9 @@ const bdFull=c=>c.n>=BD_NEED;
 /* full challenges nobody has won yet, in board order */
 const bdDue=()=>bd.cells.filter(c=>bdFull(c) && !bd.winners.some(w=>w.cell===c.id));
 const bdCell=id=>bd.cells.find(c=>c.id===id);
+// the game's symbol for a challenge, by its words; the labels are the operator's, so anything else gets the buffalo
+const bdIcon=l=>[[/gold/,"pot-gold"],[/grid|ways/,"pot-grid"],[/cash/,"pot-cash"],[/free|retrig/,"free"],[/wild/,"wild"],[/lucky|box/,"box"],[/\dx\b/,"coin"]]
+  .find(([r])=>r.test(l.toLowerCase()))?.[1]||"head";
 function bdPlay(m){ sfx("winner"); takeover("tk-gold", m.icon, m.label, m.name, m.sub, 3400); }
 function bdFx(icon, label, name, sub){ const m={type:"fx", fx:"board", icon, label, name, sub}; bcast(m); bdPlay(m); }
 /* a claim names the row after add(), so the winner is announced on save */
@@ -5560,7 +5645,7 @@ function bdRenderDisplay(){
   const rows=bd.cells.map((x,i)=>[x,i]).sort((a,b)=>rank(a[0])-rank(b[0]) || a[1]-b[1]).map(([x])=>{
     const w=winner(x), run=running(x);
     return `<div class="cb-row${bdFull(x)&&!run?" done":""}${owed.has(x.id)&&!run?" due":""}${w?" won":""}${run?" run":""}" style="--from:${pct(x.from||0)}%;--to:${pct(x.n)}%;--d:${-age(x)}ms">`
-      +`<span class="cb-lab">${escapeHtml(x.label)}</span><em>${w ? escapeHtml(w.name) : bdEur(x.prize||0)}</em><b>${Math.min(x.n,BD_NEED)}<small>/${BD_NEED}</small></b>`
+      +`<i class="cb-ic" style="background-image:url(bb3/${bdIcon(x.label)}.webp)"></i><span class="cb-lab">${escapeHtml(x.label)}</span><em>${w ? escapeHtml(w.name) : bdEur(x.prize||0)}</em><b>${Math.min(x.n,BD_NEED)}<small>/${BD_NEED}</small></b>`
       +`<div class="cb-bar"><i class="cb-fill"></i>${run?BD_BUFFALO:""}</div></div>`;
   }).join("");
   // the list rests at the top, drifts down to the end, rests, drifts back; a tick starts it over at the top
@@ -5596,6 +5681,111 @@ function bdRenderControl(){
   $("#bdNewBtn").onclick=bdConfirmReset;
   rfWire();
 }
+
+/* ---- The draw, both windows, straight from rf.spin (full canvas left of the chat; a 1080 stage in the box).
+   The herd from the game's splash charges out of the sunset behind (scenery, no names), and the entries roll in
+   one reel window in front, slowing like a slot onto the winner. Lightning cracks now and then on the way.
+   On the stop the winner becomes the feature coin of their challenge's pot (Buffalo Gold green, Big Grid blue,
+   Buffalo Cash red, the rest red) and drops into it; the pot bursts, lightning strikes for real, and the win
+   screen comes up: a buffalo in the light, the name, the claim countdown. The steps after the stop are timed
+   from the spin's end (BD_FALL_AT, BD_HIT_AT, BD_WON_AT), so every window plays them together. */
+const BD_DRAW_MS=[17000,18500], BD_FADE_MS=2200, BD_END=140, BD_ROW=130, BD_HZ=545, BD_FEET=1015, BD_FAR=8;
+const BD_RAMP=.14, BD_CRUISE=.62, BD_WHOLE=BD_CRUISE-BD_RAMP/2+(1-BD_CRUISE)/3;
+const BD_FALL_AT=.7, BD_HIT_AT=1.6, BD_WON_AT=2.9;   // seconds after the stop
+const BD_POT={gold:["green",-.3], grid:["blue",.3], cash:["red",0]};   // coin colour and the pot's place across the pots art
+// rows passed by p (0..1 of the run): pulls away, runs flat out, then brakes; the area under that speed, so no jolts
+const bdRoll=p=>p<=0 ? 0 : p>=1 ? 1 : (p<BD_RAMP ? p*p/(2*BD_RAMP) : p<BD_CRUISE ? BD_RAMP/2+p-BD_RAMP
+  : BD_CRUISE-BD_RAMP/2+(1-BD_CRUISE)*(1-Math.pow(1-(p-BD_CRUISE)/(1-BD_CRUISE),3))/3)/BD_WHOLE;
+let bdPlan=null, bdLast=null;
+function bdDrawPlan(sp, W){
+  const pool=rfSpinPool(sp), N=pool.length, winner=pool.find(e=>rfId(e)===sp.winner);
+  if(!winner) return null;
+  const S=pool.slice(), rnd=pwRng(sp.seed);
+  for(let i=N-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [S[i],S[j]]=[S[j],S[i]]; }
+  const move=(sp.duration-BD_FADE_MS)/1000;
+  // the winner shows once, on the row that stops on the line; any other gets the next name in the shuffle
+  const name=k=>{ if(k===BD_END) return winner; let e=S[rfMod(k,N)]; if(e===winner && N>1) e=S[rfMod(k+1,N)]; return e; };
+  const flashes=[1.6+rnd(), move*.38+rnd(), move*.62+rnd()*1.5];
+  const c=sp.test ? null : bdCell(bdDue()[0]?.id), [coin,px]=BD_POT[(bdIcon(c?.label||"").match(/pot-(\w+)/)||[])[1]]||BD_POT.cash;
+  return {at:sp.startedAt, W, move, name, N, flashes, coin, px, row:sp.test ? "Test draw" : c ? `${c.label} · ${bdEur(c.prize||0)}` : "", redraw:rf.entries.some(e=>e.st==="missed")};
+}
+function bdDrawFrame(){
+  requestAnimationFrame(bdDrawFrame);
+  const sp = rf.on && rf.mode==="BOARD" && appMode==="BOARD" ? rf.spin : null;
+  let ov=document.getElementById("bdDraw");
+  if(!sp){
+    if(ov && !ov.classList.contains("out")){ ov.classList.add("out"); ov.id=""; setTimeout(()=>ov.remove(),900); }
+    bdPlan=null; bdLast=null; return;
+  }
+  if(ov && ov.classList.contains("fixed")!==(DISPLAY_ONLY && document.body.classList.contains("canvas"))){ ov.remove(); ov=null; }
+  if(!ov) ov=pwDrawMount("bdDraw", "pw-draw bd-draw");
+  const stage=ov.firstChild, [W]=drawFit(ov);
+  if(!bdPlan || bdPlan.at!==sp.startedAt || bdPlan.W!==W){
+    bdPlan=bdDrawPlan(sp, W); if(!bdPlan) return;
+    ov.style.setProperty("--el", -Math.max(0, netNow()-sp.startedAt)/1000+"s");
+    const p=bdPlan, potX=W/2+p.px*600;
+    stage.innerHTML=`<div class="bd-dbg"></div><div class="bd-dstrike"></div><div class="bd-herd"></div><div class="bd-dshade"></div>
+      <div class="bd-dhead"><i></i><b>${p.redraw?"<em>Redraw</em> · ":""}${escapeHtml(p.row)} · ${p.N.toLocaleString("en-US")} in the draw</b></div>
+      <div class="bd-reel"><div class="bd-rows"></div><div class="bd-line"></div></div>
+      <div class="bd-pots"></div><div class="bd-coin" style="background-image:url(bb3/drop-${p.coin}.webp)"></div><div class="bd-splash" style="left:${potX}px;top:690px"></div>
+      <div class="bd-hero" style="left:${Math.round(W*.24)}px"></div>
+      <div class="bd-win" style="left:${Math.round(W*.46)}px"><small>Buffalo Blitz winner</small><span class="bd-wname"></span><em>${escapeHtml(p.row)}</em><div class="bd-wclaim"></div><i></i></div>`;
+    stage.rows=new Map(); stage.herd=new Map();
+    Object.assign(p, {potX, rowsEl:stage.querySelector(".bd-rows"), herdEl:stage.querySelector(".bd-herd"), sky:stage.querySelector(".bd-dstrike"), coinEl:stage.querySelector(".bd-coin")});
+  }
+  const p=bdPlan, now=netNow(), t=(now-sp.startedAt-BD_FADE_MS)/1000, landed=now>=rfSpinEnd(sp), after=(now-rfSpinEnd(sp))/1000;
+  const d=landed ? BD_END : BD_END*bdRoll(t/p.move);
+  // the reel: row k sits on the line when d===k, rows come down from above; each row keeps its element while in view
+  const rows=stage.rows, seen=new Set();
+  for(let k=Math.max(0,Math.ceil(d-2)); k<=Math.floor(d+2); k++){
+    let el=rows.get(k);
+    if(!el){ el=document.createElement("div"); el.className="bd-row"; el.innerHTML=rfNameHtml(p.name(k)); p.rowsEl.appendChild(el); rows.set(k,el); }
+    seen.add(k);
+    el.style.transform=`translateY(${((d-k)*BD_ROW+BD_ROW).toFixed(1)}px)`;
+    el.classList.toggle("win", landed && k===BD_END);
+  }
+  rows.forEach((el,k)=>{ if(!seen.has(k)){ el.remove(); rows.delete(k); } });
+  // the herd behind: a buffalo every few rows, in two lanes either side of the reel, closing in from the horizon; it stops when the reel does
+  const h=d/4, herd=stage.herd, hs=new Set();
+  for(let k=Math.ceil(h+1.3); k<=Math.floor(h+BD_FAR); k++){
+    const z=k-h, s=1/(1+z*.55), lane=[-2,1,-1,2][rfMod(k,4)], side=Math.sign(lane), off=390+(Math.abs(lane)-1)*170+200*s;
+    let el=herd.get(k);
+    if(!el){ el=document.createElement("div"); el.className="bd-bf"; el.style.zIndex=1000-k%1000; p.herdEl.appendChild(el); herd.set(k,el); }   // nearer is always in front, so the order is set once
+    hs.add(k);
+    el.style.transform=`translate(${(p.W/2+side*off).toFixed(1)}px,${(BD_HZ+(BD_FEET-BD_HZ)*s).toFixed(1)}px) scale(${s.toFixed(3)})`;
+    el.style.opacity=Math.max(0, Math.min(1, BD_FAR-z, (z-1.3)/.6)).toFixed(2);
+  }
+  herd.forEach((el,k)=>{ if(!hs.has(k)){ el.remove(); herd.delete(k); } });
+  // the coin: out of the winner's row, an arc down into its pot
+  const u=Math.max(0, Math.min(1, (after-BD_FALL_AT)/(BD_HIT_AT-BD_FALL_AT)));
+  if(landed && after>=BD_FALL_AT && after<BD_HIT_AT+.1){
+    const x=p.W/2+(p.potX-p.W/2)*u, y=495+(830-495)*u*u-320*u*(1-u);   // a hop, then it falls into the pot's heap
+    p.coinEl.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px) scale(${(1.3-.5*u).toFixed(3)}) rotate(${Math.round(u*540)}deg)`;
+    p.coinEl.style.opacity=1;
+  } else if(p.coinEl.style.opacity!=="0") p.coinEl.style.opacity="0";
+  // the big-win sky: a crack of lightning at each flash, a real strike when the coin lands, and it stays up for the win
+  const hit=landed && after>=BD_HIT_AT, won=landed && after>=BD_WON_AT;
+  const f=Math.max(0, ...p.flashes.map(a=>t>=a ? Math.max(0,1-(t-a)/.6)*(t-a<.08?1:.7) : 0), hit ? Math.max(.7, 1-(after-BD_HIT_AT)/.8) : 0);
+  const fo=f.toFixed(2); if(p.sky.style.opacity!==fo) p.sky.style.opacity=fo;
+  ov.classList.toggle("landed", landed); ov.classList.toggle("hit", hit); ov.classList.toggle("won", won);
+  // a tick every other row, thunder on a flash, the stop, the boom as the coin lands, the win; only what this window saw happen
+  const was=bdLast; bdLast={t, d, after:landed?after:-1};
+  if(was){
+    if(!landed && Math.floor(d/2)>Math.floor(was.d/2)) sfx("tick");
+    if(p.flashes.some(a=>was.t<a && t>=a)) sfx("zap");
+    if(landed && was.after<0) sfx("stop");
+    if(hit && was.after<BD_HIT_AT){ sfx("boom"); sfx("coin"); }
+    if(won && was.after<BD_WON_AT) sfx("winner");
+  }
+  if(landed){
+    const e=rfWinner(sp), pf=(e&&e.platform||"").toUpperCase();
+    const nm=stage.querySelector(".bd-wname"), cl=stage.querySelector(".bd-wclaim");
+    if(e && nm.textContent!==e.name){ nm.textContent=e.name; nm.style.fontSize=(e.name.length<=10?120:e.name.length<=16?96:72)+"px"; }
+    const html = sp.claimed ? `<p class="ok">Claimed on ${pf}</p>` : `<p>Type in ${pf} chat to claim</p><b>${rfSecs(rfClaimEnd(sp))}</b>`;
+    if(cl.innerHTML!==html) cl.innerHTML=html;
+  }
+}
+requestAnimationFrame(bdDrawFrame);
 
 /* ================= DEAD MAN'S CREW (Slotmill visit) =================
    A keyword raffle in the game's own art: five seats on the crew, €100 each.
@@ -6022,6 +6212,7 @@ function tellShell(){ if(parent!==window && !DISPLAY_ONLY) parent.postMessage({s
 /* ================= COMPETITION MENU / APP DISPATCH ================= */
 let homeTab="formats";
 function renderApp(){
+  bgDrawSync();   // leaving the bingo takes its full-canvas draw with it
   if(!DISPLAY_ONLY){
     $("#navBackBtn").disabled = navAt<=0;
     $("#navFwdBtn").disabled = navAt>=navHist.length-1;
@@ -6067,13 +6258,30 @@ function renderApp(){
 function bgRenderDisplay(){
   const c=$("#displayContent");
   if(lbTakeover(c)) return;
-  if(!c.querySelector("iframe.bingo-frame")) c.innerHTML=`<iframe class="bingo-frame" src="/bingo/#display" title="Relax Bingo"></iframe>`;
+  if(!c.querySelector("iframe.bingo-frame")) c.innerHTML=`<iframe class="bingo-frame" src="/bingo/#display" title="The Racaroon 2 Bingo"></iframe>`;
 }
 function bgRender(){
   bgRenderDisplay();
   if(DISPLAY_ONLY) return;
-  $("#controlBody").innerHTML=`<div class="page-h">Relax Bingo is in the stream box</div><button class="primary" id="bgOpen">Open the bingo panel</button>`;
+  $("#controlBody").innerHTML=`<div class="page-h">The Racaroon 2 Bingo is in the stream box</div><button class="primary" id="bgOpen">Open the bingo panel</button>`;
   $("#bgOpen").onclick=openBingo;
+}
+/* The Racaroon 2 bingo draw plays full canvas like the others: the bingo in the box says when (bingoDraw, the
+   spin's start or 0), and the draw is the bingo page's own #draw, framed over the canvas with our chat panel.
+   The box and square sources keep the draw inside the bingo box. */
+let bgDrawAt=0;
+addEventListener("message", e=>{ if(e.data && typeof e.data==="object" && "bingoDraw" in e.data){ bgDrawAt=e.data.bingoDraw; bgDrawSync(); } });
+function bgDrawSync(){
+  let ov=document.getElementById("bgDraw");
+  if(!(bgDrawAt && appMode==="BINGO" && DISPLAY_ONLY && document.body.classList.contains("canvas"))){
+    if(ov && !ov.classList.contains("out")){ ov.classList.add("out"); ov.id=""; setTimeout(()=>ov.remove(),900); }
+    return;
+  }
+  if(ov) return;
+  ov=pwDrawMount("bgDraw", "pw-draw bg-draw");
+  ov.style.setProperty("--el", -Math.max(0, netNow()-bgDrawAt)/1000+"s");
+  ov.firstChild.innerHTML=`<iframe class="bg-dframe" src="/bingo/#draw&w=${CANVAS.x}" title="Racaroon draw"></iframe>`;
+  drawFit(ov);
 }
 function openBingo(){ if(parent!==window) parent.postMessage({studioOpen:"bingo"}, "*"); else window.open("/bingo/"); }
 function navSync(){ if(!DISPLAY_ONLY){ $("#navBackBtn").disabled=navAt<=0; $("#navFwdBtn").disabled=navAt>=navHist.length-1; } }
@@ -6124,6 +6332,7 @@ function menuControlView(){
       ${card("TADA","Chat types TaDa, draw 10 viewers, one bonus buy each. The top 2 wins take €50 each from the €100 pool.")}
       ${card("KEYWORD","Pick any keyword and title. Chat types it, draw winners one at a time, each one claims in chat.")}
       ${card("PRAG","Pragmatic Play Friday. Chat types Pragmatic, draw winners one at a time, and each one gets a spin on the wheel. The prizes scroll on stream.")}
+      ${card("BINGO","Playtech's The Racaroon 2 as a bingo board. Mark challenges as they happen; every line and the full board is a giveaway, drawn in order.")}
       ${card("BOARD","Buffalo Blitz 3: 16 challenges, each with a count and a prize. Tick them as they happen on stream. A full challenge is a giveaway: chat types the keyword, draw a winner.")}
     </div>`;
 }
