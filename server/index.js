@@ -651,7 +651,13 @@ async function doReload(fromButton) {
 
   lastPullAt = Date.now();
   try {
-    const res = await fetch(config.feedUrl, { signal: AbortSignal.timeout(10000) });
+    // The sheet takes ~40s to answer now, and Google sometimes hands back a 404
+    // for a perfectly good deployment, so wait long and try twice.
+    let res;
+    for (let i = 0; i < 2; i++) {
+      res = await fetch(config.feedUrl, { signal: AbortSignal.timeout(90000) });
+      if (res.ok) break;
+    }
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const feed = JSON.parse(await res.text());
     if (!feed || !Array.isArray(feed.wheels)) throw new Error('unexpected payload shape');
