@@ -64,6 +64,11 @@ clock). The teaser counts down and moves from the date to Tomorrow/Today/Live by
 takes out half a round until one is left (`gzDrawFrame`). Art in `public/comp/gates/`, from the Pragmatic assets in
 `Banner ads\Emperia x Gates 2500` (never the Emperia files or the `animatic/` banner work).
 
+**Prag-Wheel** draw (`pwDrawFrame`): names fall top to bottom over a Pragmatic scene (`pwScene`): the Gates 2500 free-game
+temple, a row of their characters along the bottom (`PW_CHARS`), symbols and scatters floating either side (`PW_SYMS`, `a-*` are
+animated). Art in `public/comp/prag/`, cut down from `Downloads\Pragwheel` (not in the repo). The operator's number buttons carry
+no prize names: the prize stays secret until the stream wheel lands (`pwHidden`).
+
 ## Rules that matter
 
 - **The stream PC hosts.** OBS there uses `http://127.0.0.1:8787/comp/#display` and `http://127.0.0.1:8787/`.
