@@ -385,6 +385,109 @@
   @keyframes bddue{to{box-shadow:inset 0 0 0 3px var(--gold-2),0 0 22px rgba(255,150,40,.85)}}
   .display.bb3 .elim.tk-gold .tk{background:url(bb3/buffalo-soft.webp) right 6px center/190px auto no-repeat,linear-gradient(90deg,#FFD447 45%,rgba(255,170,50,.55)),url(bb3/bg.webp) center/cover}
   .display.bb3 .elim.tk-gold .tk-name{padding-right:180px}
+  /* Rotten Potato (Print Studios): built for the box as viewers see it, ~210 px in a windowed player and ~90 px on a phone.
+     So no text in the tiles: a tile is vines, vines pulled back to its merch, or gold. One big count, one spotlight line. */
+  @font-face{font-family:"Rubik Dirt";src:url(rot/rubik-dirt.woff2) format("woff2");font-display:block}
+  @font-face{font-family:"Fredoka";src:url(rot/fredoka.woff2) format("woff2");font-weight:500 700;font-display:block}
+  .display.rot{
+    --box:#0B120D; --slab:rgba(157,255,79,.1); --slab-2:rgba(12,30,14,.82); --slab-3:rgba(30,60,24,.9);
+    --line:rgba(157,255,79,.3); --line-2:rgba(157,255,79,.55); --muted:#CFE8BD; --dim:#8FB27A;
+    --gold:#F0BD48; --gold-2:#FFE08A; --gold-ink:#2A1A02; --tox:#9DFF4F;
+    background:linear-gradient(rgba(6,12,8,.55),rgba(6,12,8,.7)),url(rot/bg.webp) center 30%/cover;border-color:rgba(157,255,79,.4);
+  }
+  .display.rot .display-content{padding:0}
+  .rt-box,.rt-mo{position:absolute;inset:0;font-family:"Fredoka",var(--cond);font-weight:600;color:#E9F3DF}
+  .rt-dirt{font-family:"Rubik Dirt",var(--cond);font-weight:400}
+  .rt-logo{position:absolute;right:0;top:0;width:160px;height:104px;background:url(rot/logo.webp) right top/contain no-repeat;filter:drop-shadow(0 2px 6px rgba(0,0,0,.7))}
+  .rt-print{position:absolute;left:14px;top:12px;width:124px;height:48px;background:url(rot/print.webp) left center/contain no-repeat;opacity:.95}
+  .rt-grid{position:absolute;left:12px;top:76px;width:272px;height:272px;display:grid;grid-template:repeat(4,minmax(0,1fr))/repeat(4,minmax(0,1fr));gap:6px;padding:6px;border-radius:12px;
+    background:#08110A;box-shadow:0 0 0 3px #2C4A22,0 0 16px rgba(157,255,79,.3)}
+  .rt-t{position:relative;border-radius:7px;overflow:hidden;background:radial-gradient(circle at 50% 45%,#3A3220,#17130A);display:grid;place-items:center;color:var(--gold)}
+  .rt-t:not(.done){align-items:start;padding-top:9%}
+  .rt-t.done{background:linear-gradient(#F6CF62,#B8861F);color:var(--gold-ink);box-shadow:0 0 12px rgba(240,189,72,.8)}
+  .rt-t.due{animation:rtdue 1.1s ease-in-out infinite alternate}
+  @keyframes rtdue{to{box-shadow:0 0 0 3px #FFF3C4,0 0 22px rgba(255,220,120,1)}}
+  .rt-t.won{filter:saturate(.6) brightness(.8)}
+  .rt-m{display:grid;place-items:center}
+  .rt-m svg{fill:currentColor}
+  .rt-q{width:46px;height:46px;font-family:"Fredoka",var(--cond);font-weight:700;font-size:44px;line-height:1;text-shadow:0 3px 0 #2A1A02}
+  .rt-m img{display:block;object-fit:contain;filter:drop-shadow(0 0 1.5px rgba(255,236,190,.7)) drop-shadow(0 2px 3px rgba(0,0,0,.6))}
+  .rt-cnt{position:absolute;left:290px;width:156px;top:122px;text-align:center;color:var(--tox)}
+  .rt-cnt b{display:block;font-family:"Rubik Dirt",var(--cond);font-weight:400;font-size:96px;line-height:.9;text-shadow:0 0 18px rgba(157,255,79,.5);transform:translateX(var(--ink,0px))}
+  .rt-cnt span{font-size:24px;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+  .rt-spot{position:absolute;left:12px;right:12px;bottom:12px;height:84px;border-radius:14px;display:flex;align-items:center;gap:12px;padding:0 14px;
+    background:linear-gradient(135deg,#1F3A14,#0D1A0A);box-shadow:inset 0 0 0 2px rgba(157,255,79,.55),0 0 18px rgba(157,255,79,.25);animation:rtspot .5s cubic-bezier(.16,1,.3,1) both}
+  @keyframes rtspot{from{opacity:0;transform:translateY(10px)}}
+  .rt-spot .rt-m{flex:none;color:var(--gold)}
+  .rt-spot>div{flex:1;min-width:0}
+  .rt-spot b{display:block;font-family:"Fredoka",var(--cond);font-weight:700;font-size:36px;line-height:1.2;color:#fff;text-shadow:0 2px 0 #0B2A12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rt-spot.due{background:linear-gradient(135deg,#6B5212,#2C2208);box-shadow:inset 0 0 0 2px var(--gold),0 0 18px rgba(240,189,72,.45)}
+  .rt-pp{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:20px;font-weight:700;letter-spacing:.06em;color:var(--gold);text-transform:uppercase;white-space:nowrap}
+  .rt-pp i{flex:none;width:18px;height:18px;border-radius:50%;background:#1D2A17;box-shadow:inset 0 0 0 2px #4D6B38}
+  .rt-pp i.on{background:var(--tox);box-shadow:0 0 10px var(--tox)}
+  .rt-pp span{margin-left:6px;overflow:hidden;text-overflow:ellipsis}
+  /* the entries screen (rtEntries): the gold tile it's for, the keyword huge, names popping up as spores */
+  .rt-en{position:absolute;inset:0;font-family:"Fredoka",var(--cond);font-weight:600;color:#E9F3DF;text-align:center}
+  .rt-en-for{position:absolute;left:16px;right:16px;top:116px;display:flex;align-items:center;gap:14px;text-align:left}
+  .rt-en-tile{flex:none;width:62px;height:62px;border-radius:12px;display:grid;place-items:center;color:var(--gold-ink);
+    background:linear-gradient(#F6CF62,#B8861F);box-shadow:0 0 0 3px #2C4A22,0 0 18px rgba(240,189,72,.7);animation:rtdue 1.1s ease-in-out infinite alternate}
+  .rt-en-for>div{min-width:0}
+  .rt-en-lab{display:block;font-family:"Fredoka",var(--cond);font-weight:700;font-size:32px;line-height:1.2;color:#fff;text-shadow:0 2px 0 #0B2A12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rt-en-merch{display:block;margin-top:4px;font-size:22px;font-weight:700;letter-spacing:.06em;color:var(--gold);text-transform:uppercase}
+  .rt-en-cta{position:absolute;left:0;right:0;top:184px;display:flex;flex-direction:column;align-items:center}
+  .rt-en-cta small{font-size:20px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .rt-en-kw{font-family:"Fredoka",var(--cond);font-weight:700;line-height:1.15;color:var(--tox);white-space:nowrap;
+    text-shadow:0 0 22px rgba(157,255,79,.6),0 4px 0 #0B2A12;animation:rtkw 2.4s ease-in-out infinite alternate}
+  @keyframes rtkw{to{text-shadow:0 0 34px rgba(157,255,79,.95),0 4px 0 #0B2A12;transform:scale(1.04)}}
+  .rt-en-count{position:absolute;left:0;right:0;top:300px;display:flex;justify-content:center;align-items:center;gap:12px;font-size:22px;font-weight:700;letter-spacing:.04em;color:#fff}
+  .rt-en-count em{font-style:normal;font-size:20px;display:flex;gap:10px}
+  .rt-en-count em span{display:inline-flex;align-items:center;gap:4px}
+  .rt-en-count em .pf{width:1em;height:1em}
+  .rt-en-cloud{position:absolute;left:10px;right:10px;top:332px;height:112px;display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-start;gap:6px 8px;overflow:hidden}
+  .rt-en-cloud>span{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:rgba(157,255,79,.1);box-shadow:inset 0 0 0 1.5px rgba(157,255,79,.3);
+    font-size:19px;font-weight:600;white-space:nowrap;opacity:calc(1 - var(--i) * .07)}
+  .rt-en-cloud>span .pf{width:.85em;height:.85em}
+  .rt-en-cloud>span.new{background:rgba(157,255,79,.24);box-shadow:inset 0 0 0 2px var(--tox),0 0 14px rgba(157,255,79,.6);font-size:22px;color:#fff}
+  .rt-en-cloud>span.pop{animation:rtspore .6s cubic-bezier(.3,1.6,.5,1)}
+  @keyframes rtspore{from{transform:scale(.2) translateY(30px);opacity:0;filter:blur(4px)}60%{filter:none}}
+  /* The vines over a tile (rtVines): the Infected art slides down and out of the tile under a top edge of tendrils, with
+     a darker layer behind that lags a little, so the vines pull back from the top instead of a hole being cut. */
+  .rt-vn{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+  .rt-vn>i{position:absolute;inset:0;filter:drop-shadow(0 -4px 4px rgba(0,0,0,.75))}
+  .rt-vn b{position:absolute;left:-2%;right:-2%;top:-30%;height:130%;background:url(rot/vines.webp) center/cover no-repeat;
+    -webkit-mask:var(--tip) top/100% 23.5% no-repeat,linear-gradient(#000,#000) bottom/100% 77% no-repeat;mask:var(--tip) top/100% 23.5% no-repeat,linear-gradient(#000,#000) bottom/100% 77% no-repeat;
+    --tip:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 30' preserveAspectRatio='none'%3E%3Cpath d='M0 30V22Q4 16 6 2Q8 16 12 22Q15 18 17 10Q19 18 22 23Q25 14 27 0Q29 15 33 22Q37 17 40 8Q42 18 46 23Q50 14 52 3Q54 16 58 22Q61 18 63 12Q65 19 69 23Q72 13 74 1Q76 15 80 22Q84 16 86 7Q88 17 91 22Q93 15 95 4Q97 16 100 21V30Z'/%3E%3C/svg%3E");transform:translateY(calc(var(--b) * 100%))}
+  .rt-vn>i.k b{--tip:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 30' preserveAspectRatio='none'%3E%3Cpath d='M0 30V20Q3 13 4 5Q6 15 10 21Q13 12 15 1Q17 14 21 22Q24 17 26 9Q28 18 32 23Q35 13 37 2Q39 15 43 22Q46 17 48 11Q50 19 54 23Q57 12 59 0Q61 15 65 22Q68 16 70 6Q72 17 76 22Q79 14 81 3Q83 16 87 22Q90 17 92 9Q94 18 97 21Q99 17 100 15V30Z'/%3E%3C/svg%3E");filter:brightness(.5) saturate(.8);background-position:30% 40%;transform:translateY(calc((var(--b) - .08) * 100%))}
+  .rt-vn.go b{animation:rtpull 2s cubic-bezier(.55,0,.3,1) var(--d,0ms) both}
+  .rt-vn.go>i.k b{animation-name:rtpullk;animation-delay:calc(var(--d,0ms) + .15s)}
+  @keyframes rtpull{from{transform:translateY(calc(var(--a) * 100%))}to{transform:translateY(calc(var(--b) * 100%))}}
+  @keyframes rtpullk{from{transform:translateY(calc((var(--a) - .08) * 100%))}to{transform:translateY(calc((var(--b) - .08) * 100%))}}
+  /* A tick is the moment (rtMoment): the box grows over the canvas, the challenge fills it and its vines pull back */
+  body.display-only.canvas .display.rot{transform:translateX(0) scale(var(--fit,1));transition:transform .7s cubic-bezier(.2,.9,.25,1)}
+  body.display-only.canvas .display.rot.rt-grow{transform:translateX(calc(-450px * var(--fit,1) * (var(--rt-g) - 1))) scale(calc(var(--fit,1) * var(--rt-g)))}
+  .display.rot{--rt-g:1.6}
+  .rt-mo{animation:rtspot .45s ease both}
+  .rt-mo-tile{position:absolute;left:120px;top:116px;width:210px;height:210px;border-radius:18px;overflow:hidden;display:grid;place-items:center;color:var(--gold);
+    background:radial-gradient(circle at 50% 45%,#3A3220,#17130A);box-shadow:0 0 0 4px #2C4A22,0 0 30px rgba(157,255,79,.45)}
+  .rt-mo-tile:not(.done){align-items:start;padding-top:18px}
+  .rt-mo-tile .rt-m{transform:scale(.8);animation:rtgrowin 1.2s cubic-bezier(.3,1.4,.5,1) calc(var(--d) + 1.6s) both}
+  @keyframes rtgrowin{from{transform:scale(.6);opacity:.6}to{transform:scale(1)}}
+  .rt-mo-tile.done::before{content:"";position:absolute;inset:0;background:linear-gradient(#F6CF62,#B8861F);opacity:0;animation:rtgold .6s ease calc(var(--d) + 2.8s) both}
+  .rt-mo-tile.done{animation:rtglow .6s ease calc(var(--d) + 2.8s) both}
+  .rt-mo-tile.done .rt-m{z-index:1;animation:rtgrowin 1.2s cubic-bezier(.3,1.4,.5,1) calc(var(--d) + 1.6s) both,rtink .6s ease calc(var(--d) + 2.8s) both}
+  @keyframes rtgold{to{opacity:1}}
+  @keyframes rtglow{to{box-shadow:0 0 0 4px var(--gold),0 0 50px rgba(240,189,72,.9)}}
+  @keyframes rtink{to{color:var(--gold-ink)}}
+  .rt-mo-lab{position:absolute;left:12px;right:12px;top:330px;text-align:center;font-family:"Fredoka",var(--cond);font-weight:700;font-size:36px;line-height:1.2;color:#fff;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 3px 0 #0B2A12,0 0 16px rgba(0,0,0,.8);animation:rtspot .5s ease calc(var(--d) + .5s) both}
+  .rt-mo .rt-pp{position:absolute;left:0;right:0;top:384px;justify-content:center;font-size:24px;animation:rtspot .5s ease calc(var(--d) + .7s) both}
+  .rt-mo .rt-pp i{width:24px;height:24px}
+  .rt-mo .rt-pp i.new{animation:rtpip .5s cubic-bezier(.3,1.6,.5,1) calc(var(--d) + 2.4s) both}
+  @keyframes rtpip{from{background:#1D2A17;box-shadow:inset 0 0 0 2px #4D6B38;transform:scale(1)}50%{transform:scale(1.6)}to{background:var(--tox);box-shadow:0 0 12px var(--tox);transform:scale(1)}}
+  .rt-stamp{position:absolute;left:10px;right:10px;top:148px;z-index:2;text-align:center;font-family:"Fredoka",var(--cond);font-weight:700;font-size:36px;line-height:1.35;letter-spacing:.06em;text-transform:uppercase;color:var(--tox);
+    background:#0D1F0A;border:3px solid var(--tox);border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.45);animation:rtstamp .6s cubic-bezier(.3,1.6,.5,1) calc(var(--d) + 3.1s) both}
+  @keyframes rtstamp{from{opacity:0;transform:scale(1.8) rotate(-8deg)}to{transform:rotate(-6deg)}}
+  .display.rot .elim.tk-gold .tk{background:linear-gradient(90deg,#F6CF62 40%,rgba(184,134,31,.75)),url(rot/vines.webp) center/cover}
   .cb-edit{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}
   .cb-ed{display:flex;flex-direction:column;gap:8px;padding:10px;background:var(--panel);border-radius:var(--r-lg);box-shadow:inset 0 0 0 1px var(--edge)}
   .cb-ed.done{box-shadow:inset 0 0 0 1.5px var(--ok)}
@@ -422,7 +525,7 @@
   /* the draw is put first in body, so the box (which sits over the chat) steps aside while it runs */
   .pw-draw.fixed ~ .display{visibility:hidden}
   /* full-screen layers run on under the chat hole; their content stays centred left of it */
-  .pw-draw.fixed :is(.cr-dbg,.gz-dbg,.cr-tier,.gz-win,.td-dbg,.td-bridge,.td-rail,.td-flash,.td-win,.bd-dbg,.bd-dstrike){right:calc(-1 * var(--sr))}
+  .pw-draw.fixed :is(.cr-dbg,.gz-dbg,.cr-tier,.gz-win,.td-dbg,.td-bridge,.td-rail,.td-flash,.td-win,.bd-dbg,.bd-dstrike,.rt-dbg,.rt-spores){right:calc(-1 * var(--sr))}
   .pw-draw.fixed :is(.cr-tier,.gz-win,.td-win){padding-right:var(--sr)}
   .pw-draw.fixed .cr-tier>i{right:calc(var(--sr) + 20px)}
   .pw-draw.fixed .gz-dzeus{right:0;width:420px;height:770px}
@@ -886,6 +989,86 @@
   .bd-wclaim p.ok{color:#7FFFB0}
   .bd-wclaim b{display:inline-block;margin-top:2px;font-size:100px;line-height:1;color:#FFC93C;font-variant-numeric:tabular-nums;text-shadow:0 4px 0 #4A1A00}
   .bd-win>i{width:460px;height:204px;margin-top:6px;background:url(bb3/pots.webp) center bottom/contain no-repeat}
+
+  /* the Rotten Potato draw, the Bishop Awakens: the names stream down a five-row reel beside the Bishop, the game's meter
+     fills over it, and each mark is a stage that slams across the screen; --st (0..5) is how far it has got */
+  .rt-draw{background:#07100A;font-family:"Fredoka",var(--cond)}
+  .rt-draw .dchat{--dc-a:#9DFF4F;--dc-line:rgba(157,255,79,.4);--dc-bg:rgba(8,18,10,.86)}
+  .rt-shake{position:absolute;inset:0;will-change:transform}
+  .rt-shake.hit{animation:rtshake .55s cubic-bezier(.36,.07,.19,.97)}
+  @keyframes rtshake{10%,90%{transform:translate(-3px,1px)}20%,80%{transform:translate(6px,-2px)}30%,50%,70%{transform:translate(-10px,3px)}40%,60%{transform:translate(10px,-3px)}}
+  .rt-dbg{position:absolute;inset:0;background:linear-gradient(rgba(4,10,6,.35),rgba(4,10,6,.55)),url(rot/bg-bonus.webp) center 55%/cover;animation:crzoom 30s linear both;will-change:transform}
+  .rt-dbg::after{content:"";position:absolute;inset:0;background:#000;opacity:calc(.3 - var(--st,0) * .06);transition:opacity .6s}
+  .rt-spores{position:absolute;inset:0;overflow:hidden}
+  .rt-spores i{position:absolute;border-radius:50%;background:radial-gradient(circle,#E4FFB8 0 25%,rgba(157,255,79,.55) 45%,transparent 70%);will-change:transform;animation:rtfloat var(--t) ease-in-out var(--dl) infinite alternate}
+  @keyframes rtfloat{from{transform:translate(0,14px)}to{transform:translate(10px,-22px)}}
+  .rt-glow{position:absolute;width:900px;height:900px;margin:-450px 0 0 -450px;border-radius:50%;background:radial-gradient(closest-side,rgba(157,255,79,.55),transparent);
+    opacity:calc(.45 + var(--st,0) * .11);transition:opacity .6s}
+  .rt-bish{position:absolute;will-change:transform}
+  .rt-bish img{position:absolute;inset:0;width:100%;height:100%;transition:opacity .25s;will-change:opacity}
+  .rt-draw.hit .rt-bish{animation:rtpulse .7s cubic-bezier(.3,1.6,.5,1)}
+  @keyframes rtpulse{30%{transform:scale(1.07)}}
+  .rt-eye{position:absolute;width:200px;height:200px;margin:-100px 0 0 -100px;border-radius:50%;opacity:0;
+    background:radial-gradient(circle,#fff 0 12%,rgba(210,255,160,.9) 26%,rgba(157,255,79,.4) 50%,transparent 70%)}
+  .rt-draw.landed .rt-eye{animation:rteye .5s ease-out both}
+  @keyframes rteye{from{opacity:0;transform:scale(.3)}60%{opacity:1;transform:scale(1.4)}to{opacity:1;transform:scale(1)}}
+  /* the game's meter: a bar with its marks, lit as it passes them */
+  .rt-meter{position:absolute;height:30px;z-index:3}
+  .rt-mtrack{position:absolute;inset:0;border-radius:15px;overflow:hidden;background:linear-gradient(#040A05,#0F1F12);box-shadow:inset 0 0 0 3px #2C4A22,inset 0 5px 10px rgba(0,0,0,.8),0 0 0 3px #07120A}
+  /* the fill scales (no width change per frame, so nothing repaints); the head is the glowing edge that leads it */
+  .rt-mfill{position:absolute;inset:4px;border-radius:11px;transform-origin:left;transform:scaleX(0);will-change:transform;
+    background:linear-gradient(#D6FF9E,#7BE83A 40%,#2FA640 75%,#1B6E2A)}
+  .rt-mhead{position:absolute;left:0;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;will-change:transform;
+    background:radial-gradient(circle,#fff 0 10%,rgba(214,255,158,.9) 22%,rgba(157,255,79,.35) 45%,transparent 70%)}
+  .rt-meter b{position:absolute;top:50%;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;display:grid;place-items:center;z-index:1;
+    background:radial-gradient(circle at 50% 35%,#1E3A22,#06100A 70%);box-shadow:0 0 0 3px #2C4A22,0 0 0 6px #07120A,0 4px 10px rgba(0,0,0,.6);
+    font-size:24px;font-weight:700;color:#6F8F60;transition:color .3s,box-shadow .3s,background .3s}
+  .rt-meter b.s{width:30px;height:30px;margin:-15px 0 0 -15px;background:radial-gradient(circle,#E4FFB8,#5ED62F);box-shadow:0 0 0 3px #9DFF4F,0 0 0 6px #07120A,0 0 16px #9DFF4F}
+  .rt-meter b:last-child{background:radial-gradient(circle at 50% 35%,#4A3A10,#1A1406 70%);box-shadow:0 0 0 3px #6B5A2A,0 0 0 6px #07120A,0 4px 10px rgba(0,0,0,.6);color:#A8945E}
+  .rt-meter b.on{color:#07120A;background:radial-gradient(circle at 50% 35%,#E4FFB8,#5ED62F 75%);box-shadow:0 0 0 3px #9DFF4F,0 0 0 6px #07120A,0 0 26px #9DFF4F;animation:rtpip .5s cubic-bezier(.3,1.6,.5,1)}
+  .rt-meter b:last-child.on{color:#2A1A02;background:radial-gradient(circle at 50% 35%,#FFF3C4,#F0BD48 75%);box-shadow:0 0 0 3px #FFE08A,0 0 0 6px #07120A,0 0 34px #F0BD48}
+  /* the reel: five rows, the middle one is the line */
+  .rt-reel{position:absolute;height:500px;border-radius:22px;overflow:hidden;z-index:2;background:linear-gradient(#050C07,#0C1A0F 50%,#050C07);
+    box-shadow:0 0 0 6px #2C4A22,0 0 0 10px #0D1A0B,0 0 50px rgba(157,255,79,.35),inset 0 0 40px #000;transition:box-shadow .6s}
+  .rt-rows{position:absolute;inset:0}
+  .rt-reel::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(#050C07,rgba(5,12,7,0) 24%,rgba(5,12,7,0) 76%,#050C07)}
+  .rt-row{position:absolute;left:0;right:0;top:0;height:100px;display:flex;align-items:center;justify-content:center;gap:14px;font-size:50px;font-weight:700;white-space:nowrap;color:#BFE0A8;will-change:transform}
+  .rt-row .pf{width:.8em;height:.8em}
+  .rt-line{position:absolute;left:10px;right:10px;top:200px;height:100px;border-radius:14px;box-shadow:inset 0 0 0 3px rgba(157,255,79,.75),0 0 24px rgba(157,255,79,.45);background:rgba(157,255,79,.08);pointer-events:none}
+  .rt-line::before,.rt-line::after{content:"";position:absolute;top:50%;margin-top:-16px;border:16px solid transparent}
+  .rt-line::before{left:-10px;border-left-color:#9DFF4F}.rt-line::after{right:-10px;border-right-color:#9DFF4F}
+  .rt-draw.landed .rt-row:not(.win){opacity:.15;transition:opacity .4s}
+  .rt-row.win{color:#F4FFE6;text-shadow:0 3px 0 #0B2A12,0 0 22px #6CFF3A,0 -4px 30px #3FD96B}
+  .rt-draw.won .rt-row.win{font-size:64px;animation:rtburn 1.2s ease-in-out infinite alternate}
+  @keyframes rtburn{to{text-shadow:0 3px 0 #0B2A12,0 0 34px #6CFF3A,0 -8px 46px #3FD96B}}
+  .rt-draw.won .rt-reel{box-shadow:0 0 0 6px #9DFF4F,0 0 0 10px #0D1A0B,0 0 90px rgba(157,255,79,.8),inset 0 0 40px #000}
+  .rt-dhead{position:absolute;top:30px;left:0;right:0;z-index:5;display:flex;justify-content:center;animation:pwhead .6s cubic-bezier(.16,1,.3,1) calc(.6s + var(--el,0s)) both;transition:opacity .4s}
+  .rt-dhead b{padding:10px 26px;border-radius:999px;background:rgba(8,16,11,.84);box-shadow:inset 0 0 0 1.5px rgba(157,255,79,.45);font-size:30px;font-weight:600;letter-spacing:.03em;color:#E9F3DF;white-space:nowrap}
+  .rt-dhead b span{font-family:"Fredoka",var(--cond);font-weight:700;font-size:32px;color:#9DFF4F;margin-right:14px}
+  .rt-dhead b em{font-style:normal;color:#9DFF4F}
+  .rt-draw.won .rt-dhead{opacity:0}
+  /* a stage: what happens pops up under the reel (no number: the meter shows that), then goes */
+  .rt-call{position:absolute;z-index:8;display:flex;justify-content:center;pointer-events:none;opacity:0}
+  .rt-call.hit{animation:rtband 1.7s ease both}
+  .rt-call.hit div{animation:rtcall 1.7s cubic-bezier(.2,.9,.3,1) both}
+  @keyframes rtband{0%{opacity:0}10%,75%{opacity:1}100%{opacity:0}}
+  .rt-call div{padding:8px 36px;border-radius:999px;background:rgba(8,16,11,.9);box-shadow:inset 0 0 0 2px #9DFF4F,0 0 26px rgba(157,255,79,.45)}
+  .rt-call span{font-family:"Fredoka",var(--cond);font-weight:700;font-size:50px;line-height:1.2;letter-spacing:.04em;color:#fff;text-transform:uppercase;text-shadow:0 4px 0 #0B2A12}
+  @keyframes rtcall{0%{opacity:0;transform:scale(1.4)}14%{opacity:1;transform:scale(.97)}22%{transform:scale(1)}75%{opacity:1;transform:scale(1.02)}100%{opacity:0;transform:translateY(-16px)}}
+  .rt-flash{position:absolute;inset:0;z-index:7;pointer-events:none;opacity:0;will-change:opacity;background:radial-gradient(circle at 25% 50%,rgba(220,255,170,.85),rgba(157,255,79,.35) 40%,transparent 75%)}
+  .rt-draw.hit .rt-flash{animation:rtflash .7s ease-out}
+  @keyframes rtflash{from{opacity:1}to{opacity:0}}
+  .rt-win{position:absolute;top:26px;left:0;right:0;z-index:6;text-align:center;opacity:0;pointer-events:none}
+  .rt-draw.won .rt-win{opacity:1;transition:opacity .5s .2s}
+  .rt-win h2{margin:0;font-family:"Fredoka",var(--cond);font-weight:700;font-size:80px;line-height:1.15;color:#9DFF4F;text-shadow:0 6px 0 #0B2A12,0 0 30px rgba(157,255,79,.45)}
+  .rt-draw.won .rt-win h2{animation:crslam .7s cubic-bezier(.3,1.5,.5,1) .2s both}
+  .rt-wside{position:absolute;z-index:6;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;opacity:0;pointer-events:none}
+  .rt-draw.won .rt-wside{opacity:1;transition:opacity .5s .5s}
+  .rt-wside>p{margin:0;padding:10px 28px;border-radius:999px;background:rgba(8,16,11,.84);box-shadow:inset 0 0 0 1.5px rgba(157,255,79,.45);font-size:40px;font-weight:600;color:#E9F3DF}
+  .rt-wside>p em{font-style:normal;color:#F0BD48;text-transform:uppercase}
+  .rt-wclaim{font-size:36px;font-weight:600;color:#CFE8BD}
+  .rt-wclaim p{margin:0}.rt-wclaim p.ok{color:#9DFF4F}
+  .rt-wclaim b{color:#9DFF4F;font-size:56px;margin-left:14px;font-variant-numeric:tabular-nums}
   .rf-name{display:flex;align-items:center;justify-content:center;gap:12px;height:var(--r);font-size:30px;white-space:nowrap;color:var(--text)}
   .rf-name span{overflow:hidden;text-overflow:ellipsis;min-width:0}
   .rf-name .pf{width:.85em;height:.85em}
@@ -1172,6 +1355,19 @@
 
   /* chat entries panel */
   .rf-top{justify-content:space-between;flex-wrap:wrap}
+  #rq{position:fixed;inset:0;z-index:40;overflow:auto;background:var(--bg);padding:28px 32px;display:flex;flex-direction:column;gap:18px}
+  #rq[hidden]{display:none}
+  .rq-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .rq-top .page-h{margin-right:auto}
+  .rq-list{display:flex;flex-direction:column;gap:6px}
+  .rq-row{display:grid;grid-template-columns:32px minmax(120px,200px) 1fr auto auto;align-items:center;gap:14px;padding:10px 12px;border-radius:var(--r);background:var(--panel);box-shadow:inset 0 0 0 1px var(--edge)}
+  .rq-row .n{color:var(--fg-3);font-variant-numeric:tabular-nums;text-align:right}
+  .rq-row .who{display:flex;align-items:center;gap:8px;font-weight:600;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .rq-row .what{font-size:16px;overflow-wrap:anywhere}
+  .rq-row .at{color:var(--fg-3);font-size:13px;font-variant-numeric:tabular-nums}
+  .rq-row .acts{display:flex;gap:6px}
+  .rq-row.played{opacity:.45}
+  .rq-row.played .what{text-decoration:line-through}
   .rf-status{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--fg-2)}
   .rf-status b{color:var(--fg);font-weight:600}
   .rf-status span{display:inline-flex;align-items:center;gap:6px}
@@ -1607,7 +1803,7 @@ async function netProbe(){
 function netPush(fx){
   if(!NET.on || DISPLAY_ONLY) return;
   const keys={};
-  [KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,CR_KEY,GZ_KEY,SHEET_Q_KEY].forEach(k=>{ keys[k]=localStorage.getItem(k); });
+  [KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,RT_KEY,CR_KEY,GZ_KEY,SHEET_Q_KEY,RQ_KEY].forEach(k=>{ keys[k]=localStorage.getItem(k); });
   if(NET.synced) keys[HISTORY_KEY]=localStorage.getItem(HISTORY_KEY);
   fetch(NET.url,{method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({keys, fx: fx?[fx]:[], ctl:CTL_ID})}).then(r=>{ if(r.status===409) location.reload(); }).catch(()=>{});
@@ -1676,7 +1872,7 @@ let state = load() || fresh();
 let appMode = loadMode();
 let navHist=[appMode], navAt=0;   // browser-style back/forward over the formats this panel has visited
 
-function loadMode(){ try{ const m=JSON.parse(localStorage.getItem(MODE_KEY)); return (m==="LMS"||m==="H2H"||m==="BRACKET"||m==="LEAGUE"||m==="WHEEL"||m==="TADA"||m==="PRAG"||m==="KEYWORD"||m==="BOARD"||m==="BINGO")?m:null; }catch(e){ return null; } }
+function loadMode(){ try{ const m=JSON.parse(localStorage.getItem(MODE_KEY)); return (m==="LMS"||m==="H2H"||m==="BRACKET"||m==="LEAGUE"||m==="WHEEL"||m==="TADA"||m==="PRAG"||m==="KEYWORD"||m==="BOARD"||m==="ROT"||m==="BINGO")?m:null; }catch(e){ return null; } }
 function saveMode(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(MODE_KEY, JSON.stringify(appMode)); }catch(e){} bcast({type:"state"}); }
 
 function fresh(){
@@ -2203,6 +2399,7 @@ function lbRows(){
    running, so every renderDisplay() checks this first rather than each format
    growing its own copy of the toggle. */
 function lbTakeover(c){
+  if(c && rq.show){ $("#display").classList.remove("fit"); c.innerHTML=rqDisplayView(); return true; }   // the Requests tab is open
   $("#display").classList.toggle("fit", !!(lb.show && c));   // the box shrinks to the rows, so OBS can crop it
   if(!lb.show || !c) return false;
   c.innerHTML = lbDisplayHeader()+lbDisplayView();
@@ -2290,8 +2487,8 @@ function rotateFromId(list,id){
 
 /* ================= SHARED VIEW PIECES ================= */
 const ic=(n,cls)=>`<svg class="ic${cls?" "+cls:""}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
-const MODE_ICON={LMS:"lms", H2H:"h2h", BRACKET:"bracket", LEAGUE:"league", WHEEL:"reel", TADA:"gift", PRAG:"gift", KEYWORD:"bolt", BINGO:"gift", BOARD:"gift", CREW:"gift", GATES:"gift"};
-const MODE_NAME={LMS:"Last Man Standing", H2H:"Showdown", BRACKET:"Bracket Tournament", LEAGUE:"Points League", WHEEL:"Slot Wheel", TADA:"TaDa Gaming Giveaway", PRAG:"Prag-Wheel", KEYWORD:"Keyword Giveaway", BINGO:"The Racaroon 2 Bingo", BOARD:"Buffalo Blitz 3 Challenges", CREW:"Dead Man's Crew", GATES:"Gates of Olympus 2500"};
+const MODE_ICON={LMS:"lms", H2H:"h2h", BRACKET:"bracket", LEAGUE:"league", WHEEL:"reel", TADA:"gift", PRAG:"gift", KEYWORD:"bolt", BINGO:"gift", BOARD:"gift", ROT:"gift", CREW:"gift", GATES:"gift"};
+const MODE_NAME={LMS:"Last Man Standing", H2H:"Showdown", BRACKET:"Bracket Tournament", LEAGUE:"Points League", WHEEL:"Slot Wheel", TADA:"TaDa Gaming Giveaway", PRAG:"Prag-Wheel", KEYWORD:"Keyword Giveaway", BINGO:"The Racaroon 2 Bingo", BOARD:"Buffalo Blitz 3 Challenges", ROT:"Rotten Potato Challenges", CREW:"Dead Man's Crew", GATES:"Gates of Olympus 2500"};
 
 /* header bug on the stream box */
 function bugHtml(icon, title, phase, tone){
@@ -2416,7 +2613,7 @@ function focusNextWin(inp, sel){
 }
 function dispatchDisplay(){
   if(!appMode){ const mc=$("#displayContent"); if(!lbTakeover(mc)) mc.innerHTML=menuDisplayView(); return; }
-  ({LMS:renderDisplay, H2H:h2hRenderDisplay, BRACKET:bkRenderDisplay, LEAGUE:lgRenderDisplay, WHEEL:whRenderDisplay, TADA:tdRenderDisplay, PRAG:pwRenderDisplay, KEYWORD:kwRenderDisplay, BINGO:bgRenderDisplay, BOARD:bdRenderDisplay, CREW:crRenderDisplay, GATES:gzRenderDisplay})[appMode]();
+  ({LMS:renderDisplay, H2H:h2hRenderDisplay, BRACKET:bkRenderDisplay, LEAGUE:lgRenderDisplay, WHEEL:whRenderDisplay, TADA:tdRenderDisplay, PRAG:pwRenderDisplay, KEYWORD:kwRenderDisplay, BINGO:bgRenderDisplay, BOARD:bdRenderDisplay, ROT:rtRenderDisplay, CREW:crRenderDisplay, GATES:gzRenderDisplay})[appMode]();
 }
 let pageTick=Math.floor(netNow()/PAGE_MS);
 setInterval(()=>{
@@ -3051,6 +3248,8 @@ const RF_MODES={
   // the box shows the board, and the entries only while a full challenge is owed its winner
   BOARD:{icon:"gift", get title(){ return BD_TITLE; }, log:row=>{ const c=bdCell(row?.cell||bdDue()[0]?.id); return c ? `${c.label} · ${bdEur(c.prize||0)}` : ""; }, spinMs:()=>BD_DRAW_MS, setup:()=>!!rf.spin || bdDue().length>0, roster:()=>[], display:()=>bdRenderDisplay(), save:()=>bdSaveWin(),
     add:()=>{ const p={id:uid(), name:"", cell:bdDue()[0]?.id||null}; bd.winners.push(p); return p; }},
+  ROT:{icon:"gift", get title(){ return RT_TITLE; }, log:row=>rtRow(rtCell(row?.cell||rtDue()[0]?.id)), spinMs:()=>RT_DRAW_MS, setup:()=>!!rf.spin || rtDue().length>0, roster:()=>[], display:()=>rtRenderDisplay(), save:()=>rtSaveWin(),
+    prize:()=>rtDue()[0]?.merch||"", add:()=>{ const p={id:uid(), name:"", cell:rtDue()[0]?.id||null}; rt.winners.push(p); return p; }},
   // five fixed seats: the entries show until the first is taken, then the crew board; a claim fills the next open seat
   CREW:{icon:"gift", title:"Dead Man's Crew", kw:"Slotmill", prize:()=>`${CR_N} × €${CR_PRIZE}`, log:()=>"€100 seat", spinMs:()=>CR_DRAW_MS, setup:()=>!!rf.spin || !crTaken(), roster:()=>cr.winners, display:()=>crRenderDisplay(), save:()=>crSaveWin(), add:()=>null},
   // four challenges: Hit makes one due, a draw is for the first due one and its winner goes in that row; entries and board take turns
@@ -3102,6 +3301,7 @@ function rfSpinPool(sp){ return rf.entries.slice(0,sp.count).filter(e=>!e.st||rf
 const CHAT_BOTS=["botrix","streamelements","degenbot"];
 const isChatBot=user=>CHAT_BOTS.includes(String(user).toLowerCase().replace(/[^a-z0-9]/g,""));
 function rfChatMsg(platform, user, name, text, color, ts, extra, sub){
+  if(rqTake(platform, user, name, text, ts)) return;   // !r requests, while the queue is open
   if(!rf.on || isChatBot(user)) return;
   const sp=rf.spin;
   // Anything the winner says counts as claiming, on the platform they entered from.
@@ -3403,7 +3603,7 @@ const rfMod=(a,n)=>((a%n)+n)%n;
 let rfPlan=null, rfLastOff=null, rfWasSpinning=false;
 function rfFrame(){
   requestAnimationFrame(rfFrame);
-  if(rf.on && ["PRAG","CREW","GATES","TADA","BOARD"].includes(rf.mode) && appMode===rf.mode) return;   // pwDrawFrame() / crDrawFrame() / gzDrawFrame() / tdDrawFrame() / bdDrawFrame() run these draws
+  if(rf.on && ["PRAG","CREW","GATES","TADA","BOARD","ROT"].includes(rf.mode) && appMode===rf.mode) return;   // pwDrawFrame() / crDrawFrame() / gzDrawFrame() / tdDrawFrame() / bdDrawFrame() / rtDrawFrame() run these draws
   const sq=document.getElementById("rfSq");
   if(!sq) return;
   const sp=rf.on ? rf.spin : null;
@@ -5825,6 +6025,278 @@ function bdDrawFrame(){
 }
 requestAnimationFrame(bdDrawFrame);
 
+/* ================= ROTTEN POTATO CHALLENGES (Print Studios) =================
+   The Challenge Board's rules (16 challenges, 3 ticks each, a full one owes a giveaway drawn from the keyword
+   entries), for Print Studios' Rotten Potato, with merch for prizes. Built for the box as viewers see it: ~210 px in a
+   windowed player, ~90 px on a phone. So the box is a 4×4 grid of the game's Infected tiles with no text in them, one
+   big count and one spotlight line that cycles (closest to done first, on the server clock so every window agrees).
+   A tick is the moment (rtMoment): on a full-canvas source the box grows over the stream, the challenge fills it and
+   its vines pull back from the top (rtVines), showing the merch. The draw is the Bishop Awakens (rtDrawFrame).
+   Art in rot/, cut down from the pack in Print Studios/ (see Print Studios/ASSETS.md). */
+const RT_KEY="rot_state_v1", RT_TITLE="Rotten Potato Challenges";
+const RT_NEED=3, RT_MOMENT_MS=6500, RT_SHRINK_MS=700, RT_VINE_MS=900, RT_SPOT_MS=7000;   // the moment; the vines start pulling at RT_VINE_MS
+const RT_START=[["Hoard lands","Hoodie"],["Bishop hits 100","Beanie"],["Rotopsy win","Tee"],["Her Rotten Highness","Hoodie"],
+  ["Full infected reel","Cap"],["200x win","Mug"],["Retrigger","Beanie"],["5 Kings in view","Tee"],["Bishop 50+","Mug"],["10 infected tiles","Cap"],
+  ["Chat's pick","Mug"],["Bonus from 3 scatters","Tee"],["500x win","Hoodie"],["5 Queens in view","Beanie"],["Hoard in the bonus","Cap"],["Max meter","Hoodie"]];
+function rtFresh(){ return {cells:RT_START.map(([label,merch])=>({id:uid(), label, merch, n:0})), winners:[]}; }
+function rtLoad(){ try{ const s=JSON.parse(localStorage.getItem(RT_KEY)); if(s && Array.isArray(s.cells) && Array.isArray(s.winners)){
+  // plush and socks were placeholders, not real merch: they become the default board's item for that challenge
+  s.cells.forEach(c=>{ if(/plush|sock/i.test(c.merch)) c.merch=RT_START.find(([l])=>l===c.label)?.[1]||"Cap"; });
+  return s; } }catch(e){} return null; }
+function rtSave(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(RT_KEY, JSON.stringify(rt)); }catch(e){} bcast({type:"state"}); }
+let rt=rtLoad()||rtFresh();
+const rtFull=c=>c.n>=RT_NEED;
+const rtDue=()=>rt.cells.filter(c=>rtFull(c) && !rt.winners.some(w=>w.cell===c.id));
+const rtCell=id=>rt.cells.find(c=>c.id===id);
+const rtWon=c=>rt.winners.find(w=>w.cell===c.id && w.name);
+const rtRow=c=>c ? `${c.label} · ${c.merch}` : "";
+// the merch stays behind the vines: the stream names it only from RT_REVEAL ticks on
+const RT_REVEAL=2, rtMerch=c=>c.n>=RT_REVEAL ? c.merch : "Mystery";
+/* the merch as a picture, by its words; the names are the operator's, so anything else is a gift box */
+const RT_ICON={
+  tee:'<path d="M23 6c1 5 5 8 9 8s8-3 9-8l15 7-5 12-6-3v35H19V22l-6 3-5-12z"/>',
+  hoodie:'<path d="M24 5c-3 5-2 11 3 14h10c5-3 6-9 3-14l15 8-5 13-5-3v35H18V23l-5 3-5-13zM27 7c1 6 9 6 10 0-3-2-7-2-10 0z"/><path d="M24 42h16v8H24z" opacity=".35"/>',
+  cap:'<path d="M8 38c0-14 10-24 24-24s24 10 24 24H8zm-4 2h44c6 0 10 2 12 5H4z"/><circle cx="32" cy="12" r="3"/>',
+  mug:'<path d="M10 14h34v32c0 5-4 8-9 8H19c-5 0-9-3-9-8zm34 6h4c5 0 8 3 8 9s-3 10-8 10h-4v-5h4c2 0 3-2 3-5s-1-4-3-4h-4z"/>',
+  beanie:'<circle cx="32" cy="8" r="5"/><path d="M10 40c0-16 9-27 22-27s22 11 22 27zM8 42h48v10H8z"/>',
+  plush:'<path d="M31 8c-1-4 2-7 7-7-1 4-3 7-7 7z"/><path d="M32 9c14 0 24 9 24 24 0 13-10 24-24 24S8 46 8 33C8 18 18 9 32 9zm-9 17a4 4 0 100 8 4 4 0 000-8zm18 0a4 4 0 100 8 4 4 0 000-8zM22 41q10 8 20 0l-2-3q-8 6-16 0z"/>',
+  socks:'<path d="M14 4h16v28l14 8c5 3 6 9 3 13s-8 5-12 2L18 44c-3-2-4-5-4-8z"/>',
+  gift:'<path d="M10 24h44v10H10zM13 34h38v24H13z"/><path d="M32 24c-6-10-16-10-14-3 1 3 8 3 14 3zm0 0c6-10 16-10 14-3-1 3-8 3-14 3z"/>'};
+const rtIcon=m=>[[/hood/,"hoodie"],[/tee|shirt|jersey/,"tee"],[/beanie|toque/,"beanie"],[/cap|hat/,"cap"],[/mug|cup/,"mug"],[/plush|toy|spud|potato|teddy/,"plush"],[/sock/,"socks"]]
+  .find(([r])=>r.test(String(m||"").toLowerCase()))?.[1]||"gift";
+// the real merch has a photo (rot/merch/, cut from the shop shots); plush, socks and anything else stay a drawing
+const RT_PHOTO=new Set(["tee","hoodie","cap","mug","beanie"]);
+const rtSvg=(m,s)=>RT_PHOTO.has(rtIcon(m)) ? `<span class="rt-m"><img src="rot/merch/${rtIcon(m)}.webp" width="${s}" height="${s}" alt=""></span>` : `<span class="rt-m"><svg viewBox="0 0 64 64" width="${s}" height="${s}" aria-hidden="true">${RT_ICON[rtIcon(m)]}</svg></span>`;
+/* The vines over a tile: they have left a to b of it (1 = gone; 1.1 takes the darker layer behind too), pulling down from the top.
+   d (ms) is when they start moving; with no d they just sit at b. */
+function rtVines(a, b, d){
+  const go=d!=null;
+  return `<div class="rt-vn${go?" go":""}" style="--a:${a};--b:${b}${go?`;--d:${Math.round(d)}ms`:""}"><i class="k"><b></b></i><i><b></b></i></div>`;
+}
+// the challenge being ticked right now: the latest tick still inside its moment
+function rtMoment(){
+  const now=netNow(); let m=null;
+  rt.cells.forEach(x=>{ if(x.at && now-x.at<RT_MOMENT_MS && (!m || x.at>m.at)) m=x; });
+  return m;
+}
+// no sounds in this format for now (the tick sounds were too harsh on stream); a tick plays only on screen
+function rtPlay(m){ if(m.t!=="tick") takeover("tk-gold", "crown", "Giveaway winner", m.name, m.sub, 3400); }
+function rtFx(m){ m=Object.assign({type:"fx", fx:"rot"}, m); bcast(m); rtPlay(m); }
+/* a claim names the row after add(), so the winner is announced on save */
+function rtSaveWin(){
+  const w=rt.winners[rt.winners.length-1];
+  if(w && w.name && !w.shown){ w.shown=true; rtFx({t:"win", name:w.name, sub:rtRow(rtCell(w.cell))}); }
+  rtSave();
+}
+function rtTick(id, d){
+  const c=rtCell(id); if(!c) return;
+  const from=Math.min(c.n, RT_NEED);
+  c.n=Math.max(0, Math.min(RT_NEED, c.n+d));
+  if(c.n>from){ c.from=from; c.at=netNow(); } else c.at=0;
+  rtSave(); rtRender();
+  if(c.n>from) rtFx({t:"tick", done:rtFull(c)});
+}
+function rtUndo(){
+  const w=rt.winners.pop();
+  if(!w){ toast("Nothing to undo"); return; }
+  rtSave(); rtRender(); toast(`Took ${w.name||"the last winner"} off the list`);
+}
+function rtConfirmReset(){
+  const go=()=>{ rfStop("ROT"); rt.cells.forEach(c=>{ c.n=0; c.at=0; }); rt.winners=[]; rtSave(); rtRender(); };
+  if(!rt.winners.length && !rt.cells.some(c=>c.n)) return go();
+  showConfirm("Start a new board? Counts and winners go back to zero. The challenges and merch stay.","Start new",go);
+}
+function rtRender(){ rtRenderDisplay(); if(!DISPLAY_ONLY) rtRenderControl(); }
+// a name's size: the full size up to 13 letters, then smaller, so it fits instead of being cut
+const rtFs=(t, full)=>{ const n=String(t||"").length; return n<=13 ? full : Math.max(Math.round(full*.62), Math.round(full*13/n)); };
+const rtPips=(n,lit)=>[0,1,2].map(i=>`<i class="${i<n?"on":""}${i===lit?" new":""}"></i>`).join("");
+let rtT=0;
+function rtRenderDisplay(){
+  const c=$("#displayContent"), box=$("#display"), now=netNow();
+  const m=!lb.show && rtMoment(), age=m ? now-m.at : 0;
+  box.classList.toggle("rt-grow", !!m && age<RT_MOMENT_MS-RT_SHRINK_MS);
+  clearTimeout(rtT);
+  if(m) rtT=setTimeout(()=>{ if(appMode==="ROT") rtRenderDisplay(); }, (age<RT_MOMENT_MS-RT_SHRINK_MS ? RT_MOMENT_MS-RT_SHRINK_MS : RT_MOMENT_MS)-age+30);
+  if(m){
+    const sig="m"+m.id+m.at;
+    if(c.dataset.sig===sig) return;
+    c.dataset.sig=sig;
+    const done=rtFull(m);
+    c.innerHTML=`<div class="rt-mo" style="--d:${-age}ms"><i class="rt-logo"></i><i class="rt-print"></i>
+      <div class="rt-mo-tile${done?" done":""}">${rtSvg(m.merch,118)}${rtVines(m.from/RT_NEED, done ? 1.1 : m.n/RT_NEED, RT_VINE_MS-age)}${done?`<div class="rt-stamp">Cleared!</div>`:""}</div>
+      <div class="rt-mo-lab" style="font-size:${rtFs(m.label, 36)}px">${escapeHtml(m.label)}</div>
+      <div class="rt-pp">${rtPips(m.n, m.n-1)}<span>${escapeHtml(rtMerch(m))}</span></div></div>`;
+    return;
+  }
+  if(lbTakeover(c) || rtEntries(c)){ c.dataset.sig=""; return; }
+  const due=new Set(rtDue().map(x=>x.id)), done=rt.cells.filter(rtFull).length;
+  // the spotlight: what's owed a giveaway first, then the closest to done; won ones are out
+  const list=rt.cells.map((x,i)=>[x,i]).filter(([x])=>!rtWon(x)).sort((a,b)=>(due.has(b[0].id)-due.has(a[0].id)) || b[0].n-a[0].n || a[1]-b[1]).map(([x])=>x);
+  const k=Math.floor(now/RT_SPOT_MS), s=list.length ? list[k%list.length] : null;
+  const sig="g"+JSON.stringify(rt)+(s?.id||"")+(list.length>1?k:"");
+  if(c.dataset.sig===sig) return;
+  c.dataset.sig=sig;
+  const tiles=rt.cells.map(x=>{ const w=rtWon(x), full=rtFull(x);
+    return `<div class="rt-t${full?" done":""}${due.has(x.id)?" due":""}${w?" won":""}">${x.n||full?rtSvg(x.merch,full?40:34):""}${full?"":rtVines(0, x.n/RT_NEED)}</div>`; }).join("");
+  const spot=!s ? `<div class="rt-spot"><div><b>All cleared</b></div></div>`
+    : `<div class="rt-spot${due.has(s.id)?" due":""}">${s.n>=RT_REVEAL ? rtSvg(s.merch,46) : '<span class="rt-m rt-q">?</span>'}<div><b style="font-size:${rtFs(s.label, 36)}px">${escapeHtml(s.label)}</b><div class="rt-pp">${due.has(s.id) ? `Giveaway due<span>${escapeHtml(s.merch)}</span>` : rtPips(s.n)+`<span>${escapeHtml(rtMerch(s))}</span>`}</div></div></div>`;
+  c.innerHTML=`<div class="rt-box"><i class="rt-logo"></i><i class="rt-print"></i><div class="rt-grid">${tiles}</div>
+    <div class="rt-cnt"><b>${done}</b><span>of ${rt.cells.length}<br>cleared</span></div>${spot}</div>`;
+  rtInk(c.querySelector(".rt-cnt b"));
+}
+/* Rubik Dirt's digits sit off-centre in their own box (a "1" leans right by a fifth of an em), so the count is
+   centred on its ink: canvas knows where the glyphs' pixels really start and end. */
+function rtInk(el){
+  document.fonts.load('96px "Rubik Dirt"').then(()=>{
+    const x=(rtInk.c||=document.createElement("canvas").getContext("2d")), cs=getComputedStyle(el);
+    x.font=`${cs.fontSize} "Rubik Dirt"`; const m=x.measureText(el.textContent);
+    el.style.setProperty("--ink", (m.width/2-(m.actualBoundingBoxRight-m.actualBoundingBoxLeft)/2).toFixed(1)+"px");
+  }).catch(()=>{});
+}
+/* The box while chat enters (in place of rfTakeover's list, same facts): the challenge it's for as its gold tile, the keyword
+   huge, the count and platforms, and the names popping up as spores in a cloud, newest biggest. Built once, then updated in
+   place, so names already shown don't pop again. */
+function rtEntries(c){
+  if(!rf.on || rf.mode!=="ROT" || appMode!=="ROT" || !RF_MODES.ROT.setup()) return false;
+  if(!c.querySelector("#rtEn")) c.innerHTML=`<div class="rt-en" id="rtEn"><i class="rt-logo"></i><i class="rt-print"></i>
+      <div class="rt-en-for"><div class="rt-en-tile"></div><div><b class="rt-en-lab"></b><span class="rt-en-merch"></span></div></div>
+      <div class="rt-en-cta"><small class="rt-en-top"></small><b class="rt-en-kw"></b><small class="rt-en-bot"></small></div>
+      <div class="rt-en-count"><span></span><em></em></div>
+      <div class="rt-en-cloud"></div></div>`;
+  const set=(sel,v)=>{ const el=c.querySelector(sel); if(el.textContent!==v) el.textContent=v; };
+  const html=(sel,v)=>{ const el=c.querySelector(sel); if(el.dataset.v!==v){ el.dataset.v=v; el.innerHTML=v; } };
+  const x=rtCell(rtDue()[0]?.id), pool=rfPool(), kw=rfKw();
+  html(".rt-en-tile", x ? rtSvg(x.merch,42) : "");
+  set(".rt-en-lab", x?.label||"");
+  set(".rt-en-merch", x?.merch||"");
+  set(".rt-en-top", rf.open ? "Type in chat" : "");
+  set(".rt-en-kw", rf.open ? kw : "Entries closed");
+  set(".rt-en-bot", rf.open ? "to win it" : "");
+  c.querySelector(".rt-en-kw").style.fontSize=(!rf.open ? 40 : kw.length<=7 ? 68 : kw.length<=11 ? 54 : 40)+"px";
+  c.querySelector(".rt-en-lab").style.fontSize=rtFs(x?.label, 30)+"px";
+  set(".rt-en-count span", pool.length ? `${pool.length.toLocaleString("en-US")} in the draw` : "Waiting for chat");
+  html(".rt-en-count em", rfPfCounts(pool));
+  // newest first; only new names are added (at the front) and old ones dropped: moving a chip would replay its pop
+  const cloud=c.querySelector(".rt-en-cloud"), want=pool.reverse().slice(0,9), keys=new Set(want.map(rfId));
+  [...cloud.children].forEach(el=>{ if(!keys.has(el.dataset.k)) el.remove(); });
+  const have=new Set([...cloud.children].map(el=>el.dataset.k));
+  want.slice().reverse().forEach(e=>{ const k=rfId(e); if(have.has(k)) return;
+    const el=document.createElement("span"); el.dataset.k=k; el.innerHTML=rfNameHtml(e); el.className="pop"; el.onanimationend=()=>el.classList.remove("pop"); cloud.prepend(el); });
+  [...cloud.children].forEach((el,i)=>{ el.style.setProperty("--i", i); el.classList.toggle("new", i===0); });
+  return true;
+}
+// the spotlight moves on by itself; nothing else changes the box between saves
+setInterval(()=>{ if(appMode==="ROT" && !rtMoment()) rtRenderDisplay(); }, 1000);
+function rtRenderControl(){
+  $("#undoBtn").disabled=!rt.winners.length;
+  const cells=rt.cells.map(x=>`<div class="cb-ed${rtFull(x)?" done":""}">
+      <input class="tier-in" data-rt-lab="${x.id}" maxlength="30" spellcheck="false" value="${escapeHtml(x.label)}" aria-label="Challenge">
+      <div class="cb-ct"><button class="btn" data-rt-tick="${x.id}" data-d="-1" aria-label="One less">−</button><b>${x.n}</b><span>of ${RT_NEED}</span><button class="btn" data-rt-tick="${x.id}" data-d="1" aria-label="One more">${ic("plus")}</button></div>
+      <label class="cb-ct">Merch<input class="tier-in" data-rt-merch="${x.id}" maxlength="30" spellcheck="false" style="flex:1;width:auto;min-width:0;margin-right:0;text-align:left" value="${escapeHtml(x.merch)}" aria-label="Merch prize"></label>
+    </div>`).join("");
+  const due=rtDue().length;
+  const rows=rt.winners.map((p,i)=>`<div class="crow"><div class="idx">${i+1}</div>${rfLogo(p.chat?.platform)}<span class="clab">${escapeHtml(p.name)}</span><span class="chint">${escapeHtml(rtRow(rtCell(p.cell)))}</span></div>`).join("");
+  $("#controlBody").innerHTML=`<div class="page-h">Rotten Potato Challenge Board · ${rt.cells.length} pieces of merch</div>
+    <div class="cb-edit">${cells}</div>
+    <div class="two-col">${rfSection()}
+    <div class="section"><div class="section-h">Winners · ${rt.winners.length}${due?` · ${due} due`:""}</div>${rows ? `<div class="crows">${rows}</div>` : `<div class="chint">Nobody drawn yet.</div>`}</div></div>
+    <div class="actionbar"><button class="btn" id="rtNewBtn">${ic("new")}New board</button></div>`;
+  document.querySelectorAll("[data-rt-tick]").forEach(b=>{ b.onclick=()=>rtTick(b.dataset.rtTick, +b.dataset.d); });
+  document.querySelectorAll("[data-rt-lab]").forEach(i=>{ i.onchange=()=>{ const x=rtCell(i.dataset.rtLab); x.label=i.value.trim()||x.label; rtSave(); rtRender(); }; });
+  document.querySelectorAll("[data-rt-merch]").forEach(i=>{ i.onchange=()=>{ const x=rtCell(i.dataset.rtMerch); x.merch=i.value.trim()||x.merch; rtSave(); rtRender(); }; });
+  $("#rtNewBtn").onclick=rtConfirmReset;
+  rfWire();
+}
+
+/* ---- The draw, the Bishop Awakens: both windows, straight from rf.spin (full canvas left of the chat; a 1080 stage in
+   the box). The names stream down a reel five rows tall beside the game's Bishop, slowing like a slot onto the middle
+   row. Over the reel runs the game's own free-spins meter (10/15/20/50/100); each mark it passes is a stage: a slam across
+   the screen with the number and what happens, a shake, a flash, and the Bishop turns into his next art (whose plate shows
+   that same number). The last mark is the stop: his eyes flare, "The Bishop has chosen", the name burns in the middle row. */
+const RT_DRAW_MS=[16000,18000], RT_FADE_MS=2000, RT_END=110, RT_ROWH=100, RT_WON_AT=1.2;
+const RT_STAGES=[["10","The Bishop stirs"],["15","The gem lights"],["20","The vines climb"],["50","His eyes burn"],["100",""]];
+let rtPlan=null, rtLast=null;
+function rtDrawPlan(sp, W){
+  const pool=rfSpinPool(sp), N=pool.length, winner=pool.find(e=>rfId(e)===sp.winner);
+  if(!winner) return null;
+  const S=pool.slice(), rnd=pwRng(sp.seed);
+  for(let i=N-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [S[i],S[j]]=[S[j],S[i]]; }
+  const name=k=>{ if(k===RT_END) return winner; let e=S[rfMod(k,N)]; if(e===winner && N>1) e=S[rfMod(k+1,N)]; return e; };
+  const c=sp.test ? null : rtCell(rtDue()[0]?.id);
+  // the Bishop on the left, the reel on the right
+  const bh=880, bw=Math.round(bh*.4222), bx=Math.round(W*.24), rx=Math.round(W*.46), rw=Math.round(W*.95)-rx;
+  return {at:sp.startedAt, W, move:(sp.duration-RT_FADE_MS)/1000, name, N, rnd, bh, bw, bx, rx, rw, bt:150, rt:300,
+    label:sp.test ? "Test draw" : c?.label||"", merch:sp.test ? "Test draw" : c?.merch||"", redraw:rf.entries.some(e=>e.st==="missed")};
+}
+function rtDrawFrame(){
+  requestAnimationFrame(rtDrawFrame);
+  const sp = rf.on && rf.mode==="ROT" && appMode==="ROT" ? rf.spin : null;
+  let ov=document.getElementById("rtDraw");
+  if(!sp){
+    if(ov && !ov.classList.contains("out")){ ov.classList.add("out"); ov.id=""; setTimeout(()=>ov.remove(),900); }
+    rtPlan=null; rtLast=null; return;
+  }
+  if(ov && ov.classList.contains("fixed")!==(DISPLAY_ONLY && document.body.classList.contains("canvas"))){ ov.remove(); ov=null; }
+  if(!ov) ov=pwDrawMount("rtDraw", "pw-draw rt-draw");
+  const stage=ov.firstChild, [W]=drawFit(ov);
+  if(!rtPlan || rtPlan.at!==sp.startedAt || rtPlan.W!==W){
+    rtPlan=rtDrawPlan(sp, W); if(!rtPlan) return;
+    ov.style.setProperty("--el", -Math.max(0, netNow()-sp.startedAt)/1000+"s");
+    const p=rtPlan, r=p.rnd;
+    let spores=""; for(let i=0;i<40;i++){ const s=10+r()*20; spores+=`<i style="left:${(r()*100).toFixed(1)}%;top:${(r()*100).toFixed(1)}%;width:${s.toFixed(0)}px;height:${s.toFixed(0)}px;opacity:${(.3+r()*.6).toFixed(2)};--t:${(4+r()*5).toFixed(1)}s;--dl:${(-r()*6).toFixed(1)}s"></i>`; }
+    stage.innerHTML=`<div class="rt-shake"><div class="rt-dbg"></div><div class="rt-spores">${spores}</div>
+      <div class="rt-glow" style="left:${p.bx}px;top:${p.bt+p.bh*.45}px"></div>
+      <div class="rt-bish" style="left:${p.bx}px;top:${p.bt}px;width:${p.bw}px;height:${p.bh}px;margin-left:${-p.bw/2}px">${[0,1,2,3,4,5].map(i=>`<img src="rot/bishop${i}.webp" alt=""${i?` style="opacity:0"`:""}>`).join("")}</div>
+      ${[-1,1].map(s=>`<i class="rt-eye" style="left:${p.bx+s*.145*p.bw}px;top:${p.bt+.475*p.bh}px"></i>`).join("")}
+      <div class="rt-meter" style="left:${p.rx+40}px;width:${p.rw-80}px;top:${p.rt-82}px"><div class="rt-mtrack"><i class="rt-mfill"></i></div><i class="rt-mhead"></i><b class="s" style="left:0"></b>${RT_STAGES.map(([n],i)=>`<b style="left:${(i+1)*20}%">${n}</b>`).join("")}</div>
+      <div class="rt-reel" style="left:${p.rx}px;width:${p.rw}px;top:${p.rt}px"><div class="rt-rows"></div><i class="rt-line"></i></div>
+      <div class="rt-dhead"><b><span>The Bishop awakens</span>${p.redraw?"<em>Redraw</em> · ":""}<em>${escapeHtml(p.label)}</em>${p.merch&&!sp.test?` · ${escapeHtml(p.merch)}`:""} · ${p.N.toLocaleString("en-US")} in the draw</b></div>
+      <div class="rt-win"><h2>The Bishop has chosen</h2></div>
+      <div class="rt-wside" style="left:${p.rx}px;width:${p.rw}px;top:${p.rt+5*RT_ROWH+30}px"><p>${sp.test?"Test draw":`wins the <em>${escapeHtml(p.merch)}</em>`}</p><div class="rt-wclaim"></div></div>
+      <div class="rt-call" style="left:${p.rx}px;width:${p.rw}px;top:${p.rt+5*RT_ROWH+40}px"></div><div class="rt-flash"></div></div>`;
+    stage.rows=new Map();
+    Object.assign(p, {rowsEl:stage.querySelector(".rt-rows"), imgs:[...stage.querySelectorAll(".rt-bish img")],
+      fill:stage.querySelector(".rt-mfill"), marks:[...stage.querySelectorAll(".rt-meter b:not(.s)")], head:stage.querySelector(".rt-mhead"), mw:p.rw-80, call:stage.querySelector(".rt-call"), shake:stage.querySelector(".rt-shake")});
+    p.imgs.forEach(im=>im.decode().catch(()=>{}));
+  }
+  const p=rtPlan, now=netNow(), t=(now-sp.startedAt-RT_FADE_MS)/1000, landed=now>=rfSpinEnd(sp), after=(now-rfSpinEnd(sp))/1000;
+  const d=landed ? RT_END : RT_END*bdRoll(t/p.move);
+  // the reel: row k sits on the middle row when d===k, rows come down from above
+  const rows=stage.rows, seen=new Set();
+  for(let k=Math.max(0,Math.ceil(d-3)); k<=Math.floor(d+3); k++){
+    let el=rows.get(k);
+    if(!el){ el=document.createElement("div"); el.className="rt-row"; el.innerHTML=rfNameHtml(p.name(k)); p.rowsEl.appendChild(el); rows.set(k,el); }
+    seen.add(k);
+    el.style.transform=`translateY(${((d-k+2)*RT_ROWH).toFixed(1)}px)`;
+    el.classList.toggle("win", landed && k===RT_END);
+  }
+  rows.forEach((el,k)=>{ if(!seen.has(k)){ el.remove(); rows.delete(k); } });
+  // the meter fills with the roll; each fifth is a stage, the last one is the stop itself
+  const f=landed ? 1 : Math.min(.999, d/RT_END), si=Math.floor(f*5+1e-6);
+  p.fill.style.transform=`scaleX(${f.toFixed(4)})`; p.head.style.transform=`translateX(${(f*p.mw).toFixed(1)}px)`;
+  p.marks.forEach((m,i)=>m.classList.toggle("on", si>i));
+  p.imgs.forEach((im,i)=>{ if(!i) return; const o=si>=i ? "1" : "0"; if(im.style.opacity!==o) im.style.opacity=o; });
+  if(ov.style.getPropertyValue("--st")!==String(si)) ov.style.setProperty("--st", si);
+  const won=landed && after>=RT_WON_AT;
+  ov.classList.toggle("landed", landed); ov.classList.toggle("won", won);
+  const was=rtLast; rtLast={d, after:landed?after:-1, si};
+  if(was){
+    if(si>was.si){
+      // a stage: the call slams across the screen, it shakes and flashes, he pulses into his next art
+      // (not on the stop: the reel's middle row and the title have it)
+      const [,txt]=RT_STAGES[si-1];
+      p.call.innerHTML=si<5 ? `<div><span>${txt}</span></div>` : "";
+      [p.call, p.shake, ov].forEach(e=>{ e.classList.remove("hit"); void e.offsetWidth; e.classList.add("hit"); });
+    }
+  }
+  if(landed){
+    const e=rfWinner(sp), pf=(e&&e.platform||"").toUpperCase(), cl=stage.querySelector(".rt-wclaim");
+    const html = sp.claimed ? `<p class="ok">Claimed on ${pf}</p>` : `<p>Type in ${pf} chat to claim<b>${rfSecs(rfClaimEnd(sp))}</b></p>`;
+    if(cl.innerHTML!==html) cl.innerHTML=html;
+  }
+}
+requestAnimationFrame(rtDrawFrame);
+
 /* ================= DEAD MAN'S CREW (Slotmill visit) =================
    A keyword raffle in the game's own art: five seats on the crew, €100 each.
    Chat types the keyword; each claim fills the next seat and the captain
@@ -6228,11 +6700,12 @@ requestAnimationFrame(gzDrawFrame);
    wheel). There is one stream box, so a tab switch is the Home button with a
    filter: the stream follows the panel, Home lists only that tab's formats, and
    coming back to a tab reopens the format it was on. Leaving a live format asks. */
-const SECTION={LMS:"comp", H2H:"comp", BRACKET:"comp", LEAGUE:"comp", WHEEL:"comp", TADA:"special", PRAG:"special", KEYWORD:"keyword", BINGO:"special", BOARD:"special", CREW:"special", GATES:"special"};
+const SECTION={LMS:"comp", H2H:"comp", BRACKET:"comp", LEAGUE:"comp", WHEEL:"comp", TADA:"special", PRAG:"special", KEYWORD:"keyword", BINGO:"special", BOARD:"special", ROT:"special", CREW:"special", GATES:"special"};
 let homeSection=null;   // null in a plain browser tab: everything
 const lastIn={};        // tab -> the format it was last on
 window.addEventListener("message", e=>{
   const sec=e.data && e.data.studioTab;
+  if(sec && !DISPLAY_ONLY) rqShow(sec==="requests");
   if(!["comp","keyword","special"].includes(sec) || DISPLAY_ONLY) return;
   const go=()=>{
     homeSection=sec;
@@ -6245,6 +6718,57 @@ window.addEventListener("message", e=>{
     return showConfirm(`${MODE_NAME[appMode]} is live. Switch the stream box away from it? Nothing is lost, it's still there when you come back.`, "Switch", go, "Stay", tellShell);
   go();
 });
+/* REQUESTS: the Requests tab is a queue over this page, not a format, so the stream box and
+   whatever runs in it carry on underneath. While open, "!r <anything>" in chat joins it. */
+const RQ_KEY="requests_v1";
+const rqLoad=()=>{ try{ return JSON.parse(localStorage.getItem(RQ_KEY))||{open:false,list:[]}; }catch(e){ return {open:false,list:[]}; } };
+let rq=rqLoad();
+// the stream box shows the queue while the panel is on the Requests tab (rq.show); a panel opening starts off it
+if(!DISPLAY_ONLY && rq.show){ rq.show=false; try{ localStorage.setItem(RQ_KEY, JSON.stringify(rq)); }catch(e){} }
+function rqDisplayView(){
+  const left=rq.list.filter(r=>!r.played);
+  return bugHtml("", "Requests", rq.open?"!r + request":"Closed", rq.open?"gold":"")
+    + (left.length ? standingsHtml(left.map(r=>({name:r.what, value:r.name})))
+                   : `<div class="lobby"><div class="lwait">${rq.open?"Type !r and your request":"No requests"}</div></div>`);
+}
+const rqSave=()=>{ try{ localStorage.setItem(RQ_KEY, JSON.stringify(rq)); }catch(e){} bcast({type:"state"}); rqRender(); if(rq.show) renderApp(); };
+function rqTake(platform, user, name, text, ts){
+  const m=/^\s*!r\s+(.+)/i.exec(text);
+  if(!m || !rq.open || isChatBot(user)) return !!m;
+  const what=m[1].replace(/\s+/g," ").trim().slice(0,80);
+  if(rq.list.some(r=>!r.played && r.platform===platform && r.user===user && r.what.toLowerCase()===what.toLowerCase())) return true;   // said twice
+  rq.list.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6), platform, user, name, what, t:+ts||Date.now()});
+  rq.list.sort((a,b)=>a.t-b.t);   // YouTube's lands late: keep it in the order it was written
+  rqSave(); return true;
+}
+function rqRender(){
+  const el=$("#rq"); if(!el || el.hidden) return;
+  const dot=s=>`<i class="${s==="connected"?"ok":s==="connecting"?"wait":""}"></i>`;
+  const left=rq.list.filter(r=>!r.played).length;
+  el.innerHTML=`<div class="rq-top"><div class="page-h">Requests</div>
+      <button class="${rq.open?"btn":"btn on"}" data-rq="open">${ic(rq.open?"x":"arrow")}${rq.open?"Close the queue":"Open the queue"}</button>
+      <button class="btn danger" data-rq="clear"${rq.list.length?"":" disabled"}>${ic("x")}Clear all</button></div>
+    <div class="rf-status"><span>${rq.open?`Open: chat types <b>!r</b> and a request`:"Closed"}</span><span><b>${left}</b> waiting${rq.list.length-left?` · ${rq.list.length-left} played`:""}</span>${rq.open?`<span>${dot(rfChat.twitch)}Twitch</span><span>${dot(rfChat.kick)}Kick</span><span>${dot(rfChat.youtube)}YouTube</span>`:""}</div>
+    <div class="rq-list">${rq.list.map((r,i)=>`<div class="rq-row${r.played?" played":""}"><span class="n">${i+1}</span><span class="who">${rfLogo(r.platform)}${escapeHtml(r.name)}</span><span class="what">${escapeHtml(r.what)}</span>
+      <span class="at">${new Date(r.t).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</span>
+      <span class="acts"><button class="btn${r.played?" on":""}" data-rq="played" data-id="${r.id}">${ic("check")}Played</button><button class="btn danger" data-rq="del" data-id="${r.id}" aria-label="Remove">${ic("x")}</button></span></div>`).join("")
+      || `<div class="chint">${rq.open?"Nothing yet.":"Open the queue, then chat types !r and a request."}</div>`}</div>`;
+}
+if(!DISPLAY_ONLY){
+  document.body.insertAdjacentHTML("beforeend", `<section id="rq" hidden></section>`);
+  $("#rq").onclick=e=>{
+    const b=e.target.closest("[data-rq]"); if(!b) return;
+    const r=rq.list.find(x=>x.id===b.dataset.id), a=b.dataset.rq;
+    if(a==="open"){ rq.open=!rq.open; if(rq.open) rfStartChat(); }
+    if(a==="played" && r) r.played=!r.played;
+    if(a==="del") rq.list=rq.list.filter(x=>x!==r);
+    if(a==="clear") return showConfirm(`Clear all ${rq.list.length} requests?`, "Clear", ()=>{ rq.list=[]; rqSave(); }, "Keep");
+    rqSave();
+  };
+  if(rq.open) rfStartChat();
+  setInterval(()=>{ if(rq.open) rqRender(); }, 3000);   // chat status dots
+}
+function rqShow(on){ const el=$("#rq"); if(!el || el.hidden===!on) return; el.hidden=!on; rq.show=on; rqSave(); if(!on) renderApp(); }
 function tellShell(){ if(parent!==window && !DISPLAY_ONLY) parent.postMessage({studioSection: SECTION[appMode]||homeSection}, "*"); }
 
 /* ================= COMPETITION MENU / APP DISPATCH ================= */
@@ -6267,6 +6791,7 @@ function renderApp(){
   $("#display").classList.toggle("crew", appMode==="CREW");
   $("#display").classList.toggle("gates", appMode==="GATES");
   $("#display").classList.toggle("bb3", appMode==="BOARD");
+  $("#display").classList.toggle("rot", appMode==="ROT");
   $("#display").classList.toggle("bingo", appMode==="BINGO");
   tellShell();
   if(!appMode){
@@ -6288,6 +6813,7 @@ function renderApp(){
   if(appMode==="KEYWORD") return kwRender();
   if(appMode==="BINGO") return bgRender();
   if(appMode==="BOARD") return bdRender();
+  if(appMode==="ROT") return rtRender();
   if(appMode==="CREW") return crRender();
   if(appMode==="GATES") return gzRender();
 }
@@ -6346,6 +6872,7 @@ function modeStatus(m){
           : m==="CREW" ? {started:(rf.on && rf.mode==="CREW") || crTaken()>0, done:crTaken()===CR_N, round:null, names:crTaken()>0}
           : m==="GATES" ? {started:(rf.on && rf.mode==="GATES") || gz.rows.some(r=>r.hit), done:gzTaken()===gz.rows.length, round:null, names:gz.rows.some(r=>r.hit)}
           : m==="BOARD" ? {started:bd.cells.some(c=>c.n>0), done:false, round:null, names:!!bd.winners.length}
+          : m==="ROT" ? {started:rt.cells.some(c=>c.n>0), done:false, round:null, names:!!rt.winners.length}
           : {started:lg.started, done:!!lg.winnerId, round:lg.round, names:named(lg.players)};
   if(s.started) return s.done ? {cls:"done", text:"Finished"} : {cls:"live", text:s.round?`Live · Round ${s.round}`:"Live"};
   return s.names ? {cls:"setup", text:"Setting up"} : null;
@@ -6484,6 +7011,7 @@ $("#undoBtn").onclick=()=>{
   else if(appMode==="PRAG") pwUndo();
   else if(appMode==="KEYWORD") kwUndo();
   else if(appMode==="BOARD") bdUndo();
+  else if(appMode==="ROT") rtUndo();
   else if(appMode==="CREW") crUndo();
   else if(appMode==="GATES") gzUndo();
 };
@@ -6497,6 +7025,7 @@ $("#resetBtn").onclick=()=>{
   else if(appMode==="PRAG") pwConfirmReset();
   else if(appMode==="KEYWORD") kwConfirmReset();
   else if(appMode==="BOARD") bdConfirmReset();
+  else if(appMode==="ROT") rtConfirmReset();
   else if(appMode==="CREW") crConfirmReset();
   else if(appMode==="GATES") gzConfirmReset();
 };
@@ -6541,8 +7070,8 @@ if(DISPLAY_ONLY){
   }
   const refreshFromStorage=()=>{
     state=load()||fresh(); h2h=h2hLoad()||h2hFresh();
-    bk=bkLoad()||bkFresh(); lg=lgLoad()||lgFresh(); wh=whLoad()||whFresh(); td=tdLoad()||tdFresh(); pw=pwLoad()||pwFresh(); kw=kwLoad()||kwFresh(); bd=bdLoad()||bdFresh(); cr=crLoad()||crFresh(); gz=gzLoad()||gzFresh();
-    appMode=loadMode(); lb=lbLoad(); rf=rfLoad();
+    bk=bkLoad()||bkFresh(); lg=lgLoad()||lgFresh(); wh=whLoad()||whFresh(); td=tdLoad()||tdFresh(); pw=pwLoad()||pwFresh(); kw=kwLoad()||kwFresh(); bd=bdLoad()||bdFresh(); rt=rtLoad()||rtFresh(); cr=crLoad()||crFresh(); gz=gzLoad()||gzFresh();
+    appMode=loadMode(); lb=lbLoad(); rf=rfLoad(); rq=rqLoad();
     renderApp();
   };
   const playFxMsg=(m)=>{
@@ -6554,6 +7083,7 @@ if(DISPLAY_ONLY){
     else if(m.fx==="life") playLifeSaved(m.name);
     else if(m.fx==="wheel") whPlayResult(m);
     else if(m.fx==="board") bdPlay(m);
+    else if(m.fx==="rot") rtPlay(m);
     else if(m.fx==="tada") tdPlayWin(m);
     else if(m.fx==="crew") crPlay(m);
     else if(m.fx==="gates") gzPlay(m);
@@ -6571,7 +7101,7 @@ if(DISPLAY_ONLY){
   setInterval(()=>{
     let raw="";
     try{
-      raw=[KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,CR_KEY,GZ_KEY].map(k=>localStorage.getItem(k)||"").join("");
+      raw=[KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,RT_KEY,CR_KEY,GZ_KEY].map(k=>localStorage.getItem(k)||"").join("");
     }catch(e){ return; }
     if(raw!==lastRaw){ lastRaw=raw; refreshFromStorage(); }
   },1000);

@@ -69,6 +69,7 @@
     <button role="tab" data-tab="keyword"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16v11H9l-5 4z"/><path d="M9 10.5h6"/></svg><span>Keyword</span></button>
     <button role="tab" data-tab="wheel"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17M3.5 12h17M6 6l12 12M18 6 6 18"/></svg><span>Wheel Studio</span></button>
     <button role="tab" data-tab="special"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="8" width="17" height="4"/><path d="M5 12v8.5h14V12M12 8v12.5M12 8C10.5 4 6.5 4 7 6.5S12 8 12 8zM12 8c1.5-4 5.5-4 5-1.5S12 8 12 8z"/></svg><span>Special Giveaways</span></button>
+    <button role="tab" data-tab="requests"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg><span>Requests</span></button>
   </div>
   <span class="spacer"></span>
   <span id="note"></span>
@@ -113,6 +114,7 @@ addEventListener("message", e=>{
   if(e.source===bingo.contentWindow && e.data && e.data.studioBack==="bingo") return show("special");
   if(e.source!==comp.contentWindow || !e.data || !("studioSection" in e.data)) return;
   const sec=e.data.studioSection;
+  if(tab==="requests") return comp.contentWindow.postMessage({studioTab:"requests"}, "*");   // the queue sits over the page
   if(sec){ if(tab!=="wheel") show(sec, true); }
   else comp.contentWindow.postMessage({studioTab: tab && tab!=="wheel" ? tab : "comp"}, "*");
 });

@@ -13,7 +13,7 @@ main.js            Electron: on the stream PC runs server/index.js in-process an
 preload.js         window.studio.onUpdate, for the tab bar's update note
 server/index.js    Wheel Studio server (zero npm deps) + /comp/sync, /yt/*, /api/info, /app
 server/comp-sync.js  competitions relay: the old 3-line sync contract + the one-controller lock
-public/app.html    the window: 4 tabs over two iframes
+public/app.html    the window: 5 tabs over the iframes
 public/connect.html  the playing PC's first screen: the stream PC's address
 moved.html         hand-out page for the old Stream Competitions bookmark
 public/comp/index.html  Stream Competitions (the old index.html, see its own notes below)
@@ -23,6 +23,7 @@ public/bingo/assets/  MT5 art, cut down from the Money Train 5 asset pack in Dow
 public/bingo/rr2/  The Racaroon 2 art, cut down from Playtech's pack in Playtech/ (gitignored, ~960 MB)
 public/comp/bb3/   Buffalo Blitz 3 art for the Challenge Board, same pack. Playtech/ASSETS.md says what every
                    image in both packs is (note: the jpticker "-novalue" files are the ones WITH values)
+public/comp/rot/   Rotten Potato art (Print Studios pack in Print Studios/, gitignored) and the two bundled fonts
 public/*           Wheel Studio pages (index.html = OBS studio, control.html = operator)
 ```
 
@@ -30,7 +31,9 @@ Tabs: **Stream Competitions**, **Keyword**, **Special Giveaways** are all the on
 iframe. The shell posts `{studioTab}` and the page filters Home by `SECTION` (Keyword opens the
 `KEYWORD` format directly). The page posts `{studioSection}` back so the shell highlights the right tab.
 There is one stream box, so switching tabs is the Home button with a filter, and leaving a live
-format asks first. **Wheel Studio** is `/control` in the second iframe. **The Racaroon 2 Bingo** (was Relax Bingo) is a card on
+format asks first. **Requests** is a queue over the competitions page (`#rq`, `requests_v1`), not a format, so the
+stream box carries on under it: while open, `!r <text>` in chat joins it (`rqTake()`, in time order); remove, played, clear all. While the panel is on that tab (`rq.show`) the stream box shows the queue instead of the format (`lbTakeover` → `rqDisplayView`).
+**Wheel Studio** is `/control` in the second iframe. **The Racaroon 2 Bingo** (was Relax Bingo) is a card on
 Special Giveaways Home. It opens `/bingo/` in a third iframe, which stays loaded because it reads chat. Pressing
 Special Giveaways again goes back. The Racaroon 2's draw is its own (`rdHtml`/`rdFrame`): names climb the game's
 jackpot bars and the winner's turns GRAND. In the box it plays inside the bingo box; on a full canvas the bingo in the
@@ -47,7 +50,18 @@ Its draw is full canvas (`bdDrawFrame`): the splash herd charges out of the suns
 roll in one blue reel window in front, and on the stop the winner becomes the feature coin of their challenge's pot (Buffalo
 Gold green, Big Grid blue, Buffalo Cash and the rest red) and drops into it; the pot bursts, lightning strikes, then the win
 screen. (A herd with a name on every buffalo was tried first: too messy to follow.)
-**Retired from Home:** Dead Man's Crew (4.7.0), Gates of Olympus 2500 (after 4.9.0). The bingo came back after 4.10.1 as The Racaroon 2 Bingo. Their code stays; each comes back with its `card(...)`
+**Rotten Potato Challenges** (`ROT`, `rot_state_v1`, Special Giveaways) is the same board rules for Print Studios' Rotten Potato,
+with a **merch** prize per challenge (no €). Built for the box as viewers see it (~210 px in a windowed player, ~90 px on a phone):
+a 4×4 grid of the game's Infected tiles with no text, one big count, one spotlight line cycling on the server clock. A tick is
+the moment (`rtMoment`, 6.5 s): on a full-canvas source the box grows (`rt-grow`, right edge fixed) and the challenge fills it while
+its vines pull down out of the tile under a tendril edge (`rtVines`; strips were tried first: hard seams). The draw is the Bishop
+Awakens (`rtDrawFrame`): names stream down a 5-row reel beside the Bishop; the game's 10/15/20/50/100 meter fills over it
+and each mark is a stage: its words pop up under the reel (no number, so his art stays clear), with shake, flash and his next art.
+Keep draws smooth: no `filter`/`mask` on full-screen or moving layers, and nothing that scales big text from far above 1x (Chrome
+rasters at the largest scale). Those were 100-360 ms stalls on every stage here. Entries have their own screen (`rtEntries`:
+the due tile, the keyword huge, names as spore chips). **No sounds** in this format for now (Elias: too harsh on stream). Fonts Rubik Dirt +
+Fredoka are bundled in `public/comp/rot/` (Dirt for numbers only: its letters clump into blobs on stream; every word is Fredoka 700). Merch shows as photos (`rot/merch/`) and the stream calls it "Mystery" until 2 of 3 ticks (`RT_REVEAL`); art cut from `Print Studios/` (gitignored, `ASSETS.md` there; concepts and mockups too).
+**Retired from Home:** Dead Man's Crew (4.7.0), Gates of Olympus 2500 (after 4.9.0). Rotten Potato is built but kept off Home (shipped hidden in 4.12.0) until it's tested in OBS. The bingo came back after 4.10.1 as The Racaroon 2 Bingo. Their code stays; each comes back with its `card(...)`
 line in `menuControlView()` and its name in `loadMode()`'s list.
 **Dead Man's Crew** (`CREW`, `crew_state_v1`, Special Giveaways) is the Slotmill visit raffle: keyword `Slotmill`,
 five fixed €100 seats; its draw is a full-canvas slot spin (`crDrawFrame`, like Prag's) with a captain win tier per seat; art in `public/comp/crew/` (cut down from the pack in `Dead_Mans_Crew/`, which is gitignored).
