@@ -32,7 +32,7 @@ iframe. The shell posts `{studioTab}` and the page filters Home by `SECTION` (Ke
 `KEYWORD` format directly). The page posts `{studioSection}` back so the shell highlights the right tab.
 There is one stream box, so switching tabs is the Home button with a filter, and leaving a live
 format asks first. **Requests** is a queue over the competitions page (`#rq`, `requests_v1`), not a format, so the
-stream box carries on under it: while open, `!r <text>` in chat joins it (`rqTake()`, in time order); remove, played, clear all. While the panel is on that tab (`rq.show`) the stream box shows the queue instead of the format (`lbTakeover` → `rqDisplayView`).
+stream box carries on under it: while open, `!r <text>` in chat joins it (`rqTake()`, in time order); remove, played, clear all. While the panel is on that tab (`rq.show`) the stream box shows the queue instead of the format (`lbTakeover` → `rqDisplayView`); past 6 the next one stays pinned and the rest scroll in one column (`rqRoll`, phase on the server clock).
 **Wheel Studio** is `/control` in the second iframe. **The Racaroon 2 Bingo** (was Relax Bingo) is a card on
 Special Giveaways Home. It opens `/bingo/` in a third iframe, which stays loaded because it reads chat. Pressing
 Special Giveaways again goes back. The Racaroon 2's draw is its own (`rdHtml`/`rdFrame`): names climb the game's

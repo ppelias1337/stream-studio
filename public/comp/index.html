@@ -183,6 +183,13 @@
   .wsub{font-size:19px;color:var(--muted);margin-top:6px;animation:winpop .5s .55s both}
 
   /* standings / leaderboard */
+  /* Requests on stream: one column, the next one pinned, the rest loop upward (rqDisplayView) */
+  .rq-d{flex:1;min-height:0;display:flex;flex-direction:column;font-size:24px}
+  .rq-d .srow{flex:none;height:52px;margin-bottom:6px}
+  .rq-d .stotal{max-width:45%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .rq-roll{flex:1;min-height:0;overflow:hidden}
+  .rq-track{animation:rqroll linear infinite}
+  @keyframes rqroll{to{transform:translateY(-50%)}}
   .sboard{flex:1;display:grid;grid-auto-flow:column;min-height:0;column-gap:6px}
   .srow{display:flex;align-items:center;gap:.45em;min-height:0;background:var(--slab);border-radius:var(--rad);overflow:hidden;line-height:1;padding-right:.55em}
   .splace{flex:none;align-self:stretch;width:1.9em;display:grid;place-items:center;background:var(--slab-2);color:var(--muted);font-variant-numeric:tabular-nums}
@@ -6728,8 +6735,16 @@ if(!DISPLAY_ONLY && rq.show){ rq.show=false; try{ localStorage.setItem(RQ_KEY, J
 function rqDisplayView(){
   const left=rq.list.filter(r=>!r.played);
   return bugHtml("", "Requests", rq.open?"!r + request":"Closed", rq.open?"gold":"")
-    + (left.length ? standingsHtml(left.map(r=>({name:r.what, value:r.name})))
-                   : `<div class="lobby"><div class="lwait">${rq.open?"Type !r and your request":"No requests"}</div></div>`);
+    + (!left.length ? `<div class="lobby"><div class="lwait">${rq.open?"Type !r and your request":"No requests"}</div></div>`
+       : left.length<=6 ? standingsHtml(left.map(r=>({name:r.what, value:r.name})))
+       : rqRoll(left));
+}
+// more than fit: the next one stays on top, the rest scroll in a loop (two copies, so -50% is seamless).
+// The phase comes from the server clock, so a new request doesn't restart the scroll.
+function rqRoll(left){
+  const row=(r,i)=>`<div class="srow${i?"":" first"}"><span class="splace">${i+1}</span><span class="sname">${escapeHtml(r.what)}</span><span class="stotal">${escapeHtml(r.name)}</span></div>`;
+  const rest=left.slice(1).map((r,i)=>row(r,i+1)).join(""), dur=(left.length-1)*2500;
+  return `<div class="rq-d">${row(left[0],0)}<div class="rq-roll"><div class="rq-track" style="animation-duration:${dur}ms;animation-delay:-${netNow()%dur}ms">${rest}${rest}</div></div></div>`;
 }
 const rqSave=()=>{ try{ localStorage.setItem(RQ_KEY, JSON.stringify(rq)); }catch(e){} bcast({type:"state"}); rqRender(); if(rq.show) renderApp(); };
 function rqTake(platform, user, name, text, ts){
