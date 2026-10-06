@@ -441,9 +441,9 @@
   .rt-en-for>div{min-width:0}
   .rt-en-lab{display:block;font-family:"Fredoka",var(--cond);font-weight:700;font-size:32px;line-height:1.2;color:#fff;text-shadow:0 2px 0 #0B2A12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .rt-en-merch{display:block;margin-top:4px;font-size:22px;font-weight:700;letter-spacing:.06em;color:var(--gold);text-transform:uppercase}
-  .rt-en-cta{position:absolute;left:0;right:0;top:184px;display:flex;flex-direction:column;align-items:center}
-  .rt-en-cta small{font-size:20px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-  .rt-en-kw{font-family:"Fredoka",var(--cond);font-weight:700;line-height:1.15;color:var(--tox);white-space:nowrap;
+  .rt-en-cta{position:absolute;left:0;right:0;top:182px;display:flex;flex-direction:column;align-items:center}
+  .rt-en-cta small{font-size:20px;line-height:22px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .rt-en-kw{font-family:"Fredoka",var(--cond);font-weight:700;line-height:1;color:var(--tox);white-space:nowrap;
     text-shadow:0 0 22px rgba(157,255,79,.6),0 4px 0 #0B2A12;animation:rtkw 2.4s ease-in-out infinite alternate}
   @keyframes rtkw{to{text-shadow:0 0 34px rgba(157,255,79,.95),0 4px 0 #0B2A12;transform:scale(1.04)}}
   .rt-en-count{position:absolute;left:0;right:0;top:300px;display:flex;justify-content:center;align-items:center;gap:12px;font-size:22px;font-weight:700;letter-spacing:.04em;color:#fff}
@@ -491,7 +491,7 @@
   .rt-mo .rt-pp i{width:24px;height:24px}
   .rt-mo .rt-pp i.new{animation:rtpip .5s cubic-bezier(.3,1.6,.5,1) calc(var(--d) + 2.4s) both}
   @keyframes rtpip{from{background:#1D2A17;box-shadow:inset 0 0 0 2px #4D6B38;transform:scale(1)}50%{transform:scale(1.6)}to{background:var(--tox);box-shadow:0 0 12px var(--tox);transform:scale(1)}}
-  .rt-stamp{position:absolute;left:10px;right:10px;top:148px;z-index:2;text-align:center;font-family:"Fredoka",var(--cond);font-weight:700;font-size:36px;line-height:1.35;letter-spacing:.06em;text-transform:uppercase;color:var(--tox);
+  .rt-stamp{position:absolute;left:-6px;right:10px;top:148px;z-index:2;text-align:center;font-family:"Fredoka",var(--cond);font-weight:700;font-size:36px;line-height:1.35;letter-spacing:.06em;text-transform:uppercase;color:var(--tox);
     background:#0D1F0A;border:3px solid var(--tox);border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.45);animation:rtstamp .6s cubic-bezier(.3,1.6,.5,1) calc(var(--d) + 3.1s) both}
   @keyframes rtstamp{from{opacity:0;transform:scale(1.8) rotate(-8deg)}to{transform:rotate(-6deg)}}
   .display.rot .elim.tk-gold .tk{background:linear-gradient(90deg,#F6CF62 40%,rgba(184,134,31,.75)),url(rot/vines.webp) center/cover}
@@ -3256,7 +3256,7 @@ const RF_MODES={
   // the box shows the board, and the entries only while a full challenge is owed its winner
   BOARD:{icon:"gift", get title(){ return BD_TITLE; }, log:row=>{ const c=bdCell(row?.cell||bdDue()[0]?.id); return c ? `${c.label} · ${bdEur(c.prize||0)}` : ""; }, spinMs:()=>BD_DRAW_MS, setup:()=>!!rf.spin || bdDue().length>0, roster:()=>[], display:()=>bdRenderDisplay(), save:()=>bdSaveWin(),
     add:()=>{ const p={id:uid(), name:"", cell:bdDue()[0]?.id||null}; bd.winners.push(p); return p; }},
-  ROT:{icon:"gift", get title(){ return RT_TITLE; }, log:row=>rtRow(rtCell(row?.cell||rtDue()[0]?.id)), spinMs:()=>RT_DRAW_MS, setup:()=>!!rf.spin || rtDue().length>0, roster:()=>[], display:()=>rtRenderDisplay(), save:()=>rtSaveWin(),
+  ROT:{icon:"gift", kw:"PRINT", get title(){ return RT_TITLE; }, log:row=>rtRow(rtCell(row?.cell||rtDue()[0]?.id)), spinMs:()=>RT_DRAW_MS, setup:()=>!!rf.spin || rtDue().length>0, roster:()=>[], display:()=>rtRenderDisplay(), save:()=>rtSaveWin(),
     prize:()=>rtDue()[0]?.merch||"", add:()=>{ const p={id:uid(), name:"", cell:rtDue()[0]?.id||null}; rt.winners.push(p); return p; }},
   // five fixed seats: the entries show until the first is taken, then the crew board; a claim fills the next open seat
   CREW:{icon:"gift", title:"Dead Man's Crew", kw:"Slotmill", prize:()=>`${CR_N} × €${CR_PRIZE}`, log:()=>"€100 seat", spinMs:()=>CR_DRAW_MS, setup:()=>!!rf.spin || !crTaken(), roster:()=>cr.winners, display:()=>crRenderDisplay(), save:()=>crSaveWin(), add:()=>null},
@@ -6087,8 +6087,13 @@ function rtMoment(){
   rt.cells.forEach(x=>{ if(x.at && now-x.at<RT_MOMENT_MS && (!m || x.at>m.at)) m=x; });
   return m;
 }
-// no sounds in this format for now (the tick sounds were too harsh on stream); a tick plays only on screen
-function rtPlay(m){ if(m.t!=="tick") takeover("tk-gold", "crown", "Giveaway winner", m.name, m.sub, 3400); }
+// Print Studios' own sounds (sfx/rot-*), timed to the moment: the vines pull at RT_VINE_MS, the new pip at 2.4 s, the stamp at 3.1 s
+function rtPlay(m){
+  if(m.t!=="tick"){ sfx("rot-claim"); takeover("tk-gold", "crown", "Giveaway winner", m.name, m.sub, 3400); return; }
+  setTimeout(()=>sfx("rot-vines"), RT_VINE_MS);
+  if(m.done) setTimeout(()=>sfx("rot-clear"), 3100);
+  else if(m.n===RT_REVEAL) setTimeout(()=>sfx("rot-reveal"), 2400);
+}
 function rtFx(m){ m=Object.assign({type:"fx", fx:"rot"}, m); bcast(m); rtPlay(m); }
 /* a claim names the row after add(), so the winner is announced on save */
 function rtSaveWin(){
@@ -6102,7 +6107,7 @@ function rtTick(id, d){
   c.n=Math.max(0, Math.min(RT_NEED, c.n+d));
   if(c.n>from){ c.from=from; c.at=netNow(); } else c.at=0;
   rtSave(); rtRender();
-  if(c.n>from) rtFx({t:"tick", done:rtFull(c)});
+  if(c.n>from) rtFx({t:"tick", done:rtFull(c), n:c.n});
 }
 function rtUndo(){
   const w=rt.winners.pop();
@@ -6177,9 +6182,9 @@ function rtEntries(c){
   html(".rt-en-tile", x ? rtSvg(x.merch,42) : "");
   set(".rt-en-lab", x?.label||"");
   set(".rt-en-merch", x?.merch||"");
-  set(".rt-en-top", rf.open ? "Type in chat" : "");
+  set(".rt-en-top", rf.open ? "Type" : "");
   set(".rt-en-kw", rf.open ? kw : "Entries closed");
-  set(".rt-en-bot", rf.open ? "to win it" : "");
+  set(".rt-en-bot", rf.open ? "in chat to enter the raffle" : "");
   c.querySelector(".rt-en-kw").style.fontSize=(!rf.open ? 40 : kw.length<=7 ? 68 : kw.length<=11 ? 54 : 40)+"px";
   c.querySelector(".rt-en-lab").style.fontSize=rtFs(x?.label, 30)+"px";
   set(".rt-en-count span", pool.length ? `${pool.length.toLocaleString("en-US")} in the draw` : "Waiting for chat");
@@ -6231,6 +6236,7 @@ function rtDrawPlan(sp, W){
   for(let i=N-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [S[i],S[j]]=[S[j],S[i]]; }
   const name=k=>{ if(k===RT_END) return winner; let e=S[rfMod(k,N)]; if(e===winner && N>1) e=S[rfMod(k+1,N)]; return e; };
   const c=sp.test ? null : rtCell(rtDue()[0]?.id);
+  ["rot-stage1","rot-stage2","rot-stage3","rot-stage4","rot-rise","rot-win"].forEach(sfxLoad);
   // the Bishop on the left, the reel on the right
   const bh=880, bw=Math.round(bh*.4222), bx=Math.round(W*.24), rx=Math.round(W*.46), rw=Math.round(W*.95)-rx;
   return {at:sp.startedAt, W, move:(sp.duration-RT_FADE_MS)/1000, name, N, rnd, bh, bw, bx, rx, rw, bt:150, rt:300,
@@ -6289,6 +6295,9 @@ function rtDrawFrame(){
   ov.classList.toggle("landed", landed); ov.classList.toggle("won", won);
   const was=rtLast; rtLast={d, after:landed?after:-1, si};
   if(was){
+    if(si>was.si && si<5) sfx(`rot-stage${si}`);   // the 50's is the 20's at full length: the reel is slow from there to the stop
+    if(!landed && !p.rose && rfSpinEnd(sp)-now<=1800){ p.rose=true; sfx("rot-rise"); }   // a riser that ends on the 100
+    if(landed && was.after<0) sfx("rot-win");
     if(si>was.si){
       // a stage: the call slams across the screen, it shakes and flashes, he pulses into his next art
       // (not on the stop: the reel's middle row and the title have it)

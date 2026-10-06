@@ -59,7 +59,7 @@ Awakens (`rtDrawFrame`): names stream down a 5-row reel beside the Bishop; the g
 and each mark is a stage: its words pop up under the reel (no number, so his art stays clear), with shake, flash and his next art.
 Keep draws smooth: no `filter`/`mask` on full-screen or moving layers, and nothing that scales big text from far above 1x (Chrome
 rasters at the largest scale). Those were 100-360 ms stalls on every stage here. Entries have their own screen (`rtEntries`:
-the due tile, the keyword huge, names as spore chips). **No sounds** in this format for now (Elias: too harsh on stream). Fonts Rubik Dirt +
+the due tile, the keyword huge, names as spore chips). Sounds are Print Studios' own (`Print Studios/Sounds`), cut and levelled to -18 LUFS into `sfx/rot-*.mp3`: vines on every tick, prize reveal on the 2nd, scatter on the 3rd, a draw sound per stage (the 50's is the 20's at full length), a riser ending on the 100, then win2 + the big-win music on the stop, present-raiser on the claim. Keyword `PRINT`. No music. Fonts Rubik Dirt +
 Fredoka are bundled in `public/comp/rot/` (Dirt for numbers only: its letters clump into blobs on stream; every word is Fredoka 700). Merch shows as photos (`rot/merch/`) and the stream calls it "Mystery" until 2 of 3 ticks (`RT_REVEAL`); art cut from `Print Studios/` (gitignored, `ASSETS.md` there; concepts and mockups too).
 **Retired from Home:** Dead Man's Crew (4.7.0), Gates of Olympus 2500 (after 4.9.0). Rotten Potato is built but kept off Home (shipped hidden in 4.12.0) until it's tested in OBS. The bingo came back after 4.10.1 as The Racaroon 2 Bingo. Their code stays; each comes back with its `card(...)`
 line in `menuControlView()` and its name in `loadMode()`'s list.
