@@ -1373,6 +1373,7 @@
   .rq-row .what{font-size:16px;overflow-wrap:anywhere}
   .rq-row .at{color:var(--fg-3);font-size:13px;font-variant-numeric:tabular-nums}
   .rq-row .acts{display:flex;gap:6px}
+  .rq-row .rq-x{color:var(--accent-fg)}
   .rq-row.played{opacity:.45}
   .rq-row.played .what{text-decoration:line-through}
   .rf-status{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--fg-2)}
@@ -6732,28 +6733,58 @@ const rqLoad=()=>{ try{ return JSON.parse(localStorage.getItem(RQ_KEY))||{open:f
 let rq=rqLoad();
 // the stream box shows the queue while the panel is on the Requests tab (rq.show); a panel opening starts off it
 if(!DISPLAY_ONLY && rq.show){ rq.show=false; try{ localStorage.setItem(RQ_KEY, JSON.stringify(rq)); }catch(e){} }
+const rqWho=r=>rqN(r)>1 ? "×"+rqN(r) : r.name;
 function rqDisplayView(){
   const left=rq.list.filter(r=>!r.played);
   return bugHtml("", "Requests", rq.open?"!r + request":"Closed", rq.open?"gold":"")
     + (!left.length ? `<div class="lobby"><div class="lwait">${rq.open?"Type !r and your request":"No requests"}</div></div>`
-       : left.length<=6 ? standingsHtml(left.map(r=>({name:r.what, value:r.name})))
+       : left.length<=6 ? standingsHtml(left.map(r=>({name:r.what, value:rqWho(r)})))
        : rqRoll(left));
 }
 // more than fit: the next one stays on top, the rest scroll in a loop (two copies, so -50% is seamless).
 // The phase comes from the server clock, so a new request doesn't restart the scroll.
 function rqRoll(left){
-  const row=(r,i)=>`<div class="srow${i?"":" first"}"><span class="splace">${i+1}</span><span class="sname">${escapeHtml(r.what)}</span><span class="stotal">${escapeHtml(r.name)}</span></div>`;
+  const row=(r,i)=>`<div class="srow${i?"":" first"}"><span class="splace">${i+1}</span><span class="sname">${escapeHtml(r.what)}</span><span class="stotal">${escapeHtml(rqWho(r))}</span></div>`;
   const rest=left.slice(1).map((r,i)=>row(r,i+1)).join(""), dur=(left.length-1)*2500;
   return `<div class="rq-d">${row(left[0],0)}<div class="rq-roll"><div class="rq-track" style="animation-duration:${dur}ms;animation-delay:-${netNow()%dur}ms">${rest}${rest}</div></div></div>`;
 }
 const rqSave=()=>{ try{ localStorage.setItem(RQ_KEY, JSON.stringify(rq)); }catch(e){} bcast({type:"state"}); rqRender(); if(rq.show) renderApp(); };
+/* Same game, however it's typed, banks onto one row: "Sweet Bonanza", "sweetbonanza", "Swet bonanza"
+   and "Sweet Bonanza Megaways" are one. The numbers must match exactly, so a sequel or an edition
+   ("Sugar Rush" / "Sugar Rush 1000", "Temple Tumble 2", "II") stays its own row.
+   ponytail: no nicknames ("GoO", "SB"); add an alias list if chat uses them. */
+// rq-match start
+function rqKey(s){
+  const w=String(s).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/&/g," and ").replace(/['’]/g,"")
+    .replace(/(\d+)k\b/g,(m,d)=>d*1000).replace(/(\d)([a-z])/g,"$1 $2").replace(/([a-z])(\d)/g,"$1 $2").split(/[^a-z0-9]+/)
+    .map(x=>({ii:"2",iii:"3",iv:"4"})[x]||x).filter(x=>x && !["megaways","megaway","the","slot"].includes(x));
+  return {nums:w.filter(x=>/^\d+$/.test(x)).join(" "), letters:w.filter(x=>!/^\d+$/.test(x)).join("")};
+}
+function rqLev(a,b){
+  let p=Array.from({length:b.length+1},(_,i)=>i);
+  for(let i=1;i<=a.length;i++){ const c=[i]; for(let j=1;j<=b.length;j++) c[j]=Math.min(p[j]+1, c[j-1]+1, p[j-1]+(a[i-1]===b[j-1]?0:1)); p=c; }
+  return p[b.length];
+}
+function rqSame(a,b){
+  const x=rqKey(a), y=rqKey(b);
+  if(x.nums!==y.nums || !x.letters || !y.letters) return false;
+  const L=Math.min(x.letters.length, y.letters.length);
+  return rqLev(x.letters, y.letters) <= (L<=4 ? 0 : L<=8 ? 1 : L<=15 ? 2 : 3);   // a typo or two, more on long names
+}
+// rq-match end
+const rqN=r=>(r.by||[0]).length;
 function rqTake(platform, user, name, text, ts){
   const m=/^\s*!r\s+(.+)/i.exec(text);
   if(!m || !rq.open || isChatBot(user)) return !!m;
-  const what=m[1].replace(/\s+/g," ").trim().slice(0,80);
-  if(rq.list.some(r=>!r.played && r.platform===platform && r.user===user && r.what.toLowerCase()===what.toLowerCase())) return true;   // said twice
-  rq.list.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6), platform, user, name, what, t:+ts||Date.now()});
-  rq.list.sort((a,b)=>a.t-b.t);   // YouTube's lands late: keep it in the order it was written
+  const what=m[1].replace(/\s+/g," ").trim().slice(0,80), who=platform+":"+user;
+  const r=rq.list.find(r=>!r.played && rqSame(r.what, what));
+  if(r){
+    r.by=r.by||[r.platform+":"+r.user];
+    if(r.by.includes(who)) return true;   // said twice
+    r.by.push(who);
+  } else rq.list.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2,6), platform, user, name, what, t:+ts||Date.now(), by:[who]});
+  // most asked first; a tie keeps the order it was written (YouTube's lands late)
+  rq.list.sort((a,b)=>rqN(b)-rqN(a) || a.t-b.t);
   rqSave(); return true;
 }
 function rqRender(){
@@ -6764,7 +6795,7 @@ function rqRender(){
       <button class="${rq.open?"btn":"btn on"}" data-rq="open">${ic(rq.open?"x":"arrow")}${rq.open?"Close the queue":"Open the queue"}</button>
       <button class="btn danger" data-rq="clear"${rq.list.length?"":" disabled"}>${ic("x")}Clear all</button></div>
     <div class="rf-status"><span>${rq.open?`Open: chat types <b>!r</b> and a request`:"Closed"}</span><span><b>${left}</b> waiting${rq.list.length-left?` · ${rq.list.length-left} played`:""}</span>${rq.open?`<span>${dot(rfChat.twitch)}Twitch</span><span>${dot(rfChat.kick)}Kick</span><span>${dot(rfChat.youtube)}YouTube</span>`:""}</div>
-    <div class="rq-list">${rq.list.map((r,i)=>`<div class="rq-row${r.played?" played":""}"><span class="n">${i+1}</span><span class="who">${rfLogo(r.platform)}${escapeHtml(r.name)}</span><span class="what">${escapeHtml(r.what)}</span>
+    <div class="rq-list">${rq.list.map((r,i)=>`<div class="rq-row${r.played?" played":""}"><span class="n">${i+1}</span><span class="who">${rfLogo(r.platform)}${escapeHtml(r.name)}${rqN(r)>1?` <b class="rq-x">+${rqN(r)-1}</b>`:""}</span><span class="what">${escapeHtml(r.what)}</span>
       <span class="at">${new Date(r.t).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"})}</span>
       <span class="acts"><button class="btn${r.played?" on":""}" data-rq="played" data-id="${r.id}">${ic("check")}Played</button><button class="btn danger" data-rq="del" data-id="${r.id}" aria-label="Remove">${ic("x")}</button></span></div>`).join("")
       || `<div class="chint">${rq.open?"Nothing yet.":"Open the queue, then chat types !r and a request."}</div>`}</div>`;
