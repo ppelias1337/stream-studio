@@ -6787,6 +6787,17 @@ function rqTake(platform, user, name, text, ts){
   rq.list.sort((a,b)=>rqN(b)-rqN(a) || a.t-b.t);
   rqSave(); return true;
 }
+// a panel opening re-banks what's waiting (a queue from before banking, or before a rule change)
+if(!DISPLAY_ONLY){
+  const out=[];
+  rq.list.slice().sort((a,b)=>a.t-b.t).forEach(r=>{
+    r.by=r.by||[r.platform+":"+r.user];
+    const k=!r.played && out.find(o=>!o.played && rqSame(o.what, r.what));
+    if(k) r.by.forEach(w=>{ if(!k.by.includes(w)) k.by.push(w); }); else out.push(r);
+  });
+  rq.list=out.sort((a,b)=>rqN(b)-rqN(a) || a.t-b.t);
+  try{ localStorage.setItem(RQ_KEY, JSON.stringify(rq)); }catch(e){}
+}
 function rqRender(){
   const el=$("#rq"); if(!el || el.hidden) return;
   const dot=s=>`<i class="${s==="connected"?"ok":s==="connecting"?"wait":""}"></i>`;
