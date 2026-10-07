@@ -173,7 +173,7 @@
   /* champion */
   .av{flex:none;width:1.3em;height:1.3em;border-radius:50%;display:inline-grid;place-items:center;font-style:normal;background:var(--slab-2) center/cover;box-shadow:0 0 0 2px var(--slab-2)}
   .av b{font-size:.55em;color:var(--muted)}
-  .dplayer .av{width:76px;height:76px;margin-top:auto;font-size:76px}
+  .dplayer .pn .av{width:1.05em;height:1.05em}   /* the name's own line height: the card grows by nothing */
   .winbox .av{width:104px;height:104px;font-size:104px;box-shadow:0 0 0 4px var(--gold);animation:winpop .6s .1s both}
   .winbox .crown{height:46px;margin-bottom:-22px;position:relative;z-index:1}   /* worn by the picture */
   .winbox{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;min-height:0}
@@ -2545,7 +2545,7 @@ function duelHtml(a, b, target, round){
   const compact = target>6 ? " compact" : "";
   const side=p=>`<div class="dplayer${p.picks?" choosing-card":""}" ${p.attr}>
     <div class="dpick">${ic("chip")}Picks the slot</div>
-    ${p.name?avHtml(p.name):""}<div class="pn"><span>${escapeHtml(p.name||"—")}</span>${p.life?`<i class="life" title="Extra life">${ic("shield")}</i>`:""}</div>
+    <div class="pn">${p.name?avHtml(p.name):""}<span>${escapeHtml(p.name||"—")}</span>${p.life?`<i class="life" title="Extra life">${ic("shield")}</i>`:""}</div>
     <div class="dsc${p.score?" on":""}">${p.score||0}</div>
     <div class="dpips${compact}">${pipsHtml(p.score,target)}</div>
     <div class="pw${p.win==null?" pending":""}">${p.win==null?"—":fmt(p.win)}</div>
@@ -2993,7 +2993,7 @@ async function kkApi(path, init={}){
 const AV_KEY="comp_avatars_v1";
 const avLoad=()=>{ try{ return JSON.parse(localStorage.getItem(AV_KEY))||{}; }catch(e){ return {}; } };
 let av=avLoad(), avT=null;
-const avWho=new Map(), avAsked=new Set(), avQ={twitch:new Map(), kick:new Map(), youtube:new Map()};
+const avWho=new Map(), avAsked=new Set(), avQ={twitch:new Map(), kick:new Map(), youtube:new Map(), guess:new Map()};
 function avSeen(pf, k, name){ if(!DISPLAY_ONLY && k && name) avWho.set(String(name).trim().toLowerCase(), {pf, k:String(k)}); }
 function avHtml(name){
   const n=String(name||"").trim(), key=n.toLowerCase(), u=av[key];
@@ -3001,25 +3001,36 @@ function avHtml(name){
   return u ? `<i class="av" style="background-image:url('${escapeHtml(u)}')"></i>` : `<i class="av"><b>${escapeHtml(([...n][0]||"").toUpperCase())}</b></i>`;
 }
 function avWant(key){
-  const w=!DISPLAY_ONLY && !avAsked.has(key) && avWho.get(key); if(!w) return;
+  if(DISPLAY_ONLY || !key || avAsked.has(key)) return;
+  // not seen in chat since this panel opened (an update, a reload, chat closed after entries): try the
+  // name as a Twitch login, then as a Kick channel
+  const w=avWho.get(key) || (/^\w{3,25}$/.test(key) && {pf:"guess", k:key}); if(!w) return;
   avAsked.add(key); avQ[w.pf].set(w.k, key);
   clearTimeout(avT); avT=setTimeout(avFetch, 400);   // views ask while rendering: batch, and never save mid-render
 }
 async function avFetch(){
   const got={}, take=(pf,n)=>{ const ids=[...avQ[pf].keys()].slice(0,n), keys=ids.map(i=>avQ[pf].get(i)); ids.forEach(i=>avQ[pf].delete(i)); return [ids, keys]; };
   for(;avQ.youtube.size;){ const [ids,keys]=take("youtube",100); keys.forEach((k,i)=>got[k]=ids[i]); }
-  for(;avQ.twitch.size;){ const [ids,keys]=take("twitch",100);
-    try{ if(!tw || !tw.access) continue;
+  const miss=[];   // guesses Twitch doesn't know: maybe Kick
+  for(;avQ.twitch.size || avQ.guess.size;){ const g=!avQ.twitch.size, [ids,keys]=take(g?"guess":"twitch",100);
+    if(!tw || !tw.access){ if(g) ids.forEach((l,i)=>miss.push([l,keys[i]])); continue; }
+    try{
       const j=await twApi("users?"+ids.map(l=>"login="+encodeURIComponent(l)).join("&")), by={};
       (j.data||[]).forEach(u=>by[u.login]=u.profile_image_url||"");
-      ids.forEach((l,i)=>got[keys[i]]=by[l]||"");
-    }catch(e){} }
+      ids.forEach((l,i)=>{ if(by[l]) got[keys[i]]=by[l]; else if(g) miss.push([l,keys[i]]); else got[keys[i]]=""; });
+    }catch(e){ console.warn("avatars: twitch", e); } }
+  for(let i=0;i<miss.length && kk.access;i+=50){ const part=miss.slice(i,i+50);
+    try{
+      const j=await kkApi("channels?"+part.map(([l])=>"slug="+encodeURIComponent(l)).join("&")), by={};
+      (j.data||[]).forEach(c=>by[String(c.slug).toLowerCase()]=c.broadcaster_user_id);
+      part.forEach(([l,k])=>{ if(by[l]) avQ.kick.set(String(by[l]), k); else got[k]=""; });
+    }catch(e){ console.warn("avatars: kick channels", e); } }
   for(;avQ.kick.size;){ const [ids,keys]=take("kick",50);
     try{ if(!kk.access) continue;
       const j=await kkApi("users?"+ids.map(i=>"id="+encodeURIComponent(i)).join("&")), by={};
       (j.data||[]).forEach(u=>by[u.user_id]=u.profile_picture||"");
       ids.forEach((id,i)=>got[keys[i]]=by[id]||"");
-    }catch(e){} }
+    }catch(e){ console.warn("avatars: kick", e); } }
   if(!Object.keys(got).length) return;
   Object.assign(av, got); try{ localStorage.setItem(AV_KEY, JSON.stringify(av)); }catch(e){}
   bcast({type:"state"}); dispatchDisplay();
