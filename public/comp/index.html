@@ -171,6 +171,11 @@
   .lwait{font-size:22px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
 
   /* champion */
+  .av{flex:none;width:1.3em;height:1.3em;border-radius:50%;display:inline-grid;place-items:center;font-style:normal;background:var(--slab-2) center/cover;box-shadow:0 0 0 2px var(--slab-2)}
+  .av b{font-size:.55em;color:var(--muted)}
+  .dplayer .av{width:76px;height:76px;margin-top:auto;font-size:76px}
+  .winbox .av{width:104px;height:104px;font-size:104px;box-shadow:0 0 0 4px var(--gold);animation:winpop .6s .1s both}
+  .winbox .crown{height:46px;margin-bottom:-22px;position:relative;z-index:1}   /* worn by the picture */
   .winbox{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px;min-height:0}
   .crown{width:70px;height:auto;color:var(--gold);animation:crowndrop .9s cubic-bezier(.16,1,.3,1) both}
   @keyframes crowndrop{0%{transform:translateY(-120px) scale(.5);opacity:0}60%{opacity:1}100%{transform:none}}
@@ -1823,7 +1828,7 @@ async function netProbe(){
 function netPush(fx){
   if(!NET.on || DISPLAY_ONLY) return;
   const keys={};
-  [KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,RT_KEY,CR_KEY,GZ_KEY,SHEET_Q_KEY,RQ_KEY].forEach(k=>{ keys[k]=localStorage.getItem(k); });
+  [KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,RT_KEY,CR_KEY,GZ_KEY,SHEET_Q_KEY,RQ_KEY,AV_KEY].forEach(k=>{ keys[k]=localStorage.getItem(k); });
   if(NET.synced) keys[HISTORY_KEY]=localStorage.getItem(HISTORY_KEY);
   fetch(NET.url,{method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({keys, fx: fx?[fx]:[], ctl:CTL_ID})}).then(r=>{ if(r.status===409) location.reload(); }).catch(()=>{});
@@ -2439,7 +2444,7 @@ function lbDisplayView(){
   const list=lbRows().slice(0,12);
   if(!list.length) return `<div class="lobby"><div class="lwait">No results yet</div></div>`;
   const wide=list.length<=10;
-  return standingsHtml(list.map(p=>({name:p.name, extra: wide?`${p.played} played`:"", value:`${p.wins} ${p.wins===1?"win":"wins"}`})));
+  return standingsHtml(list.map((p,i)=>({name:p.name, av:i<3, extra: wide?`${p.played} played`:"", value:`${p.wins} ${p.wins===1?"win":"wins"}`})));
 }
 const lbCell = v => String(v==null?"":v).replace(/[\t\r\n]+/g," ");
 /* Paste back what Copy for Sheets produced, or the sheet's own rows — on a
@@ -2540,7 +2545,7 @@ function duelHtml(a, b, target, round){
   const compact = target>6 ? " compact" : "";
   const side=p=>`<div class="dplayer${p.picks?" choosing-card":""}" ${p.attr}>
     <div class="dpick">${ic("chip")}Picks the slot</div>
-    <div class="pn"><span>${escapeHtml(p.name||"—")}</span>${p.life?`<i class="life" title="Extra life">${ic("shield")}</i>`:""}</div>
+    ${p.name?avHtml(p.name):""}<div class="pn"><span>${escapeHtml(p.name||"—")}</span>${p.life?`<i class="life" title="Extra life">${ic("shield")}</i>`:""}</div>
     <div class="dsc${p.score?" on":""}">${p.score||0}</div>
     <div class="dpips${compact}">${pipsHtml(p.score,target)}</div>
     <div class="pw${p.win==null?" pending":""}">${p.win==null?"—":fmt(p.win)}</div>
@@ -2559,7 +2564,7 @@ function lobbyHtml(title, sub, names, count, wait){
 /* subHtml arrives already escaped */
 function winnerHtml(name, tag, total, subHtml){
   const n=String(name||"Champion");
-  return `<div class="winbox"><svg class="crown ic" aria-hidden="true"><use href="#i-crown"/></svg>
+  return `<div class="winbox"><svg class="crown ic" aria-hidden="true"><use href="#i-crown"/></svg>${avHtml(n)}
     <div class="wname" style="font-size:${nameFs(n)-4}px">${escapeHtml(n)}</div>
     <div class="wtotal"><b>${fmt(total||0)}</b><span>Total won</span></div>
     <div class="wtag">${escapeHtml(tag)}</div>
@@ -2569,7 +2574,7 @@ function winnerHtml(name, tag, total, subHtml){
 function standingsHtml(list){
   const pg=pageOf(list), f=fitRows(Math.min(list.length,PAGE));
   const rows=pg.items.map((p,i)=>{ const place=pg.page*PAGE+i+1;
-    return `<div class="srow${(p.hi ?? place===1)?" first":""}"><span class="splace">${place}</span><span class="sname">${escapeHtml(p.name)}</span>${p.extra?`<span class="splayed">${escapeHtml(p.extra)}</span>`:""}<span class="stotal">${escapeHtml(p.value)}</span></div>`;
+    return `<div class="srow${(p.hi ?? place===1)?" first":""}"><span class="splace">${place}</span>${p.av?avHtml(p.name):""}<span class="sname">${escapeHtml(p.name)}</span>${p.extra?`<span class="splayed">${escapeHtml(p.extra)}</span>`:""}<span class="stotal">${escapeHtml(p.value)}</span></div>`;
   }).join("");
   const foot = pg.pages>1 ? `<div class="foot"><span class="foot-text"></span><span class="foot-page">Page ${pg.page+1} of ${pg.pages}</span></div>` : "";
   return `<div class="sboard"${pg.pages>1?" data-paged":""} style="${gridStyle(pg.items.length,f)}">${rows}</div>${foot}`;
@@ -2690,7 +2695,7 @@ function boardView(ph){
     if(lowest!=null && w===lowest) cls+=" lowest";
     const tag = !wide ? "" : isChooser ? `<span class="ptag">${ic("chip")}Picks</span>` : tied ? `<span class="ptag">Tied</span>` : "";
     const life = p.extraLife ? `<i class="life" title="Extra life">${ic("shield")}</i>` : "";
-    return `<div class="drow${cls}" data-id="${p.id}"><span class="dname">${escapeHtml(p.name)}</span>${life}${tag}<span class="dwin${w==null?" pending":""}">${w==null?"—":fmt(w)}</span></div>`;
+    return `<div class="drow${cls}" data-id="${p.id}">${avHtml(p.name)}<span class="dname">${escapeHtml(p.name)}</span>${life}${tag}<span class="dwin${w==null?" pending":""}">${w==null?"—":fmt(w)}</span></div>`;
   }).join("");
   const elim=state.players.filter(p=>p.eliminated).sort((a,b)=>(b.elimSeq||0)-(a.elimSeq||0));
   let foot="";
@@ -2978,6 +2983,46 @@ async function kkApi(path, init={}){
   let r=await go();
   if(r.status===401){ await kkRefresh(); r=await go(); }
   return r.json();
+}
+/* AVATARS: viewers' profile pictures where one person is the focus (the duel cards, the winner,
+   LMS and Showdown rows, the leaderboard top 3, the raffle winner). Chat says who is who as it's
+   read (avSeen); the panel looks a name up the first time a view shows it and keeps the picture in
+   a synced key, so OBS only reads it. Twitch and Kick need their payout login connected on this
+   panel; YouTube's comes with the message. No picture: a letter.
+   ponytail: keyed by name alone, so one name on two platforms shares a picture. */
+const AV_KEY="comp_avatars_v1";
+const avLoad=()=>{ try{ return JSON.parse(localStorage.getItem(AV_KEY))||{}; }catch(e){ return {}; } };
+let av=avLoad(), avT=null;
+const avWho=new Map(), avAsked=new Set(), avQ={twitch:new Map(), kick:new Map(), youtube:new Map()};
+function avSeen(pf, k, name){ if(!DISPLAY_ONLY && k && name) avWho.set(String(name).trim().toLowerCase(), {pf, k:String(k)}); }
+function avHtml(name){
+  const n=String(name||"").trim(), key=n.toLowerCase(), u=av[key];
+  if(u===undefined) avWant(key);
+  return u ? `<i class="av" style="background-image:url('${escapeHtml(u)}')"></i>` : `<i class="av"><b>${escapeHtml(([...n][0]||"").toUpperCase())}</b></i>`;
+}
+function avWant(key){
+  const w=!DISPLAY_ONLY && !avAsked.has(key) && avWho.get(key); if(!w) return;
+  avAsked.add(key); avQ[w.pf].set(w.k, key);
+  clearTimeout(avT); avT=setTimeout(avFetch, 400);   // views ask while rendering: batch, and never save mid-render
+}
+async function avFetch(){
+  const got={}, take=(pf,n)=>{ const ids=[...avQ[pf].keys()].slice(0,n), keys=ids.map(i=>avQ[pf].get(i)); ids.forEach(i=>avQ[pf].delete(i)); return [ids, keys]; };
+  for(;avQ.youtube.size;){ const [ids,keys]=take("youtube",100); keys.forEach((k,i)=>got[k]=ids[i]); }
+  for(;avQ.twitch.size;){ const [ids,keys]=take("twitch",100);
+    try{ if(!tw || !tw.access) continue;
+      const j=await twApi("users?"+ids.map(l=>"login="+encodeURIComponent(l)).join("&")), by={};
+      (j.data||[]).forEach(u=>by[u.login]=u.profile_image_url||"");
+      ids.forEach((l,i)=>got[keys[i]]=by[l]||"");
+    }catch(e){} }
+  for(;avQ.kick.size;){ const [ids,keys]=take("kick",50);
+    try{ if(!kk.access) continue;
+      const j=await kkApi("users?"+ids.map(i=>"id="+encodeURIComponent(i)).join("&")), by={};
+      (j.data||[]).forEach(u=>by[u.user_id]=u.profile_picture||"");
+      ids.forEach((id,i)=>got[keys[i]]=by[id]||"");
+    }catch(e){} }
+  if(!Object.keys(got).length) return;
+  Object.assign(av, got); try{ localStorage.setItem(AV_KEY, JSON.stringify(av)); }catch(e){}
+  bcast({type:"state"}); dispatchDisplay();
 }
 /* YouTube payout: sends !pointsadd as the account that connected (the streamer) through
    the YouTube Data API. Google's device sign-in (an OAuth client of type "TVs and Limited
@@ -3418,6 +3463,7 @@ function twPriv(line){
   const m=/^(?:@(\S+) )?:(\w+)!\S+ PRIVMSG #\w+ :(.*)$/.exec(line);
   if(!m) return;
   const dn=/(?:^|;)display-name=([^;]*)/.exec(m[1]||""), user=m[2].toLowerCase(), col=/(?:^|;)color=([^;]*)/.exec(m[1]||""), ts=/(?:^|;)tmi-sent-ts=(\d+)/.exec(m[1]||""), em=/(?:^|;)emotes=([^;]*)/.exec(m[1]||"");
+  avSeen("twitch", user, dn && dn[1].toLowerCase()===user ? dn[1] : m[2]);
   chatMsg("twitch", user, dn && dn[1].toLowerCase()===user ? dn[1] : m[2], m[3], col&&col[1], ts&&ts[1], em&&em[1],
     /(?:^|;)badges=[^;]*\b(?:subscriber|founder)\//.test(m[1]||""));
 }
@@ -3443,6 +3489,7 @@ function rfStartChat(){
         const m=JSON.parse(frame);
         if(!/ChatMessageEvent$/.test(m.event||"")) return;
         const d=JSON.parse(m.data);
+        if(d && d.sender) avSeen("kick", d.sender.id, d.sender.username);
         if(d && d.sender && typeof d.content==="string")
           chatMsg("kick", String(d.sender.slug||d.sender.username).toLowerCase(), d.sender.username, d.content, d.sender.identity&&d.sender.identity.color, 0, undefined,
             ((d.sender.identity&&d.sender.identity.badges)||[]).some(b=>b.type==="subscriber"||b.type==="founder"));
@@ -3489,6 +3536,8 @@ async function ytStart(){
         (lc.actions||[]).forEach(a=>{
           const m=a.addChatItemAction && a.addChatItemAction.item.liveChatTextMessageRenderer;
           if(!m || (!DISPLAY_ONLY && Number(m.timestampUsec)<since) || !alive()) return;   // the display wants the backlog
+          const ph=((m.authorPhoto||{}).thumbnails||[]).slice(-1)[0];
+          if(ph) avSeen("youtube", ph.url.replace(/=s\d+-/,"=s176-"), (m.authorName&&m.authorName.simpleText||"").replace(/^@/,""));
           chatMsg("youtube", m.authorExternalChannelId, (m.authorName&&m.authorName.simpleText||"").replace(/^@/,""), ytText(m.message||{}), "", Number(m.timestampUsec)/1000, (m.message||{}).runs,
             (m.authorBadges||[]).some(b=>b.liveChatAuthorBadgeRenderer&&b.liveChatAuthorBadgeRenderer.customThumbnail));   // only member badges have their own picture
         });
@@ -3682,7 +3731,7 @@ function rfRenderWin(sp){
   box.classList.toggle("on", !!sig);
   if(!sig) return;
   const pf=e.platform.toUpperCase(), until=rfClaimEnd(sp), n=(e.slot||e.name).length;
-  box.innerHTML=`<small>${e.slot?"Next slot":"Winner"}</small><div class="rf-name" style="font-size:${n<=8?64:n<=12?54:n<=16?46:n<=22?38:30}px">${e.slot?`<span>${escapeHtml(e.slot)}</span>`:rfNameHtml(e)}</div>`
+  box.innerHTML=`<small>${e.slot?"Next slot":"Winner"}</small><div class="rf-name" style="font-size:${n<=8?64:n<=12?54:n<=16?46:n<=22?38:30}px">${e.slot?`<span>${escapeHtml(e.slot)}</span>`:avHtml(e.name)+rfNameHtml(e)}</div>`
     + (e.slot ? `<p class="ok">Picked by<span>${rfLogo(e.platform)} ${escapeHtml(e.name)}</span></p>`
       : sp.claimed ? `<p class="ok">Claimed on ${pf}</p>` : `<p>Type in ${pf} chat to claim<b data-until="${until}">${rfSecs(until)}</b></p>`);
   box.style.animation = was.split("|")[0]===sp.winner ? "none" : "";   // claimed: no second pop
@@ -3989,7 +4038,7 @@ function h2hListView(){
   const rows=h2h.players.map(p=>{
     const w=parseWin(p.win), ch=p.id===chooserId;
     return `<div class="drow${ch?" chooser":""}" data-id="${p.id}">
-      <span class="dname">${escapeHtml(p.name)}</span>${ch?`<span class="ptag">${ic("chip")}Picks</span>`:""}
+      ${avHtml(p.name)}<span class="dname">${escapeHtml(p.name)}</span>${ch?`<span class="ptag">${ic("chip")}Picks</span>`:""}
       <span class="dpips${compact}">${h2hPips(p)}</span><span class="sep"></span>
       <span class="dwin${w==null?" pending":""}">${w!=null?fmt(w):"—"}</span>
     </div>`;
@@ -7168,7 +7217,7 @@ if(DISPLAY_ONLY){
   const refreshFromStorage=()=>{
     state=load()||fresh(); h2h=h2hLoad()||h2hFresh();
     bk=bkLoad()||bkFresh(); lg=lgLoad()||lgFresh(); wh=whLoad()||whFresh(); td=tdLoad()||tdFresh(); pw=pwLoad()||pwFresh(); kw=kwLoad()||kwFresh(); bd=bdLoad()||bdFresh(); rt=rtLoad()||rtFresh(); cr=crLoad()||crFresh(); gz=gzLoad()||gzFresh();
-    appMode=loadMode(); lb=lbLoad(); rf=rfLoad(); rq=rqLoad();
+    appMode=loadMode(); lb=lbLoad(); rf=rfLoad(); rq=rqLoad(); av=avLoad();
     renderApp();
   };
   const playFxMsg=(m)=>{

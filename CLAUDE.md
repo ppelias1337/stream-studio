@@ -117,6 +117,10 @@ no prize names: the prize stays secret until the stream wheel lands (`pwHidden`)
 - YouTube chat goes through the server's `/yt/*` passthrough (youtubei only answers a `file://`
   page from a browser, and the page is served over http now).
 - **Test draw** (formats with their own draw: Challenge Board, TaDa, Prag, Crew, Gates; and the bingo panel): 1,400 made-up names and the real draw on stream, 15s claim, then the entries close and nothing is kept (`sp.test` / `S.rf.test`). Refused while real chat is entering.
+- **Profile pictures** (`avHtml`, `comp_avatars_v1`, synced): the duel cards, winner screen, LMS/Showdown rows, leaderboard
+  top 3 and the raffle winner show the viewer's picture, else a letter. Chat parsers note who's who (`avSeen`: Twitch login,
+  Kick user id, YouTube's photo); the controlling panel looks a name up the first time a view shows it (Twitch Helix / Kick
+  `users` through the payout logins, so those must be connected there). Keyed by name only.
 - Sound effects: the competitions page plays everything through one gain (`SFX_VOL`, 0.25); the bingo panel's slider is scaled by 0.3. Both were far too loud on stream.
 - Version: `package.json` only. The competitions header reads it from `/api/info`.
 
