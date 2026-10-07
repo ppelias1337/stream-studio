@@ -121,7 +121,9 @@ no prize names: the prize stays secret until the stream wheel lands (`pwHidden`)
   top 3 and the raffle winner show the viewer's picture, else a letter. Chat parsers note who's who (`avSeen`: Twitch login,
   Kick user id, YouTube's photo); the controlling panel looks a name up the first time a view shows it (Twitch Helix / Kick
   `users` through the payout logins, so those must be connected there). A name not seen in chat since the panel opened (an update,
-  a reload, chat closed after entries) is tried as a Twitch login, then a Kick channel slug. Keyed by name only. The duel card's
+  a reload, chat closed after entries) is looked up on the platform its roster row came from (`avFromRoster`, `p.chat`); a name typed
+  in by hand gets its letter, never a guess. Streamers (`AV_STREAMERS`) use their own photos in `public/comp/streamers/` (cut from
+  photos the team sent, 256 px) and are never looked up. Keyed by name only. The duel card's
   picture sits in the name row so the card doesn't grow.
 - Sound effects: the competitions page plays everything through one gain (`SFX_VOL`, 0.25); the bingo panel's slider is scaled by 0.3. Both were far too loud on stream.
 - Version: `package.json` only. The competitions header reads it from `/api/info`.
