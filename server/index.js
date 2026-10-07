@@ -912,6 +912,38 @@ function readBody(req) {
   });
 }
 
+/* Requests: match chat's "!r <game>" to AboutSlots' slot list. Their site search is a plain substring
+   search (no typos) that returns 10 slots without the provider, so: search the whole text, then its
+   longest words; keep the hit the page's own rqSame calls the same game; read the provider off its page.
+   No match is null and the panel shows what chat typed. */
+const { rqSame } = new Function(fs.readFileSync(path.join(PUBLIC_DIR, 'comp/index.html'), 'utf8')
+  .split('// rq-match start')[1].split('// rq-match end')[0] + 'return {rqSame};')();
+const slotCache = new Map();   // ponytail: in memory, grows by one entry per distinct request; fine for a show
+async function slotLookup(q) {
+  const key = q.toLowerCase().trim();
+  if (!key) return null;
+  if (slotCache.has(key)) return slotCache.get(key);
+  const get = u => fetch('https://www.aboutslots.com' + u, { signal: AbortSignal.timeout(8000), headers: { 'User-Agent': 'Mozilla/5.0' } })
+    .then(r => { if (!r.ok) throw new Error('aboutslots ' + r.status); return r.text(); });
+  const words = key.split(/[^a-z0-9]+/).filter(w => w.length >= 4).sort((a, b) => b.length - a.length);
+  let hit = null;
+  for (const term of [key, ...words.slice(0, 2)]) {
+    const list = (JSON.parse(await get('/api/global-search?type=slots&filter=' + encodeURIComponent(term))).slots || {}).data || [];
+    hit = list.find(s => s.Name.toLowerCase() === key) || list.find(s => rqSame(s.Name, q));
+    if (hit) break;
+  }
+  let slot = null;
+  if (hit) {
+    const thumb = (hit.SquareBannerWLogo || {}).url || '';
+    const page = await get('/casino-slots/' + encodeURIComponent(hit.Slug));
+    // the slot's own record is its thumbnail followed by its provider (related slots carry theirs too)
+    const m = thumb && page.split(thumb + '\\"},\\"GameProvider\\":')[1];
+    slot = { name: hit.Name, provider: m ? (/\\"Name\\":\\"([^\\]+)/.exec(m) || [])[1] || '' : '', thumb };
+  }
+  slotCache.set(key, slot);
+  return slot;
+}
+
 function sendJson(res, obj, code) {
   const body = JSON.stringify(obj);
   res.writeHead(code || 200, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' });
@@ -1052,6 +1084,13 @@ const server = http.createServer(async (req, res) => {
   // here works the same from every panel. The verifier is one-use and never leaves the LAN.
   if (pathname === '/api/sha256' && req.method === 'POST')
     return sendJson(res, { ok: true, hash: crypto.createHash('sha256').update(await readBody(req)).digest('base64url') });
+
+  // A request in the Requests queue, looked up on AboutSlots: its name, provider and thumbnail.
+  if (pathname === '/api/slot') {
+    const q = String(url.searchParams.get('q') || '').slice(0, 80);
+    try { return sendJson(res, { ok: true, slot: await slotLookup(q) }); }
+    catch (e) { return sendJson(res, { ok: false, error: e.message }, 502); }
+  }
 
   // Competitions, raffle and bingo results join the wheel's draws in the sheet's _Results
   // tab. The page keeps its own queue until this answers, and the sheet skips a draw_id it
