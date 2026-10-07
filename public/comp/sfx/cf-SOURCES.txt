@@ -1,0 +1,3 @@
+Kenney (www.kenney.nl), CC0: Sci-Fi Sounds, Interface Sounds, Impact Sounds, Music Jingles.
+cf-tick=forceField_001 cf-tag=click_005 cf-spray=thrusterFire_001 (first 0.7 s) cf-pop=impactSoft_medium_001 cf-final=lowFrequency_explosion_001 cf-win=jingles_STEEL06 cf-claim=confirmation_001
+All levelled to -18 LUFS.

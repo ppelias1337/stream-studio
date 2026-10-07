@@ -481,7 +481,7 @@ select.in option{background:var(--panel-2)}
       <div class="row">
         <label class="lab">Volume <input type="range" class="range" id="vol" min="0" max="100"></label>
         <span class="grow"></span>
-        <button class="btn" data-sfx="tick">Reel tick</button><button class="btn" data-sfx="whistle">Line</button><button class="btn" data-sfx="horn">Bingo</button><button class="btn" data-sfx="coin">Claim</button>
+        <button class="btn" data-sfx="tick">Reel tick</button><button class="btn" data-sfx="whistle">Line</button><button class="btn" data-sfx="horn">Bingo</button>
       </div>
     </section>
 
@@ -616,7 +616,9 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>';
 const allDone=()=>S.cells.every(c=>c.d);
 const lineDone=id=>LINES[id].every(i=>S.cells[i].d);
-const stageName=n=>n==9?"Full board":n?"Line "+n:"Raffle";
+const stageName=n=>n==10?"Everything remaining":n==9?"Full board":n?"Line "+n:"Raffle";   // 10: every prize still unwon, to one winner (S.rest)
+const unwon=()=>[1,2,3,4,5,6,7,8,9].filter(n=>!S.winners[n]);
+const stagePrize=n=>n==10 ? "€"+unwon().reduce((t,k)=>t+(+String(S.prizes[k-1]).replace(/[^\d.]/g,"")||0),0).toLocaleString("en-US") : n?S.prizes[n-1]:"";
 const stageDone=n=>n==9?allDone():n>=1&&n<=S.lines.length;
 const raffleTitle=n=>n?stageName(n)+" raffle":"Keyword raffle";
 const tileSize=t=>{ const n=t.length; return n<=16?30:n<=30?24:n<=50?21:18; };   // never below 18px on stream
@@ -669,7 +671,7 @@ function toggleCell(i){
   }
   save(); renderAll();
 }
-const nextStage=()=>{ for(let n=1;n<=9;n++) if(stageDone(n)&&!S.winners[n]) return n; return 0; };
+const nextStage=()=>{ for(let n=1;n<=9;n++) if((S.rest||stageDone(n))&&!S.winners[n]) return S.rest?10:n; return 0; };
 /* What the stream shows is not a switch: the raffle while a completed line is owed its winner (or a draw or its
    winner card is up), the board once every owed draw is won. */
 const onRaffle=()=>S.rf.on&&!!(S.rf.spin||S.rf.won||nextStage());
@@ -736,7 +738,7 @@ function winCard(){
   return `<div class="win${pop?" pop":""}"><small>Winner</small><div class="wname" style="font-size:${nameSize(e.name)}px">${nameHtml(e)}</div>${foot}</div>`;
 }
 function raffleView(){
-  const R=S.rf, pool=poolOf(), prize=R.stage?S.prizes[R.stage-1]:"";
+  const R=S.rf, pool=poolOf(), prize=stagePrize(R.stage);
   const kwSize=R.keyword.length<=5?96:R.keyword.length<=9?72:R.keyword.length<=14?52:40;
   // during a draw the fullscreen takeover (#drawfx) covers this; a live winner card would double-fire winCard()'s pop state
   const body=R.spin
@@ -874,7 +876,7 @@ requestAnimationFrame(frame);
    she blows a kiss, the 10x heart pops and macarons rain. rdHtml is the stage; rdFrame moves the bars. */
 const RD_ROW=250, RD_STEPS=150, RD_IN=1400, RD_MID=400;   // RD_MID: the pick line, in the reel
 function rdHtml(sp, W){
-  const R=S.rf, prize=R.stage?S.prizes[R.stage-1]:"", n=spinPool(sp).length, rnd=(i,k)=>((sp.startedAt/(i+3)*(k+7))%1000)/1000;
+  const R=S.rf, prize=stagePrize(R.stage), n=spinPool(sp).length, rnd=(i,k)=>((sp.startedAt/(i+3)*(k+7))%1000)/1000;
   const float=[[.08,.22],[.86,.3],[.14,.62],[.9,.7]].map(([x,y],i)=>`<img class="rd-mac" src="rr2/mac-${RD_MACS[i]}.webp" alt="" style="left:${Math.round(x*W-75)}px;top:${Math.round(y*1080)}px;animation-delay:${-i*1.3}s">`).join("");
   const rain=Array.from({length:16},(_,i)=>`<img src="rr2/mac-${RD_MACS[i%4]}.webp" alt="" style="--x:${Math.round(rnd(i,1)*(W-120))}px;--d:${(i*.12+rnd(i,2)*.3).toFixed(2)}s;--r:${Math.round(rnd(i,3)*720-360)}deg">`).join("");
   return `<div class="rdd" data-at="${sp.startedAt}" style="width:${W}px"><div class="rd-bg"></div>${float}
@@ -972,7 +974,7 @@ function raffleHtml(){
         <label class="lab">Claim time <input class="in" id="claim" type="number" min="5" max="600" step="5" style="width:84px" value="${R.claimSecs}"> s</label>
       </div>
       <div class="row"><button class="btn primary" id="openBtn">Open entries</button><button class="btn" id="testDrawBtn">Test draw</button></div>
-      <p class="hint">Entries open by themselves when the first line is done. Draws go in the order the lines were completed.</p>`;
+      <p class="hint">Entries open by themselves when the first line is done. Draws go in the order the lines were completed.</p>${restBtn()}`;
   }
   const sp=R.spin;
   let draw="";
@@ -986,7 +988,7 @@ function raffleHtml(){
   }else if(R.won){
     draw=`<div class="drawrow ok">${logo(R.won.platform)}<b>${esc(R.won.name)}</b><span class="tag ok">Won ${esc(stageName(R.won.stage))}</span></div>`;
   }
-  const owed=[1,2,3,4,5,6,7,8,9].filter(n=>stageDone(n)&&!S.winners[n]);
+  const owed=nextStage()==10 ? [10] : [1,2,3,4,5,6,7,8,9].filter(n=>stageDone(n)&&!S.winners[n]);
   return `<div class="row"><span class="lab">Keyword</span><b class="kwv">${esc(R.keyword)}</b><span class="grow"></span>
       <span class="hint">${owed.length ? `Up next: <b>${stageName(owed[0])}</b>${owed.length>1?` · then ${owed.slice(1).map(stageName).join(", ")}`:""}` : "No line waiting. The stream shows the board."}</span></div>
     ${draw}
@@ -995,8 +997,9 @@ function raffleHtml(){
       <button class="btn" id="toggleBtn">${R.open?"Close entries":"Reopen entries"}</button>
       <button class="btn" id="testBtn">Test entries</button>
       <button class="btn danger" id="finishBtn">End raffle</button>
-    </div>`;
+    </div>${restBtn()}`;
 }
+const restBtn=()=>S.rest||!unwon().length ? "" : `<div class="row"><button class="btn" id="restBtn">Give away everything remaining to one person</button></div>`;
 function entriesHtml(){
   if(!S.rf.on) return "";
   const pool=poolOf();
@@ -1019,6 +1022,12 @@ function wireRaffle(el){
   if(cl) cl.onchange=()=>{ const v=Math.round(+cl.value); if(v>=5&&v<=600) R.claimSecs=v; cl.value=R.claimSecs; save(); };
   on("#openBtn",()=>{ S.rf={...rfFresh(R.keyword,R.claimSecs,nextStage()), on:true, open:true}; save(); renderAll(); });
   on("#drawBtn",draw);
+  on("#restBtn",()=>ask(`Give everything nobody has won yet (${unwon().map(stageName).join(", ")} · ${stagePrize(10)}) to one winner?`,"Give it away",()=>{
+    S.rest=true;
+    if(!S.rf.on) S.rf={...rfFresh(R.keyword,R.claimSecs), on:true, open:true};
+    if(!S.rf.spin&&!S.rf.won) S.rf.stage=nextStage();
+    save(); renderAll();
+  }));
   on("#testDrawBtn",testDraw);
   on("#claimBtn",()=>{ const sp=S.rf.spin; if(sp&&!sp.claimed){ sp.claimed=true; sp.claimedAt=netNow(); save(); renderAll(); } });
   on("#missBtn",()=>commit(false));
@@ -1068,7 +1077,7 @@ function draw(){
 function commit(claimed){
   const R=S.rf, sp=R.spin;
   if(!sp) return;
-  const e=winnerOf(sp);
+  const e=winnerOf(sp), pz=R.stage==10 ? " · "+stagePrize(10) : "";   // before the claim marks them won
   R.spin=null;
   if(R.test){ S.rf=rfFresh(R.keyword,R.claimSecs,R.stage); save(); renderAll(); return toast("Test draw done. Nothing was kept"); }
   if(e){
@@ -1076,10 +1085,11 @@ function commit(claimed){
     if(claimed){
       R.won={name:e.name, platform:e.platform, stage:R.stage, at:netNow()};   // its card stays up RESULT_MS, then the next line or the board
       S.winnerLog.push({name:e.name, platform:e.platform, user:e.user, stage:R.stage});
-      if(R.stage) S.winners[R.stage]={name:e.name, platform:e.platform};
+      if(R.stage==10) unwon().forEach(n=>S.winners[n]={name:e.name, platform:e.platform});
+      else if(R.stage) S.winners[R.stage]={name:e.name, platform:e.platform};
     }
     if(!e.test) logResult({id:sp.startedAt+"-"+sp.winner, mode:G().name+" Bingo", winner:`${e.name} (${e.platform})${claimed?"":" did not claim"}`,
-      count:sp.count, detail:raffleTitle(R.stage)});
+      count:sp.count, detail:raffleTitle(R.stage)+pz});
     toast(claimed?`${e.name} won ${raffleTitle(R.stage).toLowerCase()}`:`${e.name} didn't claim. Draw again.`);
     if(claimed) R.stage=nextStage();
   }
@@ -1220,7 +1230,7 @@ async function ytStart(){
    Synthesized, no files. Plays from this window; the stream PC picks it up as
    desktop audio. Chrome starts audio only after a click on the page. */
 let ac=null, master=null, noise=null;
-const audio=()=>!DISPLAY&&ac&&S.sound.on&&ac.state==="running"?(master.gain.value=S.sound.vol/100*.3,ac):null;   // .3: full volume was far too loud on stream
+const audio=()=>!DISPLAY&&ac&&S.sound.on&&ac.state==="running"?(master.gain.value=S.sound.vol/100*.05,ac):null;   // .05: .3 was still far too loud on stream, they should barely be heard
 function unlockAudio(){
   if(!ac){ try{ ac=new AudioContext(); master=ac.createGain(); master.connect(ac.destination); }catch(e){ return; } }
   if(ac.state==="suspended") ac.resume();
@@ -1266,7 +1276,7 @@ setInterval(()=>{
   else if(!DISPLAY&&panelDirty){ panelDirty=false; renderPanel(); }
   // the winner card appears at spin end without any state changing, so watch for it
   const s=S.rf.spin, ph=!s?"":now<spinEnd(s)?"spin":s.claimed?"claimed":"claim";
-  if(ph!==phase){ if(ph==="claim"&&phase==="spin") sfx("whistle"); else if(ph==="claimed"&&phase==="claim") sfx("coin"); phase=ph; renderAll(); }
+  if(ph!==phase){ if(ph==="claim"&&phase==="spin") sfx("whistle"); phase=ph; renderAll(); }
   document.querySelectorAll("[data-until]").forEach(el=>el.textContent=secs(+el.dataset.until));
   document.querySelectorAll("[data-cd]").forEach(el=>el.textContent=countdown(+el.dataset.cd));
 },250);
@@ -1297,7 +1307,7 @@ if(DISPLAY){
   tw.onchange=()=>{ S.chat.twitch=tw.value.trim().toLowerCase().replace(/^#/,""); tw.value=S.chat.twitch; save(); chat.restart.twitch(); };
   kk.onchange=()=>{ S.chat.kickRoom=kk.value.trim(); save(); chat.restart.kick(); };
   const clearBoard=()=>{
-    S.cells.forEach((c,i)=>c.d=i===WILD); S.lines=[]; S.winners={}; S.winnerLog=[]; S.fx=null; if(!S.rf.on) S.rf.stage=0;
+    S.cells.forEach((c,i)=>c.d=i===WILD); S.lines=[]; S.winners={}; S.rest=false; S.winnerLog=[]; S.fx=null; if(!S.rf.on) S.rf.stage=0;
     Object.assign(S.guess,{picks:{}, bonus:{}, last:null});
   };
   $("#resetBoard").onclick=()=>{

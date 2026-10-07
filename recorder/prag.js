@@ -1,0 +1,67 @@
+const { record } = require('./rec');
+const { entries, waitSpinEnd, claimByChat } = require('./common');
+record('5-prag-wheel', async d => {
+  const { page, sleep } = d;
+  await d.card('Stream Studio · Special Giveaways', 'Prag-Wheel', 'Pragmatic Play Friday. Chat types <b style="color:#EDEDF0">Pragmatic</b>, each winner gets a spin on the studio wheel.', 4000);
+
+  await d.click(page.locator('[data-tab=special]'), { after: 900 });
+  const c = await d.comp();
+  await d.cap('Special Giveaways → <b>Prag-Wheel</b>');
+  await d.click(c.locator('.menu-card[data-mode=PRAG]'), { after: 1500 });
+  await d.point(c.locator('dl.summary'));
+  await d.cap('Keyword <b>Pragmatic</b> · one spin per winner · the prizes scroll on stream', 3500);
+  await d.stream(true, 400, true);
+  await d.cap('On stream before entries: the 20 prizes turn past under the crown', 7000);
+  await d.stream(false);
+
+  await d.cap('<b>Open keyword entries</b>');
+  await d.click(c.locator('#rfOpen'), { after: 1000 });
+  await d.chat(c, entries('Pragmatic', 12), 500);
+  await d.stream(true, 400, true);
+  await d.cap('Now the box takes turns: 10 s of entries, then 25 s of prizes', 3000);
+  await d.chat(c, entries('Pragmatic', 8, 12), 700);
+  await sleep(3000);
+  await d.stream(false);
+  await d.cap('For this demo: <b>Load 1,400 test entries</b>');
+  await d.click(c.locator('#pwTestBtn'), { after: 1500 });
+
+  await d.cap('<b>Draw a player</b>');
+  await d.click(c.locator('#rfDraw'), { after: 300 });
+  await d.stream(true, 400);
+  await d.cap('The draw takes the whole screen: the logo, then a reel of names', 7000);
+  await d.cap('Same length every draw, whether 20 or 2,000 entered', 7000);
+  await d.cap('');
+  let w = await waitSpinEnd(c);
+  await d.cap('The winner has 60 s to type in chat', 3500);
+  await claimByChat(d, c, w);
+  await sleep(4500);
+  await d.stream(false, 600);
+  await d.cap(`<b>${w.name}</b> is on the winners list and now spins the real wheel in the studio`, 4000);
+  await d.point(c.locator('.pw-nums'));
+  await d.cap('Press the number the studio wheel landed on', 2500);
+  await d.click(c.locator('[data-pw-prize="9"]'), { after: 300 });
+  await d.stream(true, 300, true);
+  await d.cap('The stream wheel spins onto the same prize', 9000);
+  await d.cap(`<b>${w.name}</b> wins an iPhone 17`, 5000);
+  await d.stream(false, 600);
+  await d.cap('Pressed the wrong one? Press the right number and it spins again', 4000);
+
+  await d.cap('Next winner, sped up: draw, claim, press the number');
+  await d.ff(true, 5);
+  await d.click(c.locator('#rfDraw'), { after: 300 });
+  await d.stream(true, 300);
+  w = await waitSpinEnd(c);
+  await sleep(1500);
+  await claimByChat(d, c, w);
+  await sleep(4500);
+  await d.stream(false, 600);
+  await d.click(c.locator('[data-pw-prize="18"]'), { after: 300 });
+  await d.stream(true, 300, true);
+  await sleep(9000);
+  await d.ff(false);
+  await d.cap(`<b>${w.name}</b> wins a Steam Deck`, 4000);
+  await d.stream(false, 600);
+  await d.cap('Entries stay open all show. Every winner and prize is logged to the sheet.', 4500);
+  await d.cap('');
+  await d.card('Stream Studio', 'Prag-Wheel', 'Keyword entries · full-screen draw · the stream wheel follows the studio wheel', 3500);
+});

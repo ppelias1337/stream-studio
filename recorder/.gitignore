@@ -1,0 +1,7 @@
+node_modules/
+data-*/
+frames-*/
+out/
+list-*.txt
+marks-*.json
+err-*.png

@@ -1091,6 +1091,106 @@
   .rt-wclaim{font-size:36px;font-weight:600;color:#CFE8BD}
   .rt-wclaim p{margin:0}.rt-wclaim p.ok{color:#9DFF4F}
   .rt-wclaim b{color:#9DFF4F;font-size:56px;margin-left:14px;font-variant-numeric:tabular-nums}
+  /* Reel Squads (Relax Gaming, Cloudforge): the box is the mockup's, the game's six reels in its brass frame, the Wild
+     climbing each reel over the swarm, the reel numbers to type under them with the squad sizes */
+  .display.squad{--box:#0d1218;border-color:rgba(242,196,106,.4)}
+  .display.squad .display-content{padding:0}
+  .sq-box{position:absolute;inset:0;overflow:hidden;font-family:"Fredoka",var(--cond);font-weight:700;color:#f4efe4}
+  .sq-bg{position:absolute;inset:0;background:url(cf/bg.webp) -366px -96px/1090px auto no-repeat}
+  .sq-shade{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 55%,transparent 40%,rgba(0,0,0,.55))}
+  .sq-logo{position:absolute;left:50%;top:5px;width:124px;height:46px;margin-left:-62px;background:url(cf/logo.webp) center/contain no-repeat}
+  .sq-relax{position:absolute;right:12px;top:14px;width:70px;height:23px;background:url(cf/relax.webp) right center/contain no-repeat;opacity:.9}
+  .sq-prize small{margin-left:5px;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:#d8e2ea;text-shadow:0 1px 3px #000}
+  .sq-prize{position:absolute;left:12px;top:9px;font-size:28px;line-height:1;white-space:nowrap;color:#f2c46a;text-shadow:0 3px 0 #2a1606,0 0 14px rgba(0,0,0,.6)}
+  .sq-reels{position:absolute;left:27px;top:56px;width:396px;height:282px;display:flex;gap:5px;padding:6px;border-radius:8px;
+    background:linear-gradient(#232c35,#141a20);box-shadow:inset 0 0 0 3px #6b4a22,inset 0 0 0 5px #d9a54e,0 6px 18px rgba(0,0,0,.6)}
+  .sq-reel{position:relative;flex:1;min-width:0;display:flex;flex-direction:column;border-radius:5px;background:rgba(0,0,0,.35);overflow:hidden}
+  .sq-cell{flex:1;display:grid;place-items:center;min-height:0}
+  .sq-cell img{width:48px;opacity:.95}
+  .sq-cell:nth-child(even) img{transform:scaleX(-1) rotate(-8deg)}
+  .sq-wild{position:absolute;left:0;right:0;bottom:0;overflow:hidden}
+  .sq-wild img{position:absolute;left:50%;bottom:0;width:auto;max-width:none;transform:translateX(-50%)}
+  .sq-wild b{position:absolute;left:50%;top:4px;transform:translateX(-50%);font-size:22px;color:#fff;text-shadow:0 0 8px #6ff6ff,0 2px 0 #08323a}
+  .sq-reel.hot{box-shadow:0 0 0 2px #f2c46a,0 0 16px rgba(242,196,106,.7)}
+  .sq-reel.zap{box-shadow:0 0 0 3px #6ff6ff,0 0 26px #6ff6ff,0 0 60px rgba(111,246,255,.6)}
+  .sq-reel.tick .sq-wild{animation:sqrise .8s cubic-bezier(.3,1.5,.5,1) calc(var(--d,0ms) + .25s) both}
+  @keyframes sqrise{from{transform:translateY(calc(100% / var(--n,1)))}}
+  .sq-bolt{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;animation:sqbolt .9s steps(2) infinite}
+  @keyframes sqbolt{50%{opacity:.3}}
+  .sq-burst{position:absolute;left:0;right:0;top:36%;z-index:2;text-align:center;font-size:34px;color:#fff;text-shadow:0 0 10px #6ff6ff,0 3px 0 #08323a;
+    animation:sqburst 1.8s cubic-bezier(.2,.9,.3,1) var(--d,0ms) both}
+  @keyframes sqburst{0%{opacity:0;transform:scale(2.2)}15%{opacity:1;transform:scale(1)}70%{opacity:1}100%{opacity:0;transform:translateY(-40px)}}
+  .sq-join{position:absolute;left:27px;top:56px;width:396px;height:282px;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;background:rgba(10,14,19,.72)}
+  .sq-join b{font-size:66px;line-height:1;color:#fff}
+  .sq-join span{color:#f2c46a}
+  .sq-join p{margin:8px 0 0;font-size:24px;color:#d8e2ea}
+  .sq-nums{position:absolute;left:33px;top:344px;width:384px;display:flex;gap:5px}
+  .sq-num{flex:1;position:relative;text-align:center}
+  .sq-num b{display:inline-flex;width:42px;height:42px;border-radius:50%;align-items:center;justify-content:center;font-size:26px;color:#2a1606;
+    background:radial-gradient(circle at 35% 30%,#ffe7a6,#e0a849 55%,#8a5a1e);box-shadow:0 0 0 2px #4a2d0e,0 3px 6px rgba(0,0,0,.6)}
+  .sq-num.hot b{box-shadow:0 0 0 2px #fff6d8,0 0 14px #f2c46a}
+  .sq-num.zap b{background:radial-gradient(circle at 35% 30%,#eaffff,#6ff6ff 55%,#1a7c8a);box-shadow:0 0 0 2px #fff,0 0 18px #6ff6ff}
+  .sq-num u{position:absolute;left:50%;top:-6px;margin-left:12px;padding:0 5px;border-radius:9px;text-decoration:none;font-size:14px;color:#05343b;background:#6ff6ff;box-shadow:0 0 0 1.5px #fff}
+  .sq-num i{display:block;margin-top:1px;font-style:normal;font-size:16px;color:#d8e2ea;text-shadow:0 2px 3px #000;font-variant-numeric:tabular-nums}
+  .sq-spot{position:absolute;left:0;right:0;bottom:9px;text-align:center;font-size:22px;white-space:nowrap;text-shadow:0 3px 0 #2a1606,0 0 14px rgba(0,0,0,.6)}
+  .sq-spot em{font-style:normal;color:#f2c46a}
+  .sq-spot .z{color:#6ff6ff}
+  .sq-edit{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .sq-ed .sq-ed-n{margin-left:0;font-size:18px}
+  .sq-ed .cb-ct span b{font-size:inherit;min-width:0;margin:0;color:var(--fg)}
+  .sq-set{flex-wrap:wrap;gap:8px 12px}
+  /* the draw, the bug hunt: the game's sky, the swarm with name tags, the robot spraying it from the right */
+  .sq-draw{background:#5d8fd0;font-family:"Fredoka",var(--cond);font-weight:700}
+  .sq-draw .dchat{--dc-a:#f2c46a;--dc-line:rgba(242,196,106,.4);--dc-bg:rgba(14,19,26,.9)}
+  .sq-dbg{position:absolute;left:0;top:0;width:1920px;height:1080px;background:url(cf/bg-sky.webp) 0 0/1920px 1080px no-repeat;animation:crzoom 30s linear both;will-change:transform}
+  .pw-draw:not(.fixed) .sq-dbg{left:-420px}
+  .sq-dlogo{position:absolute;left:40px;top:24px;width:300px}
+  .sq-swarm,.sq-shots{position:absolute;inset:0}
+  .sq-bug{position:absolute;left:0;top:0;width:130px;display:flex;flex-direction:column;align-items:center;will-change:transform,opacity}
+  .sq-bug img{width:130px;transition:transform .2s}
+  .sq-bug.l img{transform:scaleX(-1)}
+  .sq-tag{margin-top:-8px;padding:3px 12px;border-radius:999px;display:flex;align-items:center;gap:6px;white-space:nowrap;font-size:25px;color:#f4efe4;
+    background:rgba(12,16,22,.82);box-shadow:0 0 0 1.5px rgba(242,196,106,.55)}
+  .sq-tag .pf{width:.8em;height:.8em}
+  .sq-bug.hit .sq-tag{background:#e8ffff;color:#05343b;box-shadow:0 0 0 2px #6ff6ff,0 0 24px #6ff6ff}
+  .sq-bug.hit img{opacity:.6}
+  .sq-draw.landed .sq-bug.w .sq-tag{opacity:0;transition:opacity .3s}
+  .sq-draw.landed .sq-bug.w::before{content:"";position:absolute;left:50%;top:40%;width:260px;height:260px;margin:-130px 0 0 -130px;border-radius:50%;z-index:-1;
+    background:radial-gradient(closest-side,rgba(255,231,166,.95),rgba(242,196,106,.45) 50%,transparent);animation:pwdin .6s ease both}
+  .sq-robot{position:absolute;z-index:3;transform-origin:70% 90%}
+  .sq-robot.kick{animation:sqkick .35s cubic-bezier(.3,1.6,.5,1)}
+  @keyframes sqkick{30%{transform:translateX(18px) rotate(1.5deg)}}
+  .sq-shot{position:absolute;height:14px;margin-top:-7px;transform-origin:0 50%;border-radius:7px;z-index:2;pointer-events:none;
+    background:linear-gradient(90deg,rgba(141,255,90,.95),rgba(111,246,255,.85) 60%,rgba(232,255,255,.9));box-shadow:0 0 18px rgba(111,246,255,.8);
+    animation:sqshot .45s ease-out both}
+  @keyframes sqshot{from{clip-path:inset(0 100% 0 0);opacity:1}40%{clip-path:inset(0 0 0 0);opacity:1}to{clip-path:inset(0 0 0 60%);opacity:0}}
+  .sq-dhead,.sq-dfoot,.sq-plate,.sq-wins{position:absolute;translate:-50% 0;white-space:nowrap}
+  .sq-dhead{left:50%;top:26px;z-index:5;animation:pwhead .6s cubic-bezier(.16,1,.3,1) calc(.6s + var(--el,0s)) both}
+  .sq-dhead b,.sq-dfoot,.sq-wins{display:block;padding:10px 26px;border-radius:40px;background:rgba(12,16,22,.86);box-shadow:0 0 0 2px #a8742c;font-size:28px;font-weight:600;color:#f4efe4}
+  .sq-dhead span{margin-right:16px;font-size:34px;font-weight:700;color:#6ff6ff;text-transform:uppercase}
+  .sq-dhead em,.sq-dfoot em,.sq-wins em{font-style:normal;color:#f2c46a}
+  .sq-dfoot{z-index:5}
+  .sq-dfoot .ok{color:#6ff6ff}
+  .sq-draw.landed .sq-dfoot{padding:14px 34px;font-size:42px;font-weight:700;background:linear-gradient(#ffe7a6,#e0a849 60%,#b07a2a);color:#2a1606;box-shadow:0 0 0 3px #4a2d0e,0 8px 24px rgba(0,0,0,.5)}
+  .sq-draw.landed .sq-dfoot b{color:#2a1606;text-decoration:underline;text-underline-offset:6px}
+  .sq-draw.landed .sq-dfoot em{margin-left:14px;padding:0 14px;border-radius:12px;background:#2a1606;color:#ffe7a6;font-variant-numeric:tabular-nums}
+  .sq-draw.landed .sq-dfoot .ok{color:#05343b}
+  .sq-sq .sq-dlogo{display:none}
+  .sq-sq .sq-dhead{left:50%}
+  .sq-sq .sq-dhead b{font-size:40px;padding:12px 30px}
+  .sq-sq .sq-dhead span{font-size:46px}
+  .sq-sq .sq-tag{font-size:30px}
+  .sq-sq .sq-dfoot{top:950px !important;font-size:40px}
+  .sq-sq.landed .sq-dfoot{font-size:48px;padding:14px 32px}
+  .sq-sq .sq-plate{padding:18px 50px}
+  .sq-sq .sq-wins{font-size:64px;padding:10px 40px}
+  .sq-robot{transition:translate .6s cubic-bezier(.5,0,.75,0),opacity .6s}
+  .sq-draw.landed .sq-robot{translate:70% 0;opacity:0}
+  .sq-plate{z-index:6;padding:14px 38px;border-radius:14px;color:#2a1606;opacity:0;
+    background:linear-gradient(#ffe7a6,#e0a849 60%,#b07a2a);box-shadow:0 0 0 3px #4a2d0e,0 0 40px rgba(255,231,166,.8),0 10px 30px rgba(0,0,0,.5)}
+  .sq-draw.won .sq-plate{opacity:1;animation:crslam .6s cubic-bezier(.3,1.5,.5,1) both}
+  .sq-wins{z-index:6;padding:8px 34px;font-size:52px;font-weight:700;opacity:0}
+  .sq-draw.won .sq-wins{opacity:1;transition:opacity .5s .4s}
   .rf-name{display:flex;align-items:center;justify-content:center;gap:12px;height:var(--r);font-size:30px;white-space:nowrap;color:var(--text)}
   .rf-name span{overflow:hidden;text-overflow:ellipsis;min-width:0}
   .rf-name .pf{width:.85em;height:.85em}
@@ -1829,7 +1929,7 @@ async function netProbe(){
 function netPush(fx){
   if(!NET.on || DISPLAY_ONLY) return;
   const keys={};
-  [KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,RT_KEY,CR_KEY,GZ_KEY,SHEET_Q_KEY,RQ_KEY,AV_KEY].forEach(k=>{ keys[k]=localStorage.getItem(k); });
+  [KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,RT_KEY,SQ_KEY,CR_KEY,GZ_KEY,SHEET_Q_KEY,RQ_KEY,AV_KEY].forEach(k=>{ keys[k]=localStorage.getItem(k); });
   if(NET.synced) keys[HISTORY_KEY]=localStorage.getItem(HISTORY_KEY);
   fetch(NET.url,{method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({keys, fx: fx?[fx]:[], ctl:CTL_ID})}).then(r=>{ if(r.status===409) location.reload(); }).catch(()=>{});
@@ -1898,7 +1998,7 @@ let state = load() || fresh();
 let appMode = loadMode();
 let navHist=[appMode], navAt=0;   // browser-style back/forward over the formats this panel has visited
 
-function loadMode(){ try{ const m=JSON.parse(localStorage.getItem(MODE_KEY)); return (m==="LMS"||m==="H2H"||m==="BRACKET"||m==="LEAGUE"||m==="WHEEL"||m==="TADA"||m==="PRAG"||m==="KEYWORD"||m==="BOARD"||m==="ROT"||m==="BINGO")?m:null; }catch(e){ return null; } }
+function loadMode(){ try{ const m=JSON.parse(localStorage.getItem(MODE_KEY)); return (m==="LMS"||m==="H2H"||m==="BRACKET"||m==="LEAGUE"||m==="WHEEL"||m==="TADA"||m==="PRAG"||m==="KEYWORD"||m==="BOARD"||m==="ROT"||m==="SQUAD"||m==="BINGO")?m:null; }catch(e){ return null; } }
 function saveMode(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(MODE_KEY, JSON.stringify(appMode)); }catch(e){} bcast({type:"state"}); }
 
 function fresh(){
@@ -2230,7 +2330,7 @@ const SOUND_KEY="comp_sound_v1";
 let soundOn=(localStorage.getItem(SOUND_KEY)??"1")==="1";
 let audioCtx=null;
 /* every effect goes through one master gain: the files and tones were far louder than the stream (asked to cut them a lot) */
-const SFX_VOL=.25;
+const SFX_VOL=.04;   // barely there under the stream: .25 was still far too loud (Elias, 2026-10-07)
 let sfxOut=null;
 function actx(){ if(!audioCtx){ try{ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); sfxOut=audioCtx.createGain(); sfxOut.gain.value=SFX_VOL; sfxOut.connect(audioCtx.destination); }catch(e){} } return audioCtx; }
 function tone(freq,t0,dur,type,vol){
@@ -2261,13 +2361,12 @@ function sfx(name){
   const b=SFX_BUF[name];
   if(b instanceof AudioBuffer || b===false) play(b); else sfxLoad(name).then(play);
 }
-setTimeout(()=>["tick","stop","brake","whistle","boom","winner","match","zap","coin","life"].forEach(sfxLoad), 1500);   // ready before the first draw
+setTimeout(()=>["tick","stop","brake","whistle","boom","winner","match","zap","life"].forEach(sfxLoad), 1500);   // ready before the first draw
 function sfxTone(name){
   const ctx=actx(); if(!ctx) return;
   if(ctx.state==="suspended") ctx.resume();
   if(name==="elim"){ tone(392,0,.18,"sawtooth",.11); tone(311,.16,.2,"sawtooth",.11); tone(233,.34,.45,"sawtooth",.13); }
   else if(name==="winner"){ [523,659,784,1047].forEach((f,i)=>tone(f,i*.12,.5,"triangle",.15)); tone(1319,.5,.7,"triangle",.13); }
-  else if(name==="coin"){ for(let i=0;i<7;i++) tone(880+i*160,i*.09,.07,"square",.045); }
   else if(name==="match"){ tone(659,0,.12,"triangle",.14); tone(880,.12,.32,"triangle",.15); }
   else if(name==="tick"){ tone(2200,0,.03,"square",.03); }
   else if(name==="zap"){ tone(1900,0,.05,"square",.05); tone(120,.01,.3,"sawtooth",.1); tone(55,.04,.6,"triangle",.18); }
@@ -2513,8 +2612,8 @@ function rotateFromId(list,id){
 
 /* ================= SHARED VIEW PIECES ================= */
 const ic=(n,cls)=>`<svg class="ic${cls?" "+cls:""}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
-const MODE_ICON={LMS:"lms", H2H:"h2h", BRACKET:"bracket", LEAGUE:"league", WHEEL:"reel", TADA:"gift", PRAG:"gift", KEYWORD:"bolt", BINGO:"gift", BOARD:"gift", ROT:"gift", CREW:"gift", GATES:"gift"};
-const MODE_NAME={LMS:"Last Man Standing", H2H:"Showdown", BRACKET:"Bracket Tournament", LEAGUE:"Points League", WHEEL:"Slot Wheel", TADA:"TaDa Gaming Giveaway", PRAG:"Prag-Wheel", KEYWORD:"Keyword Giveaway", BINGO:"The Racaroon 2 Bingo", BOARD:"Buffalo Blitz 3 Challenges", ROT:"Rotten Potato Challenges", CREW:"Dead Man's Crew", GATES:"Gates of Olympus 2500"};
+const MODE_ICON={LMS:"lms", H2H:"h2h", BRACKET:"bracket", LEAGUE:"league", WHEEL:"reel", TADA:"gift", PRAG:"gift", KEYWORD:"bolt", BINGO:"gift", BOARD:"gift", ROT:"gift", SQUAD:"gift", CREW:"gift", GATES:"gift"};
+const MODE_NAME={LMS:"Last Man Standing", H2H:"Showdown", BRACKET:"Bracket Tournament", LEAGUE:"Points League", WHEEL:"Slot Wheel", TADA:"TaDa Gaming Giveaway", PRAG:"Prag-Wheel", KEYWORD:"Keyword Giveaway", BINGO:"The Racaroon 2 Bingo", BOARD:"Buffalo Blitz 3 Challenges", ROT:"Rotten Potato Challenges", SQUAD:"Reel Squads", CREW:"Dead Man's Crew", GATES:"Gates of Olympus 2500"};
 
 /* header bug on the stream box */
 function bugHtml(icon, title, phase, tone){
@@ -2639,7 +2738,7 @@ function focusNextWin(inp, sel){
 }
 function dispatchDisplay(){
   if(!appMode){ const mc=$("#displayContent"); if(!lbTakeover(mc)) mc.innerHTML=menuDisplayView(); return; }
-  ({LMS:renderDisplay, H2H:h2hRenderDisplay, BRACKET:bkRenderDisplay, LEAGUE:lgRenderDisplay, WHEEL:whRenderDisplay, TADA:tdRenderDisplay, PRAG:pwRenderDisplay, KEYWORD:kwRenderDisplay, BINGO:bgRenderDisplay, BOARD:bdRenderDisplay, ROT:rtRenderDisplay, CREW:crRenderDisplay, GATES:gzRenderDisplay})[appMode]();
+  ({LMS:renderDisplay, H2H:h2hRenderDisplay, BRACKET:bkRenderDisplay, LEAGUE:lgRenderDisplay, WHEEL:whRenderDisplay, TADA:tdRenderDisplay, PRAG:pwRenderDisplay, KEYWORD:kwRenderDisplay, BINGO:bgRenderDisplay, BOARD:bdRenderDisplay, ROT:rtRenderDisplay, SQUAD:sqRenderDisplay, CREW:crRenderDisplay, GATES:gzRenderDisplay})[appMode]();
 }
 let pageTick=Math.floor(netNow()/PAGE_MS);
 setInterval(()=>{
@@ -3330,8 +3429,8 @@ const RF_MODES={
   KEYWORD:{icon:"bolt", get title(){ return kw.title||"Giveaway"; }, log:()=>"", setup:()=>true, roster:()=>kw.winners, display:()=>kwRenderDisplay(), save:()=>kwSave(),
     add:()=>{ const p={id:uid(), name:""}; kw.winners.push(p); return p; }},
   // the box shows the board, and the entries only while a full challenge is owed its winner
-  BOARD:{icon:"gift", get title(){ return BD_TITLE; }, log:row=>{ const c=bdCell(row?.cell||bdDue()[0]?.id); return c ? `${c.label} · ${bdEur(c.prize||0)}` : ""; }, spinMs:()=>BD_DRAW_MS, setup:()=>!!rf.spin || bdDue().length>0, roster:()=>[], display:()=>bdRenderDisplay(), save:()=>bdSaveWin(),
-    add:()=>{ const p={id:uid(), name:"", cell:bdDue()[0]?.id||null}; bd.winners.push(p); return p; }},
+  BOARD:{icon:"gift", get title(){ return BD_TITLE; }, log:row=>bdRow(row?.cell ? row : bdNext()), spinMs:()=>BD_DRAW_MS, setup:()=>!!rf.spin || bdDue().length>0, roster:()=>[], display:()=>bdRenderDisplay(), save:()=>bdSaveWin(),
+    add:()=>{ const p={id:uid(), name:"", ...bdNext()}; bd.winners.push(p); return p; }},
   ROT:{icon:"gift", kw:"PRINT", get title(){ return RT_TITLE; }, log:row=>rtRow(rtCell(row?.cell||rtDue()[0]?.id)), spinMs:()=>RT_DRAW_MS, setup:()=>!!rf.spin || rtDue().length>0, roster:()=>[], display:()=>rtRenderDisplay(), save:()=>rtSaveWin(),
     prize:()=>rtDue()[0]?.merch||"", add:()=>{ const p={id:uid(), name:"", cell:rtDue()[0]?.id||null}; rt.winners.push(p); return p; }},
   // five fixed seats: the entries show until the first is taken, then the crew board; a claim fills the next open seat
@@ -3339,6 +3438,9 @@ const RF_MODES={
   // four challenges: Hit makes one due, a draw is for the first due one and its winner goes in that row; entries and board take turns
   GATES:{icon:"gift", title:"Gates of Olympus 2500", kw:"Pragmatic", prize:()=>`${gz.rows.length} × ${gzEur(gz.prize)}`, log:row=>`${row?.label||gzDue()[0]?.label||""} · ${gzEur(gz.prize)}`, spinMs:()=>GZ_DRAW_MS, setup:()=>!!rf.spin || gzEntriesNow(), roster:()=>gzDue(),
     canDraw:()=>gzDue().length>0, noDraw:"Press Hit on a challenge first", display:()=>gzRenderDisplay(), save:()=>gzSaveWin(), add:()=>null},
+  // a full reel's squad is the entries (sqDraw); a claim is a winner row for that reel, and the reel starts over
+  SQUAD:{icon:"gift", kw:"!1–!6", get title(){ return SQ_TITLE; }, log:row=>sqRow(row), spinMs:()=>SQ_DRAW_MS, setup:()=>!!rf.spin, roster:()=>[], display:()=>sqRenderDisplay(), save:()=>sqSaveWin(),
+    add:()=>{ const p={id:uid(), name:"", reel:rf.sqReel ?? 0, prize:sq.prize}; sq.winners.push(p); return p; }},
 };
 /* Slot entries ("!slot Gates of Olympus"): the words after the keyword are the entry.
    Frozen into rf.slots when entries open, so a format switching mid-entries can't mix them. */
@@ -3386,6 +3488,7 @@ const CHAT_BOTS=["botrix","streamelements","degenbot"];
 const isChatBot=user=>CHAT_BOTS.includes(String(user).toLowerCase().replace(/[^a-z0-9]/g,""));
 function rfChatMsg(platform, user, name, text, color, ts, extra, sub){
   if(rqTake(platform, user, name, text, ts)) return;   // !r requests, while the queue is open
+  sqTake(platform, user, name, text, sub);   // Reel Squads joins, while joining is open
   if(!rf.on || isChatBot(user)) return;
   const sp=rf.spin;
   // Anything the winner says counts as claiming, on the platform they entered from.
@@ -3691,7 +3794,7 @@ const rfMod=(a,n)=>((a%n)+n)%n;
 let rfPlan=null, rfLastOff=null, rfWasSpinning=false;
 function rfFrame(){
   requestAnimationFrame(rfFrame);
-  if(rf.on && ["PRAG","CREW","GATES","TADA","BOARD","ROT"].includes(rf.mode) && appMode===rf.mode) return;   // pwDrawFrame() / crDrawFrame() / gzDrawFrame() / tdDrawFrame() / bdDrawFrame() / rtDrawFrame() run these draws
+  if(rf.on && ["PRAG","CREW","GATES","TADA","BOARD","ROT","SQUAD"].includes(rf.mode) && appMode===rf.mode) return;   // pwDrawFrame() / crDrawFrame() / gzDrawFrame() / tdDrawFrame() / bdDrawFrame() / rtDrawFrame() run these draws
   const sq=document.getElementById("rfSq");
   if(!sq) return;
   const sp=rf.on ? rf.spin : null;
@@ -4291,7 +4394,6 @@ function bkPlayCoinFlip(m){
 // name-based so the #display window can replay it from a broadcast message
 // without needing the match object
 function bkPlayCoinFlipNames(frontName, backName, winnerName){
-  sfx("coin");
   const content=$("#displayContent"); if(content) content.classList.add("dimmed");
   const ov=$("#coinOverlay"), coin=$("#coin3d"), front=$("#coinFaceFront"), back=$("#coinFaceBack"), cap=$("#coinCaption");
   if(!ov||!coin) return;
@@ -5919,8 +6021,14 @@ const bdEur=n=>"€"+n.toLocaleString("en-US");
 function bdSave(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(BD_KEY, JSON.stringify(bd)); }catch(e){} bcast({type:"state"}); }
 let bd=bdLoad()||bdFresh();
 const bdFull=c=>c.n>=BD_NEED;
-/* full challenges nobody has won yet, in board order */
-const bdDue=()=>bd.cells.filter(c=>bdFull(c) && !bd.winners.some(w=>w.cell===c.id));
+const bdWon=(c, named)=>bd.winners.find(w=>(w.cell===c.id || w.cells?.includes(c.id)) && (!named || w.name));
+/* full challenges nobody has won yet, in board order; after "everything remaining" (bd.rest) every unwon one, for one winner */
+const bdDue=()=>bd.cells.filter(c=>(bd.rest || bdFull(c)) && !bdWon(c));
+// a winner row's words: its challenge, or everything remaining with the prizes added up
+const bdRow=w=>{ const cs=w?.cells ? w.cells.map(bdCell).filter(Boolean) : [bdCell(w?.cell)].filter(Boolean);
+  return w?.cells ? `Everything remaining · ${bdEur(cs.reduce((t,c)=>t+(c.prize||0),0))}` : cs[0] ? `${cs[0].label} · ${bdEur(cs[0].prize||0)}` : ""; };
+// the row the next claim fills
+const bdNext=()=>{ const d=bdDue(); return bd.rest ? {cell:d[0]?.id||null, cells:d.map(c=>c.id)} : {cell:d[0]?.id||null}; };
 const bdCell=id=>bd.cells.find(c=>c.id===id);
 // the game's symbol for a challenge, by its words; the labels are the operator's, so anything else gets the buffalo
 const bdIcon=l=>[[/gold/,"pot-gold"],[/grid|ways/,"pot-grid"],[/cash/,"pot-cash"],[/free|retrig/,"free"],[/wild/,"wild"],[/lucky|box/,"box"],[/\dx\b/,"coin"]]
@@ -5930,7 +6038,7 @@ function bdFx(icon, label, name, sub){ const m={type:"fx", fx:"board", icon, lab
 /* a claim names the row after add(), so the winner is announced on save */
 function bdSaveWin(){
   const w=bd.winners[bd.winners.length-1];
-  if(w && w.name && !w.shown){ w.shown=true; const x=bdCell(w.cell); bdFx("crown", "Giveaway winner", w.name, x ? `${x.label} · ${bdEur(x.prize||0)}` : ""); }
+  if(w && w.name && !w.shown){ w.shown=true; bdFx("crown", "Giveaway winner", w.name, bdRow(w)); }
   bdSave();
 }
 function bdTick(id, d){
@@ -5948,7 +6056,7 @@ function bdUndo(){
   bdSave(); bdRender(); toast(`Took ${w.name||"the last winner"} off the list`);
 }
 function bdConfirmReset(){
-  const go=()=>{ rfStop("BOARD"); bd.cells.forEach(c=>{ c.n=0; }); bd.winners=[]; bdSave(); bdRender(); };
+  const go=()=>{ rfStop("BOARD"); bd.cells.forEach(c=>{ c.n=0; }); bd.winners=[]; bd.rest=false; bdSave(); bdRender(); };
   if(!bd.winners.length && !bd.cells.some(c=>c.n)) return go();
   showConfirm("Start a new board? Counts and winners go back to zero. The challenges stay.","Start new",go);
 }
@@ -5964,7 +6072,7 @@ function bdRenderDisplay(){
   const c=$("#displayContent");
   if(lbTakeover(c) || rfTakeover(c)) return;
   const now=netNow(), due=bdDue().length, done=bd.cells.filter(bdFull).length;
-  const owed=new Set(bdDue().map(x=>x.id)), winner=x=>bd.winners.find(w=>w.cell===x.id && w.name);
+  const owed=new Set(bdDue().map(x=>x.id)), winner=x=>bdWon(x, true);
   const age=x=>now-(x.at||0), running=x=>age(x)<BD_RUN_MS+1500, pct=n=>100*Math.min(n,BD_NEED)/BD_NEED;
   // the one the buffalo is running on first, then any owed a giveaway, then closest to done; won ones sink
   const rank=x=>running(x) ? -1 : owed.has(x.id) ? 0 : winner(x) ? 9 : BD_NEED+1-x.n;
@@ -5994,17 +6102,19 @@ function bdRenderControl(){
       <label class="cb-ct">Prize €<input class="tier-in" type="number" min="0" max="10000" step="5" data-bd-eur="${x.id}" style="width:70px" value="${x.prize||0}" aria-label="Prize in euro"></label>
     </div>`).join("");
   const due=bdDue().length;
-  const rows=bd.winners.map((p,i)=>`<div class="crow"><div class="idx">${i+1}</div>${rfLogo(p.chat?.platform)}<span class="clab">${escapeHtml(p.name)}</span><span class="chint">${escapeHtml(bdCell(p.cell)?.label||"")} · ${bdEur(bdCell(p.cell)?.prize||0)}</span></div>`).join("");
+  const rows=bd.winners.map((p,i)=>`<div class="crow"><div class="idx">${i+1}</div>${rfLogo(p.chat?.platform)}<span class="clab">${escapeHtml(p.name)}</span><span class="chint">${escapeHtml(bdRow(p))}</span></div>`).join("");
   $("#controlBody").innerHTML=`<div class="page-h">Buffalo Blitz 3 Challenge Board · ${bdEur(bdPool())} prize pool</div>
     <div class="cb-edit">${cells}</div>
     <div class="two-col">${rfSection()}
     <div class="section"><div class="section-h">Winners · ${bd.winners.length}${due?` · ${due} due`:""}</div>${rows ? `<div class="crows">${rows}</div>` : `<div class="chint">Nobody drawn yet.</div>`}</div></div>
-    <div class="actionbar"><button class="btn" id="bdNewBtn">${ic("new")}New board</button></div>`;
+    <div class="actionbar">${bd.rest || bd.cells.every(x=>bdWon(x)) ? "" : `<button class="btn" id="bdRestBtn">${ic("gift")}Give away everything remaining to one person</button>`}<button class="btn" id="bdNewBtn">${ic("new")}New board</button></div>`;
   document.querySelectorAll("[data-bd-eur]").forEach(i=>{ i.onchange=()=>{ const v=Math.round(+i.value);
     if(v>=0 && v<=10000) bdCell(i.dataset.bdEur).prize=v; bdSave(); bdRender(); }; });
   document.querySelectorAll("[data-bd-tick]").forEach(b=>{ b.onclick=()=>bdTick(b.dataset.bdTick, +b.dataset.d); });
   document.querySelectorAll("[data-bd-lab]").forEach(i=>{ i.onchange=()=>{ const x=bdCell(i.dataset.bdLab); x.label=i.value.trim()||x.label; bdSave(); bdRender(); }; });
   $("#bdNewBtn").onclick=bdConfirmReset;
+  if($("#bdRestBtn")) $("#bdRestBtn").onclick=()=>{ const left=bd.cells.filter(x=>!bdWon(x));
+    showConfirm(`Give all ${left.length} challenges nobody has won yet (${bdEur(left.reduce((t,x)=>t+(x.prize||0),0))}) to one winner?`, "Give it away", ()=>{ bd.rest=true; bdSave(); bdRender(); }); };
   rfWire();
 }
 
@@ -6032,8 +6142,8 @@ function bdDrawPlan(sp, W){
   // the winner shows once, on the row that stops on the line; any other gets the next name in the shuffle
   const name=k=>{ if(k===BD_END) return winner; let e=S[rfMod(k,N)]; if(e===winner && N>1) e=S[rfMod(k+1,N)]; return e; };
   const flashes=[1.6+rnd(), move*.38+rnd(), move*.62+rnd()*1.5];
-  const c=sp.test ? null : bdCell(bdDue()[0]?.id), [coin,px]=BD_POT[(bdIcon(c?.label||"").match(/pot-(\w+)/)||[])[1]]||BD_POT.cash;
-  return {at:sp.startedAt, W, move, name, N, flashes, coin, px, row:sp.test ? "Test draw" : c ? `${c.label} · ${bdEur(c.prize||0)}` : "", redraw:rf.entries.some(e=>e.st==="missed")};
+  const n=sp.test ? null : bdNext(), c=bdCell(n?.cell), [coin,px]=BD_POT[(bdIcon(c?.label||"").match(/pot-(\w+)/)||[])[1]]||BD_POT.cash;
+  return {at:sp.startedAt, W, move, name, N, flashes, coin, px, row:sp.test ? "Test draw" : bdRow(n), redraw:rf.entries.some(e=>e.st==="missed")};
 }
 function bdDrawFrame(){
   requestAnimationFrame(bdDrawFrame);
@@ -6100,7 +6210,7 @@ function bdDrawFrame(){
     if(!landed && Math.floor(d/2)>Math.floor(was.d/2)) sfx("tick");
     if(p.flashes.some(a=>was.t<a && t>=a)) sfx("zap");
     if(landed && was.after<0) sfx("stop");
-    if(hit && was.after<BD_HIT_AT){ sfx("boom"); sfx("coin"); }
+    if(hit && was.after<BD_HIT_AT) sfx("boom");
     if(won && was.after<BD_WON_AT) sfx("winner");
   }
   if(landed){
@@ -6393,6 +6503,306 @@ function rtDrawFrame(){
   }
 }
 requestAnimationFrame(rtDrawFrame);
+
+/* ================= REEL SQUADS (Relax Gaming, Cloudforge) =================
+   Six reels like the game's. Chat joins a reel with !1–!6 (two reels each at most, sqTake). A Wild landing in the game
+   on reel n is a tick on reel n; a full reel (sq.need ticks) draws one winner from its squad, a fixed prize. A claim
+   starts that reel over: its count and its squad go to zero, so those viewers pick again (sqSaveWin). The draw takes
+   the squad as the raffle's entries (sqDraw); claiming is the raffle's own (anything the winner writes).
+   The draw (sqDrawFrame) plays in the game's own free-spins frame: the reel's names roll down while its Wild climbs
+   ×1…×4 eating them from below, and on the stop it hits ×5 on the name at the top. Art in cf/, cut down from the pack in
+   Relax Gaming/ (gitignored). */
+const SQ_KEY="squads_state_v1", SQ_TITLE="Reel Squads", SQ_REELS=6, SQ_PICKS=2, SQ_MO_MS=4000, SQ_SPOT_MS=5000;
+function sqFresh(o){ return {reels:Array.from({length:SQ_REELS},()=>({n:0, squad:[], cleared:0})), need:o?.need||5, prize:o?.prize??50, pool:o?.pool??300, open:!!o?.open, winners:[], last:null}; }
+function sqLoad(){ try{ const s=JSON.parse(localStorage.getItem(SQ_KEY)); if(s && Array.isArray(s.reels) && s.reels.length===SQ_REELS && Array.isArray(s.winners)){
+  if(s.pool==null){ s.pool=300; s.prize=50; }   // once: a board from before the pool (€100 a reel) becomes €300, €50 a reel
+  return s; } }catch(e){} return null; }
+function sqSave(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(SQ_KEY, JSON.stringify(sq)); }catch(e){} bcast({type:"state"}); }
+let sq=sqLoad()||sqFresh(), sqDirty=false;
+const sqFull=r=>r.n>=sq.need;
+const sqDue=()=>sq.reels.map((r,i)=>i).filter(i=>sqFull(sq.reels[i]));   // full reels waiting for their draw
+const sqEur=n=>"€"+(+n||0).toLocaleString("en-US");
+// what's left of the pool: every claimed reel takes its prize out of it
+const sqLeft=()=>Math.max(0, (sq.pool||0)-sq.winners.reduce((t,w)=>t+(w.prize||0),0));
+const sqOn=(r,pf,user)=>r.squad.some(e=>e.platform===pf && e.user===user);
+const sqDrawing=i=>rf.on && rf.mode==="SQUAD" && rf.sqReel===i;
+const sqRow=row=>{ const i=row ? row.reel : rf.sqReel; return i==null ? "" : `Reel ${i+1} · ${sqEur(row ? row.prize : sq.prize)}`; };
+/* !1–!6 joins that reel; "!2 !5" joins both. Two at a time: a pick frees up when its reel is drawn. Not the reel being drawn. */
+function sqTake(platform, user, name, text, sub){
+  if(!sq.open || isChatBot(user)) return;
+  for(const m of String(text||"").matchAll(/(?:^|\s)!([1-6])(?=\s|$)/g)){
+    const i=m[1]-1, r=sq.reels[i];
+    if(sqOn(r,platform,user) || sqDrawing(i) || sq.reels.filter(x=>sqOn(x,platform,user)).length>=SQ_PICKS) continue;
+    const e={platform, user, name}; if(sub) e.sub=true;
+    r.squad.push(e); sqDirty=true;
+  }
+}
+function sqPlay(m){
+  // its own sounds (sfx/cf-*, Kenney CC0, see cf-SOURCES.txt): the shared ones got old. Never coin.mp3 (a screech, deleted)
+  if(m.t==="tick"){ sfx("cf-tick"); return; }
+  sfx("cf-claim"); takeover("tk-gold", "crown", "Giveaway winner", m.name, m.sub, 3400);
+}
+function sqFx(m){ m=Object.assign({type:"fx", fx:"squad"}, m); bcast(m); sqPlay(m); }
+/* a claim names the row after add(): announce it, and that reel starts over with nobody on it */
+function sqSaveWin(){
+  const w=sq.winners[sq.winners.length-1];
+  if(w && w.name && !w.shown){
+    w.shown=true;
+    const r=sq.reels[w.reel];
+    if(r){ r.n=0; r.squad=[]; r.cleared=(r.cleared||0)+1; }
+    if(sq.last?.reel===w.reel) sq.last=null;
+    sqFx({t:"win", name:w.name, sub:sqRow(w)});
+    rfStop("SQUAD");
+  }
+  sqSave();
+}
+function sqTick(i, d){
+  const r=sq.reels[i]; if(!r || sqDrawing(i)) return;
+  const from=r.n;
+  r.n=Math.max(0, Math.min(sq.need, r.n+d));
+  if(r.n>from) sq.last={reel:i, at:netNow()}; else if(sq.last?.reel===i) sq.last=null;
+  sqSave(); sqRender();
+  if(r.n>from) sqFx({t:"tick", done:sqFull(r)});
+}
+// another format's entries in the way: empty ones left open are just taken over, real ones have to be stopped first
+const sqBlocked=()=>rf.on && rf.mode!=="SQUAD" && (rf.spin || rf.entries.some(e=>!e.test));
+function sqDraw(i){
+  if(sqBlocked()){ toast(`Keyword entries are running in ${MODE_NAME[rf.mode]}. Stop them first`, true); return; }
+  if(rf.spin) return;
+  const r=sq.reels[i];
+  if(!r.squad.length){ toast("Nobody is on that reel", true); return; }
+  if(sqLeft()<sq.prize && !sqDrawing(i)){ toast(`The ${sqEur(sq.pool)} pool is used up`, true); return; }
+  // a redraw after a miss keeps the entries (the miss is out); a new reel takes its squad as they are now
+  if(!sqDrawing(i)) rf={on:true, open:false, mode:"SQUAD", keyword:rf.keyword, slotKeyword:rf.slotKeyword, claimSecs:rf.claimSecs, subLuck:rf.subLuck,
+    entries:r.squad.map(e=>Object.assign({}, e)), spin:null, sqReel:i};
+  rfStartChat(); rfDrawOne();
+}
+function sqTest(){
+  if(sqBlocked()){ toast(`Keyword entries are running in ${MODE_NAME[rf.mode]}. Stop them first`, true); return; }
+  if(rf.on && rf.mode==="SQUAD"){ toast("Finish the draw first", true); return; }
+  if(rf.on) rf.on=false;   // empty leftovers from another format
+  rfTestDraw(); rf.sqReel=sqDue()[0] ?? 0; rfSave();
+}
+function sqUndo(){
+  const w=sq.winners.pop();
+  if(!w){ toast("Nothing to undo"); return; }
+  sqSave(); sqRender(); toast(`Took ${w.name||"the last winner"} off the list`);
+}
+function sqConfirmReset(){
+  const go=()=>{ rfStop("SQUAD"); sq=sqFresh(sq); sqSave(); sqRender(); };
+  if(!sq.winners.length && !sq.reels.some(r=>r.n || r.squad.length)) return go();
+  showConfirm("Start a new board? Every reel, squad and winner goes back to zero.","Start new",go);
+}
+function sqRender(){ sqRenderDisplay(); if(!DISPLAY_ONLY) sqRenderControl(); }
+// the tick being shown right now
+const sqMoment=()=>sq.last && netNow()-sq.last.at<SQ_MO_MS ? sq.last : null;
+/* one reel of the board: the swarm above, the Wild climbing from the bottom with its ×count */
+function sqReelHtml(r, cls, imgH){
+  const f=Math.min(1, r.n/sq.need), bugs=5-Math.ceil(f*5-1e-6);
+  return `<div class="sq-reel ${cls}">${[0,1,2,3,4].map(k=>`<i class="sq-cell">${k<bugs?`<img src="cf/bug${k%2+1}.webp" alt="">`:""}</i>`).join("")}`
+    +(r.n ? `<div class="sq-wild" style="height:${(f*100).toFixed(1)}%;--n:${r.n}"><img src="cf/wild.webp" alt="" style="height:${imgH}px"><b>×${r.n}</b></div>` : "")+`</div>`;
+}
+let sqT=0;
+function sqRenderDisplay(){
+  const c=$("#displayContent");
+  if(lbTakeover(c)){ c.dataset.sig=""; return; }
+  const now=netNow(), m=sqMoment(), due=sqDue();
+  // the spotlight line: the tick while it's fresh, else it steps through what matters on the server clock
+  const left=r=>sq.need-r.n, toGo=r=>left(r)===1 ? "one to go" : `${left(r)} to go`;
+  let spot, k=0;
+  if(m){ const r=sq.reels[m.reel];
+    spot = sqFull(r) ? `<span class="z">Reel ${m.reel+1} full</span> · draw for <em>${sqEur(sq.prize)}</em>` : `<span class="z">+1</span> Reel <em>${m.reel+1}</em> · ${toGo(r)}`; }
+  else {
+    const lines=[];
+    if(sq.open) lines.push(`Type <em>!1</em>–<em>!6</em> · pick <em>${SQ_PICKS}</em> reels`);
+    due.forEach(i=>lines.push(`<span class="z">Reel ${i+1} full</span> · draw for <em>${sqEur(sq.prize)}</em>`));
+    const best=sq.reels.map((r,i)=>[r,i]).filter(([r])=>r.n && !sqFull(r)).sort((a,b)=>b[0].n-a[0].n)[0];
+    if(best) lines.push(`Reel <em>${best[1]+1}</em> · ${toGo(best[0])}`);
+    lines.push(`a Wild lands on your reel = <em>+1</em>`);
+    lines.push(`<em>${sqEur(sq.prize)}</em> per full reel · <em>${sqEur(sqLeft())}</em> left`);
+    k=Math.floor(now/SQ_SPOT_MS)%lines.length; spot=lines[k];
+  }
+  const joinCard=sq.open && !sq.winners.length && !sq.reels.some(r=>r.n);
+  const sig=JSON.stringify([sq.reels.map(r=>[r.n,r.squad.length,r.cleared]), sq.need, sq.prize, m?.at, spot, joinCard]);
+  clearTimeout(sqT);
+  if(m) sqT=setTimeout(()=>{ if(appMode==="SQUAD") sqRenderDisplay(); }, SQ_MO_MS-(now-m.at)+30);
+  if(c.dataset.sig===sig) return;
+  c.dataset.sig=sig;
+  const hot=sq.reels.map(r=>r.n && left(r)===1);
+  const reels=sq.reels.map((r,i)=>sqReelHtml(r, (sqFull(r) || m?.reel===i ? "zap" : hot[i] ? "hot" : "")+(m?.reel===i ? " tick" : ""), 270)
+    .replace(/<\/div>$/, (m?.reel===i ? `<div class="sq-burst">+1</div>${sqBolt(270, i+m.at)}` : sqFull(r) ? sqBolt(270, i) : "")+"</div>")).join("");
+  const nums=sq.reels.map((r,i)=>`<div class="sq-num ${sqFull(r) || m?.reel===i ? "zap" : hot[i] ? "hot" : ""}"><b>${i+1}</b>${r.cleared?`<u>✓${r.cleared}</u>`:""}<i>${r.squad.length.toLocaleString("en-US")}</i></div>`).join("");
+  c.innerHTML=`<div class="sq-box"><i class="sq-bg"></i><i class="sq-shade"></i>
+    <b class="sq-prize">${sqEur(sqLeft())}<small>${sqLeft()<sq.pool ? "left" : "pool"}</small></b><i class="sq-logo"></i><i class="sq-relax"></i>
+    <div class="sq-reels"${m ? ` style="--d:${-(now-m.at)}ms"` : ""}>${reels}</div>
+    ${joinCard ? `<div class="sq-join"><b>!1 <span>–</span> !6</b><p>pick <span>${SQ_PICKS}</span> reels</p></div>` : ""}
+    <div class="sq-nums">${nums}</div><div class="sq-spot" data-k="${k}">${spot}</div></div>`;
+}
+/* lightning down a reel, the same zigzag every frame for the same seed */
+function sqBolt(h, seed){
+  const r=pwRng(Math.abs(Math.round(seed))%100000+1); let x=33; const pts=[];
+  for(let y=0;y<=h;y+=18){ pts.push(`${x.toFixed(0)},${y}`); x=33+(r()*36-18); }
+  const p=pts.join(" ");
+  return `<svg class="sq-bolt" viewBox="0 0 66 ${h}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${p}" fill="none" stroke="#6ff6ff" stroke-width="7" opacity=".35"/><polyline points="${p}" fill="none" stroke="#e8ffff" stroke-width="2.5"/></svg>`;
+}
+setInterval(()=>{ if(appMode==="SQUAD") sqRenderDisplay(); }, 1000);   // the spotlight steps on by itself
+if(!DISPLAY_ONLY){
+  // joins come in fast: save and redraw once a second, and only the squad counts on the panel
+  setInterval(()=>{
+    if(!sqDirty) return;
+    sqDirty=false; sqSave();
+    if(appMode!=="SQUAD") return;
+    sqRenderDisplay();
+    sq.reels.forEach((r,i)=>{ const el=document.querySelector(`[data-sq-count="${i}"]`); if(el) el.textContent=r.squad.length.toLocaleString("en-US"); });
+  }, 1000);
+  if(sq.open) setTimeout(rfStartChat, 0);   // joining runs all show, whichever format is open
+}
+function sqRenderControl(){
+  $("#undoBtn").disabled=!sq.winners.length;
+  if(sq.open) rfStartChat();
+  const busy=rf.on && rf.mode==="SQUAD", other=sqBlocked();
+  const cards=sq.reels.map((r,i)=>`<div class="cb-ed sq-ed${sqFull(r)?" done":""}">
+      <div class="cb-ct"><b class="sq-ed-n">Reel ${i+1}</b><span><b data-sq-count="${i}">${r.squad.length.toLocaleString("en-US")}</b> on it${r.cleared?` · drawn ${r.cleared}×`:""}</span></div>
+      <div class="cb-ct"><button class="btn" data-sq-tick="${i}" data-d="-1" aria-label="One less"${sqDrawing(i)?" disabled":""}>−</button><b>${r.n}</b><span>of ${sq.need}</span><button class="btn" data-sq-tick="${i}" data-d="1" aria-label="One more"${sqDrawing(i)?" disabled":""}>${ic("plus")}</button></div>
+      ${sqFull(r) ? `<button class="primary sm" data-sq-draw="${i}"${rf.spin||!r.squad.length?" disabled":""}>${ic("reel")}${sqDrawing(i)?"Draw again":"Draw a winner"}</button>` : ""}
+    </div>`).join("");
+  const rows=sq.winners.map((p,i)=>`<div class="crow"><div class="idx">${i+1}</div>${rfLogo(p.chat?.platform)}<span class="clab">${escapeHtml(p.name)}</span><span class="chint">${escapeHtml(sqRow(p))}</span></div>`).join("");
+  $("#controlBody").innerHTML=`<div class="page-h">Reel Squads · Cloudforge · ${sqEur(sqLeft())} of ${sqEur(sq.pool)} left</div>
+    <div class="crow plain sq-set">
+      <span class="clab sm">Joining</span>${segHtml([["1","Open"],["0","Closed"]], sq.open?"1":"0", "data-sq-open")}
+      <span class="clab sm">Pool €</span><input class="tier-in" id="sqPool" type="number" min="0" max="100000" step="50" style="width:90px" value="${sq.pool}" aria-label="Prize pool in euro">
+      <span class="clab sm">Per reel €</span><input class="tier-in" id="sqPrize" type="number" min="0" max="10000" step="5" style="width:80px" value="${sq.prize}" aria-label="Prize in euro">
+      <span class="clab sm">Ticks to fill</span><input class="tier-in" id="sqNeed" type="number" min="1" max="20" step="1" style="width:60px" value="${sq.need}" aria-label="Ticks to fill a reel">
+      ${busy ? "" : `<button class="btn" id="sqTestBtn">${ic("reel")}Test draw</button>`}
+    </div>
+    <div class="cb-edit sq-edit">${cards}</div>
+    <div class="two-col">${busy || other ? rfSection() : `<div class="section"><div class="section-h">How it runs</div><div class="chint">Chat types !1–!6 (2 reels each). A Wild lands on a reel in the game (it doesn't have to fill it): + on that reel. Full: draw a winner from its squad. The reel then starts over.</div></div>`}
+    <div class="section"><div class="section-h">Winners · ${sq.winners.length}</div>${rows ? `<div class="crows">${rows}</div>` : `<div class="chint">Nobody drawn yet.</div>`}</div></div>
+    <div class="actionbar">${busy && !rf.spin ? `<button class="btn" id="sqStopBtn">${ic("x")}Cancel the draw</button>` : ""}<button class="btn" id="sqNewBtn">${ic("new")}New board</button></div>`;
+  document.querySelectorAll("[data-sq-tick]").forEach(b=>{ b.onclick=()=>sqTick(+b.dataset.sqTick, +b.dataset.d); });
+  document.querySelectorAll("[data-sq-draw]").forEach(b=>{ b.onclick=()=>sqDraw(+b.dataset.sqDraw); });
+  document.querySelectorAll("[data-sq-open]").forEach(b=>{ b.onclick=()=>{ sq.open=b.dataset.sqOpen==="1"; sqSave(); sqRender(); }; });
+  const pl=$("#sqPool"); pl.onchange=()=>{ const v=Math.round(+pl.value); if(v>=0 && v<=100000) sq.pool=v; sqSave(); sqRender(); };
+  const pz=$("#sqPrize"); pz.onchange=()=>{ const v=Math.round(+pz.value); if(v>=0 && v<=10000) sq.prize=v; sqSave(); sqRender(); };
+  const nd=$("#sqNeed"); nd.onchange=()=>{ const v=Math.round(+nd.value); if(v>=1 && v<=20){ sq.need=v; sq.reels.forEach(r=>{ r.n=Math.min(r.n, v); }); } sqSave(); sqRender(); };
+  const tb=$("#sqTestBtn"); if(tb) tb.onclick=sqTest;
+  const sb=$("#sqStopBtn"); if(sb) sb.onclick=()=>showConfirm("Cancel this draw? The reel stays full, and you can draw it again.","Cancel draw",rfClose,"Keep");
+  $("#sqNewBtn").onclick=sqConfirmReset;
+  if(busy || other) rfWire();
+}
+
+/* ---- The draw, the bug hunt: both windows, straight from rf.spin. Over the game's open sky the squad comes in as a
+   swarm of the game's mosquitoes, each with a name tag. The tags flick through the whole squad, slowing, and settle;
+   then the robot on the right sprays the swarm in waves (half of what's left each time), the hit ones flash and drop,
+   and the last wave is the stop. The one left flies to the middle, grows, and the name comes up on a gold plate.
+   Everything is worked out from the clock (sqBugs), so a window joining late shows the same swarm. */
+const SQ_DRAW_MS=[15000,16500], SQ_FADE_MS=1500, SQ_BUGS=20, SQ_LOCK=4.5, SQ_FALL=1.1, SQ_FLY=.9, SQ_WON_AT=1.1;
+const SQ_ROBOT=[657,760], SQ_MUZZLE=[90,474];   // robot.webp's size, and where its cannon's mouth is in it
+let sqPlan=null, sqLast=null;
+function sqDrawPlan(sp, W){
+  const pool=rfSpinPool(sp), N=pool.length, winner=pool.find(e=>rfId(e)===sp.winner);
+  if(!winner) return null;
+  const S=pool.slice(), rnd=pwRng(sp.seed);
+  for(let i=N-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [S[i],S[j]]=[S[j],S[i]]; }
+  const wide=W>=1320, others=S.filter(e=>e!==winner), M=Math.min(wide ? SQ_BUGS : 12, N), wi=Math.floor(rnd()*M);
+  // the names the tags settle on: the winner and M-1 others; then who goes in which wave (half of what's left each time)
+  const tags=Array.from({length:M}, (_,j)=>j===wi ? winner : others[j<wi ? j : j-1]);
+  const order=[...Array(M).keys()].filter(j=>j!==wi);
+  for(let i=order.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [order[i],order[j]]=[order[j],order[i]]; }
+  ["cf-tag","cf-spray","cf-pop","cf-final","cf-win"].forEach(sfxLoad);
+  const move=(sp.duration-SQ_FADE_MS)/1000, waves=[]; let left=M, k=0;
+  while(left>1){ const n=Math.floor(left/2) || 1; waves.push(order.slice(k, k+n)); k+=n; left-=n; }
+  const wt=waves.map((_,i)=>SQ_LOCK+1.4+(move-SQ_LOCK-1.4)*(i+1)/waves.length);   // the last wave is the stop
+  const kill=new Array(M).fill(Infinity); waves.forEach((w,i)=>w.forEach(j=>{ kill[j]=wt[i]; }));
+  // the robot on the right (left of the chat on the full canvas), the swarm in the sky left of him
+  const rh=wide ? 760 : 560, rw=rh*SQ_ROBOT[0]/SQ_ROBOT[1], rx=W-rw+(wide ? 30 : 0), ry=1080-rh+(wide ? 30 : 10);
+  // the swarm stays clear of the robot (bugs are 130 wide and buzz ±46); in the square box it has the width above him
+  const ax=wide ? 50 : 30, aw=wide ? rx-150-ax : W-190, top=wide ? 150 : 140, tall=wide ? 560 : ry-top-60,
+    cols=M>12 ? 5 : M>6 ? 4 : 3, rows=Math.ceil(M/cols);
+  const bugs=tags.map((e,j)=>({e, hx:ax+(j%cols+.5+(rnd()-.5)*.5)*aw/cols, hy:top+(Math.floor(j/cols)+.5+(rnd()-.5)*.4)*tall/rows,
+    a:rnd()*6.3, b:rnd()*6.3, w1:.7+rnd()*.6, w2:.9+rnd()*.7, img:1+Math.floor(rnd()*2), spin:(rnd()<.5?-1:1)*(300+rnd()*300), kt:kill[j]}));
+  return {at:sp.startedAt, W, N, M, wi, bugs, waves, wt, move, rx, ry, rh, rw, mx:rx+SQ_MUZZLE[0]*rh/SQ_ROBOT[1], my:ry+SQ_MUZZLE[1]*rh/SQ_ROBOT[1],
+    cx:W/2-65, cy:wide ? 330 : 300, wide, S, prize:sp.test ? "Test draw" : sqEur(sq.prize), i:rf.sqReel ?? 0, redraw:rf.entries.some(e=>e.st==="missed")};
+}
+// where bug j is at t seconds (from the end of the fade-in): flying in, buzzing round its spot, falling once hit
+function sqBugAt(p, b, t){
+  const tin=Math.min(1, Math.max(0, (t+SQ_FADE_MS/1000)/(SQ_FADE_MS/1000+.8))), e=1-Math.pow(1-tin,3);
+  let x=-160+(b.hx+160)*e+46*Math.sin(t*b.w1+b.a), y=b.hy+30*Math.sin(t*b.w2+b.b), r=6*Math.sin(t*b.w2*2+b.a), o=1, s=1;
+  const face=Math.cos(t*b.w1+b.a)>=0 ? 1 : -1;
+  if(t>=b.kt){ const u=t-b.kt; y+=260*u*u+40*u; r+=b.spin*u; o=Math.max(0, 1-u/SQ_FALL); s=1-.25*Math.min(1,u); }
+  return {x, y, r, o, s, face};
+}
+function sqDrawFrame(){
+  requestAnimationFrame(sqDrawFrame);
+  const sp = rf.on && rf.mode==="SQUAD" && appMode==="SQUAD" ? rf.spin : null;
+  let ov=document.getElementById("sqDraw");
+  if(!sp){
+    if(ov && !ov.classList.contains("out")){ ov.classList.add("out"); ov.id=""; setTimeout(()=>ov.remove(),900); }
+    sqPlan=null; sqLast=null; return;
+  }
+  if(ov && ov.classList.contains("fixed")!==(DISPLAY_ONLY && document.body.classList.contains("canvas"))){ ov.remove(); ov=null; }
+  if(!ov) ov=pwDrawMount("sqDraw", "pw-draw sq-draw");
+  ov.classList.toggle("sq-sq", !ov.classList.contains("fixed"));   // the square box: bigger words, the robot steps aside for the win
+  const stage=ov.firstChild, [W]=drawFit(ov);
+  if(!sqPlan || sqPlan.at!==sp.startedAt || sqPlan.W!==W){
+    sqPlan=sqDrawPlan(sp, W); if(!sqPlan) return;
+    ov.style.setProperty("--el", -Math.max(0, netNow()-sp.startedAt)/1000+"s");
+    const p=sqPlan;
+    stage.innerHTML=`<div class="sq-dbg"></div><img class="sq-dlogo" src="cf/logo.webp" alt="">
+      <div class="sq-swarm">${p.bugs.map((b,j)=>`<div class="sq-bug${j===p.wi?" w":""}"><img src="cf/bug${b.img}.webp" alt=""><span class="sq-tag"></span></div>`).join("")}</div>
+      <div class="sq-shots"></div>
+      <img class="sq-robot" src="cf/robot.webp" alt="" style="left:${p.rx.toFixed(0)}px;top:${p.ry}px;height:${p.rh}px">
+      <div class="sq-dhead"><b><span>Reel ${p.i+1} cleared</span>${p.redraw?"<em>Redraw</em> · ":""}<em>${p.N.toLocaleString("en-US")}</em> in the squad · <em>${escapeHtml(p.prize)}</em></b></div>
+      <div class="sq-plate" style="left:${p.cx+65}px;top:${p.cy+250}px"><span class="sq-wname"></span></div>
+      <div class="sq-wins" style="left:${p.cx+65}px;top:${p.cy+(p.wide ? 400 : 440)}px">${sp.test ? "Test draw" : `wins <em>${escapeHtml(p.prize)}</em>`}</div>
+      <div class="sq-dfoot" style="left:${p.cx+65}px;top:990px"></div>`;
+    Object.assign(p, {els:[...stage.querySelectorAll(".sq-bug")], shots:stage.querySelector(".sq-shots"), robot:stage.querySelector(".sq-robot"), foot:stage.querySelector(".sq-dfoot")});
+    p.tagAt=p.els.map(()=>-1);
+  }
+  const p=sqPlan, now=netNow(), t=(now-sp.startedAt-SQ_FADE_MS)/1000, landed=now>=rfSpinEnd(sp), after=(now-rfSpinEnd(sp))/1000;
+  // the tags flick through the squad, slowing, and settle on their names at SQ_LOCK
+  const STEPS=40, ti=t>=SQ_LOCK || p.N<=p.M ? STEPS : Math.floor(STEPS*bdRoll(Math.max(0,t)/SQ_LOCK));
+  p.bugs.forEach((b,j)=>{
+    const el=p.els[j];
+    if(p.tagAt[j]!==ti){ p.tagAt[j]=ti; el.lastChild.innerHTML=rfNameHtml(ti>=STEPS ? b.e : p.S[rfMod(j*37+ti*7, p.N)]); }
+    let q=sqBugAt(p, b, t);
+    if(j===p.wi && landed){   // the last one flies to the middle and grows
+      const u=Math.min(1, after/SQ_FLY), e=1-Math.pow(1-u,3), from=sqBugAt(p, b, p.move);
+      q={x:from.x+(p.cx-from.x)*e, y:from.y+(p.cy-from.y)*e, r:from.r*(1-e), o:1, s:1+1.3*e, face:1};
+    }
+    const hide=q.o<=0 ? "none" : ""; if(el.style.display!==hide) el.style.display=hide;
+    if(hide) return;
+    el.style.transform=`translate(${q.x.toFixed(1)}px,${q.y.toFixed(1)}px) rotate(${q.r.toFixed(1)}deg) scale(${q.s.toFixed(3)})`;
+    el.style.opacity=q.o.toFixed(2);
+    el.classList.toggle("l", q.face<0);
+    el.classList.toggle("hit", t>=b.kt && t-b.kt<.25);
+  });
+  const won=landed && after>=SQ_WON_AT;
+  ov.classList.toggle("landed", landed); ov.classList.toggle("won", won);
+  // a wave: the cannon kicks and a jet goes to each bug it hits (only the waves this window sees)
+  const wave=p.wt.filter(w=>t>=w).length, was=sqLast; sqLast={t, ti, wave, after:landed?after:-1};
+  if(was){
+    if(ti>was.ti && ti<STEPS && ti%2===0) sfx("cf-tag");
+    if(wave>was.wave){
+      const w=wave-1;
+      if(w===p.waves.length-1) sfx("cf-final"); else { sfx("cf-spray"); setTimeout(()=>sfx("cf-pop"), 180); }
+      p.robot.classList.remove("kick"); void p.robot.offsetWidth; p.robot.classList.add("kick");
+      p.waves[w].forEach((j,n)=>{ const q=sqBugAt(p, p.bugs[j], p.wt[w]), dx=q.x+65-p.mx, dy=q.y+50-p.my;
+        const s=document.createElement("i"); s.className="sq-shot";
+        s.style.cssText=`left:${p.mx.toFixed(0)}px;top:${p.my.toFixed(0)}px;width:${Math.hypot(dx,dy).toFixed(0)}px;transform:rotate(${(Math.atan2(dy,dx)*180/Math.PI).toFixed(1)}deg);animation-delay:${n*40}ms`;
+        s.onanimationend=()=>s.remove(); p.shots.appendChild(s); });
+    }
+    if(won && was.after<SQ_WON_AT) sfx("cf-win");
+  }
+  let foot=`the robot sprays the swarm · the last bug flying wins`;
+  if(landed){
+    const e=rfWinner(sp), pf=(e&&e.platform||"").toUpperCase(), nm=stage.querySelector(".sq-wname");
+    if(e && nm.textContent!==e.name){ nm.textContent=e.name; nm.style.fontSize=Math.round((p.wide ? 1 : 1.4)*(e.name.length<=12?72:e.name.length<=18?56:42))+"px"; }
+    foot = sp.claimed ? `<span class="ok">Claimed on ${pf}</span>${sp.test?"":` · reel ${p.i+1} starts again`}` : `Type anything in <b>${pf}</b> chat to claim <em>${rfSecs(rfClaimEnd(sp))}</em>`;
+  }
+  if(p.foot.innerHTML!==foot) p.foot.innerHTML=foot;
+}
+requestAnimationFrame(sqDrawFrame);
 
 /* ================= DEAD MAN'S CREW (Slotmill visit) =================
    A keyword raffle in the game's own art: five seats on the crew, €100 each.
@@ -6797,7 +7207,7 @@ requestAnimationFrame(gzDrawFrame);
    wheel). There is one stream box, so a tab switch is the Home button with a
    filter: the stream follows the panel, Home lists only that tab's formats, and
    coming back to a tab reopens the format it was on. Leaving a live format asks. */
-const SECTION={LMS:"comp", H2H:"comp", BRACKET:"comp", LEAGUE:"comp", WHEEL:"comp", TADA:"special", PRAG:"special", KEYWORD:"keyword", BINGO:"special", BOARD:"special", ROT:"special", CREW:"special", GATES:"special"};
+const SECTION={LMS:"comp", H2H:"comp", BRACKET:"comp", LEAGUE:"comp", WHEEL:"comp", TADA:"special", PRAG:"special", KEYWORD:"keyword", BINGO:"special", BOARD:"special", ROT:"special", SQUAD:"special", CREW:"special", GATES:"special"};
 let homeSection=null;   // null in a plain browser tab: everything
 const lastIn={};        // tab -> the format it was last on
 window.addEventListener("message", e=>{
@@ -6957,6 +7367,7 @@ function renderApp(){
   $("#display").classList.toggle("gates", appMode==="GATES");
   $("#display").classList.toggle("bb3", appMode==="BOARD");
   $("#display").classList.toggle("rot", appMode==="ROT");
+  $("#display").classList.toggle("squad", appMode==="SQUAD");
   $("#display").classList.toggle("bingo", appMode==="BINGO");
   tellShell();
   if(!appMode){
@@ -6979,6 +7390,7 @@ function renderApp(){
   if(appMode==="BINGO") return bgRender();
   if(appMode==="BOARD") return bdRender();
   if(appMode==="ROT") return rtRender();
+  if(appMode==="SQUAD") return sqRender();
   if(appMode==="CREW") return crRender();
   if(appMode==="GATES") return gzRender();
 }
@@ -7038,6 +7450,7 @@ function modeStatus(m){
           : m==="GATES" ? {started:(rf.on && rf.mode==="GATES") || gz.rows.some(r=>r.hit), done:gzTaken()===gz.rows.length, round:null, names:gz.rows.some(r=>r.hit)}
           : m==="BOARD" ? {started:bd.cells.some(c=>c.n>0), done:false, round:null, names:!!bd.winners.length}
           : m==="ROT" ? {started:rt.cells.some(c=>c.n>0), done:false, round:null, names:!!rt.winners.length}
+          : m==="SQUAD" ? {started:sq.open || sq.reels.some(r=>r.n>0), done:false, round:null, names:!!sq.winners.length}
           : {started:lg.started, done:!!lg.winnerId, round:lg.round, names:named(lg.players)};
   if(s.started) return s.done ? {cls:"done", text:"Finished"} : {cls:"live", text:s.round?`Live · Round ${s.round}`:"Live"};
   return s.names ? {cls:"setup", text:"Setting up"} : null;
@@ -7064,6 +7477,7 @@ function menuControlView(){
       ${card("PRAG","Pragmatic Play Friday. Chat types Pragmatic, draw winners one at a time, and each one gets a spin on the wheel. The prizes scroll on stream.")}
       ${card("BINGO","Playtech's The Racaroon 2 as a bingo board. Mark challenges as they happen; every line and the full board is a giveaway, drawn in order.")}
       ${card("BOARD","Buffalo Blitz 3: 16 challenges, each with a count and a prize. Tick them as they happen on stream. A full challenge is a giveaway: chat types the keyword, draw a winner.")}
+      ${card("SQUAD","Relax Gaming's Cloudforge. Chat joins reels with !1–!6. A full reel draws a winner from its squad.")}
     </div>`;
 }
 function menuLeaderboardView(){
@@ -7177,6 +7591,7 @@ $("#undoBtn").onclick=()=>{
   else if(appMode==="KEYWORD") kwUndo();
   else if(appMode==="BOARD") bdUndo();
   else if(appMode==="ROT") rtUndo();
+  else if(appMode==="SQUAD") sqUndo();
   else if(appMode==="CREW") crUndo();
   else if(appMode==="GATES") gzUndo();
 };
@@ -7191,6 +7606,7 @@ $("#resetBtn").onclick=()=>{
   else if(appMode==="KEYWORD") kwConfirmReset();
   else if(appMode==="BOARD") bdConfirmReset();
   else if(appMode==="ROT") rtConfirmReset();
+  else if(appMode==="SQUAD") sqConfirmReset();
   else if(appMode==="CREW") crConfirmReset();
   else if(appMode==="GATES") gzConfirmReset();
 };
@@ -7235,7 +7651,7 @@ if(DISPLAY_ONLY){
   }
   const refreshFromStorage=()=>{
     state=load()||fresh(); h2h=h2hLoad()||h2hFresh();
-    bk=bkLoad()||bkFresh(); lg=lgLoad()||lgFresh(); wh=whLoad()||whFresh(); td=tdLoad()||tdFresh(); pw=pwLoad()||pwFresh(); kw=kwLoad()||kwFresh(); bd=bdLoad()||bdFresh(); rt=rtLoad()||rtFresh(); cr=crLoad()||crFresh(); gz=gzLoad()||gzFresh();
+    bk=bkLoad()||bkFresh(); lg=lgLoad()||lgFresh(); wh=whLoad()||whFresh(); td=tdLoad()||tdFresh(); pw=pwLoad()||pwFresh(); kw=kwLoad()||kwFresh(); bd=bdLoad()||bdFresh(); rt=rtLoad()||rtFresh(); sq=sqLoad()||sqFresh(); cr=crLoad()||crFresh(); gz=gzLoad()||gzFresh();
     appMode=loadMode(); lb=lbLoad(); rf=rfLoad(); rq=rqLoad(); av=avLoad();
     renderApp();
   };
@@ -7249,6 +7665,7 @@ if(DISPLAY_ONLY){
     else if(m.fx==="wheel") whPlayResult(m);
     else if(m.fx==="board") bdPlay(m);
     else if(m.fx==="rot") rtPlay(m);
+    else if(m.fx==="squad") sqPlay(m);
     else if(m.fx==="tada") tdPlayWin(m);
     else if(m.fx==="crew") crPlay(m);
     else if(m.fx==="gates") gzPlay(m);
@@ -7266,7 +7683,7 @@ if(DISPLAY_ONLY){
   setInterval(()=>{
     let raw="";
     try{
-      raw=[KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,RT_KEY,CR_KEY,GZ_KEY].map(k=>localStorage.getItem(k)||"").join("");
+      raw=[KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,RT_KEY,SQ_KEY,CR_KEY,GZ_KEY].map(k=>localStorage.getItem(k)||"").join("");
     }catch(e){ return; }
     if(raw!==lastRaw){ lastRaw=raw; refreshFromStorage(); }
   },1000);

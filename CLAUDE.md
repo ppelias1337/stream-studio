@@ -40,12 +40,12 @@ jackpot bars and the winner's turns GRAND. In the box it plays inside the bingo 
 box posts `{bingoDraw}` and the competitions page frames `/bingo/#draw&w=` over the canvas with its chat panel (`bgDrawSync`).
 Money Train 5 keeps the train reel. The bingo raffle runs itself: a completed line opens entries, each draw is for the
 oldest line still without a winner (completion order), and the stream shows the raffle only while one is owed (`onRaffle()`);
-there is no stage picker or board/raffle switch any more. Bingo has its own relay instance (`bingo-state.json`, its own lock). The bingo
+there is no stage picker or board/raffle switch any more. **Give away everything remaining to one person** (`S.rest`) makes every unwon prize one draw, stage 10 (`stagePrize(10)` adds them up); its claim wins them all. Bingo has its own relay instance (`bingo-state.json`, its own lock). The bingo
 game is locked to The Racaroon 2 (€2,000: 8 lines at €150 + full board €800; a board saved before that gets it once, `pot2000` flag): Money Train 5 is retired (its `<option>` in `#game` is gone and `load()` turns an MT5 board into a fresh Racaroon one; the code and art stay). On stream it's the `BINGO` format:
 the competitions box shows `/bingo/#display` in an iframe, so OBS keeps the one `/comp/#display` source.
 **Challenge Board** (`BOARD`, `board_state_v1`, Special Giveaways) is Playtech's Buffalo Blitz 3 board: 16 challenges
 as scrolling rows (closest to done on top), each needing 3 (`BD_NEED`) with a prize; a tick runs a buffalo along the bar (`c.from`/`c.at`) (the pool on stream is their sum: 16 × €125 = €2,000 by default, `BD_PRIZE`; a board saved before the even split is set to €125 each once, `even` flag). A full one owes a giveaway: `RF_MODES.BOARD.setup()` puts the keyword entries on the box only while one is due
-(`bdDue()`), and each winner row keeps the `cell` it was drawn for. Rows wear the game's symbol by their words (`bdIcon`).
+(`bdDue()`), and each winner row keeps the `cell` it was drawn for. **Give away everything remaining to one person** (`bd.rest`) makes every unwon challenge due as one draw; its winner row lists them in `cells` (`bdWon`, `bdRow`). Rows wear the game's symbol by their words (`bdIcon`).
 Its draw is full canvas (`bdDrawFrame`): the splash herd charges out of the sunset either side (scenery, no names), the names
 roll in one blue reel window in front, and on the stop the winner becomes the feature coin of their challenge's pot (Buffalo
 Gold green, Big Grid blue, Buffalo Cash and the rest red) and drops into it; the pot bursts, lightning strikes, then the win
@@ -61,6 +61,15 @@ Keep draws smooth: no `filter`/`mask` on full-screen or moving layers, and nothi
 rasters at the largest scale). Those were 100-360 ms stalls on every stage here. Entries have their own screen (`rtEntries`:
 the due tile, the keyword huge, names as spore chips). Sounds are Print Studios' own (`Print Studios/Sounds`), cut and levelled to -18 LUFS into `sfx/rot-*.mp3`: vines on every tick, prize reveal on the 2nd, scatter on the 3rd, a draw sound per stage (the 50's is the 20's at full length), a riser ending on the 100, then win2 + the big-win music on the stop, present-raiser on the claim. Keyword `PRINT`. No music. Fonts Rubik Dirt +
 Fredoka are bundled in `public/comp/rot/` (Dirt for numbers only: its letters clump into blobs on stream; every word is Fredoka 700). Merch shows as photos (`rot/merch/`) and the stream calls it "Mystery" until 2 of 3 ticks (`RT_REVEAL`); art cut from `Print Studios/` (gitignored, `ASSETS.md` there; concepts and mockups too).
+**Reel Squads** (`SQUAD`, `squads_state_v1`, Special Giveaways) is Relax Gaming's Cloudforge: six reels; chat joins with `!1`–`!6`
+(`sqTake`, two reels each, joining runs all show while **Joining** is Open). An expanding Wild landing on reel n in the game = a tick on reel n (it needn't cover the reel); full
+(`sq.need`, 5 by default) = a draw from that reel's squad for `sq.prize` (€50) out of a pool (`sq.pool`, €300: six full reels; `sqLeft()`, the box shows what's left and Draw refuses once it's gone) (`sqDraw` makes the squad the raffle's entries, `rf.sqReel`). A claim
+starts that reel over: count and squad to zero, ✓ badge up (`sqSaveWin`). A miss keeps the reel full for **Draw again**. Empty entries left
+open in another format are taken over (`sqBlocked`). Box = the mockup (`Relax Gaming/mockups/`). The draw is the bug hunt (`sqDrawFrame`, all from
+the clock in `sqBugAt`): over the game's sky the squad comes in as 20 mosquitoes with name tags that flick through the squad and settle, then the
+game's robot sprays them in waves (half each time, the last wave is the stop) and the one left flies to the middle onto a gold plate. (A first draw
+in the game's reel frame, names rolling down a reel the Wild climbed, was dropped: Elias wasn't sold.) Art in `public/comp/cf/`, cut from the pack in
+`Relax Gaming/` (gitignored). Fonts: Fredoka (bundled in rot/). `coin.mp3` is deleted and must never come back (Elias: a screech).
 **Retired from Home:** Dead Man's Crew (4.7.0), Gates of Olympus 2500 (after 4.9.0). Rotten Potato is built but kept off Home (shipped hidden in 4.12.0) until it's tested in OBS. The bingo came back after 4.10.1 as The Racaroon 2 Bingo. Their code stays; each comes back with its `card(...)`
 line in `menuControlView()` and its name in `loadMode()`'s list.
 **Dead Man's Crew** (`CREW`, `crew_state_v1`, Special Giveaways) is the Slotmill visit raffle: keyword `Slotmill`,
@@ -125,7 +134,7 @@ no prize names: the prize stays secret until the stream wheel lands (`pwHidden`)
   in by hand gets its letter, never a guess. Streamers (`AV_STREAMERS`) use their own photos in `public/comp/streamers/` (cut from
   photos the team sent, 256 px) and are never looked up. Keyed by name only. The duel card's
   picture sits in the name row so the card doesn't grow.
-- Sound effects: the competitions page plays everything through one gain (`SFX_VOL`, 0.25); the bingo panel's slider is scaled by 0.3. Both were far too loud on stream.
+- Sound effects: the competitions page plays everything through one gain (`SFX_VOL`, 0.04); the bingo panel's slider is scaled by 0.05. Elias wants them barely audible under the stream (0.25 / 0.3 were still far too loud). New formats get their own sounds (he's tired of the shared ones): Reel Squads uses `sfx/cf-*` (Kenney CC0, `cf-SOURCES.txt`), levelled to -18 LUFS. Never `coin.mp3`.
 - Version: `package.json` only. The competitions header reads it from `/api/info`.
 
 ## Run, test, release

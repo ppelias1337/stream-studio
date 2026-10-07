@@ -1,0 +1,46 @@
+const { record } = require('./rec');
+const { entries, waitSpinEnd, claimByChat } = require('./common');
+record('short-board', async d => {
+  const { page, sleep } = d;
+  const intro = d.card('Playtech × CasinoDaddy', 'Buffalo Blitz 3 Challenge Board', '16 in-game challenges, each with a prize. Complete one on stream and chat wins it.', 3000);
+  await page.locator('[data-tab=special]').click(); await sleep(800);
+  const c = await d.comp();
+  await c.locator('.menu-card[data-mode=BOARD]').click(); await sleep(1200);
+  await c.evaluate(() => { bd.cells.forEach((x, i) => { x.n = [1, 1, 0, 1, 2, 0][i % 6]; delete x.at; }); bd.cells[1].n = 2; bd.winners = []; rf.keyword = 'Buffalo'; bdSave(); bdRender(); });
+  await intro;
+  const cell = i => c.locator('.cb-ed').nth(i);
+
+  await d.stream(true, 300, true);
+  await d.cap('On stream: every challenge, its progress and its prize. The pool is their sum.', 3000);
+  await d.stream(false, 300);
+  await d.cap('A challenge happens in the game: the streamer presses <b>+</b>');
+  await d.click(cell(0).locator('[data-d="1"]'), { after: 200, fast: true });
+  await d.stream(true, 300, true);
+  await d.cap('A buffalo runs the bar', 2600);
+  await d.stream(false, 300);
+  await d.cap('The third hit completes it…');
+  await d.click(cell(1).locator('[data-d="1"]'), { after: 200, fast: true });
+  await d.stream(true, 300, true);
+  await d.cap('<b>Challenge complete</b>: its prize goes to chat', 3600);
+
+  await c.evaluate(() => rfOpenEntries());
+  await d.cap('Chat types <b>Buffalo</b> to enter');
+  await d.ff(true, 4);
+  await d.chat(c, entries('Buffalo', 20), 200);
+  await c.evaluate(() => rfTestEntries());
+  await sleep(1500);
+  await d.cap('');
+  await c.evaluate(() => rfDrawOne());
+  await d.stream(true, 1600, false);
+  await d.ff(false);
+  await d.cap('The draw: the herd charges, names roll in the reel', 2500);
+  await d.cap('');
+  await d.ff(true, 4);
+  const w = await waitSpinEnd(c);
+  await d.ff(false);
+  await sleep(800);
+  await claimByChat(d, c, w);
+  await d.cap(`<b>${w.name}</b> claims in chat and wins the challenge`, 4800);
+  await d.cap('');
+  await d.card('Playtech × CasinoDaddy', 'Buffalo Blitz 3 Challenge Board', 'Live on Twitch, Kick and YouTube at once', 2500);
+}, { bg: '/comp/bb3/bg.webp' });
