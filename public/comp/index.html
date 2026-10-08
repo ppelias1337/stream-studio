@@ -974,19 +974,14 @@
   .tz{position:absolute;inset:0;z-index:60;pointer-events:none;overflow:hidden}
   .tz.fixed{position:fixed;z-index:10000}
   .tz-stage{position:absolute;left:0;top:0;transform-origin:0 0;font-family:var(--cond);font-weight:700;color:#fff;text-transform:uppercase}
-  .tz-shake{position:absolute;inset:0;animation:tzshake .5s linear calc(1.9s + var(--el)),tzshake2 .45s linear calc(9s + var(--el))}
-  .tz-edge{position:absolute;inset:0;box-shadow:inset 0 0 0 6px #FFC93C,inset 0 0 70px 24px rgba(255,170,40,.8),inset 0 0 260px 60px rgba(255,110,0,.35);animation:tzedge 10.5s linear var(--el) both}
-  .tz-flash{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 62%,rgba(255,244,210,.95),rgba(255,190,70,.4) 38%,transparent 72%);opacity:0;animation:tzflash .7s ease-out calc(.15s + var(--el)),tzflash2 .8s ease-out calc(1.9s + var(--el))}
-  .tz-dust{position:absolute;left:-200px;right:-200px;bottom:-40px;height:600px;animation:tzdust 10.5s linear var(--el) both;
-    background:radial-gradient(closest-side,rgba(150,96,46,.85),transparent) 0 300px/520px 360px repeat-x,radial-gradient(closest-side,rgba(120,72,32,.8),transparent) 260px 360px/600px 380px repeat-x,linear-gradient(to top,rgba(84,46,18,.95),rgba(130,80,36,.6) 45%,transparent)}
-  .tz-dust.front{height:330px;background:radial-gradient(closest-side,rgba(140,88,40,.9),transparent) 120px 120px/560px 300px repeat-x,linear-gradient(to top,rgba(84,46,18,.9),transparent)}
-  .tz-bf{position:absolute;left:960px;top:0;width:377px;height:640px;margin:-640px 0 0 -188px;transform-origin:50% 100%;will-change:transform,opacity;
-    background:url(bb3/run.webp) center bottom/contain no-repeat;opacity:0;animation:tzcharge 1.7s cubic-bezier(.5,0,.92,.55) calc(var(--d) + var(--el)) both}
+  .tz-shake{position:absolute;inset:0;animation:tzshake .5s linear calc(.5s + var(--el))}
+  .tz-edge{position:absolute;inset:0;box-shadow:inset 0 0 0 6px #FFC93C,inset 0 0 70px 24px rgba(255,170,40,.8),inset 0 0 260px 60px rgba(255,110,0,.35);animation:tzedge 9.5s linear var(--el) both}
+  .tz-flash{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 62%,rgba(255,244,210,.95),rgba(255,190,70,.4) 38%,transparent 72%);opacity:0;animation:tzflash .7s ease-out calc(.15s + var(--el)),tzflash2 .8s ease-out calc(.5s + var(--el))}
   .tz-card{position:absolute;left:50%;top:50%;width:1060px;height:560px;margin:-300px 0 0 -530px;border-radius:30px;background:url(bb3/bg-draw.webp) center 30%/cover;
     box-shadow:0 0 0 6px #FFC93C,0 0 0 12px rgba(80,30,0,.85),0 40px 90px rgba(0,0,0,.65);display:flex;flex-direction:column;align-items:center;justify-content:center;
-    animation:tzslam .5s cubic-bezier(.2,1.4,.4,1) calc(1.9s + var(--el)) both,tzgone .6s cubic-bezier(.6,0,.9,.5) calc(9.2s + var(--el)) forwards}
+    animation:tzslam .5s cubic-bezier(.2,1.4,.4,1) calc(.5s + var(--el)) both,tzgone .6s cubic-bezier(.6,0,.9,.5) calc(8.2s + var(--el)) forwards}
   .tz-card::before{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(ellipse at 50% 55%,rgba(30,8,0,.15),rgba(30,8,0,.72))}
-  .tz-burst{position:absolute;left:50%;top:50%;width:1500px;height:1500px;margin:-750px 0 0 -750px;z-index:-1;background:url(bb3/burst.webp) center/contain no-repeat;animation:tzspin 12s linear var(--el) both}
+  .tz-burst{position:absolute;left:50%;top:50%;width:1500px;height:1500px;margin:-750px 0 0 -750px;z-index:-1;background:url(bb3/burst.webp) center/contain no-repeat;animation:tzspin 10s linear var(--el) both}
   .tz-logo{position:absolute;top:-170px;left:50%;width:560px;height:320px;margin-left:-280px;background:url(bb3/logo.webp) center/contain no-repeat}
   .tz-card.any .tz-logo{top:-60px;height:150px;background-image:url(bb3/logo-line-any.webp)}
   .tz-eur{position:relative;margin-top:70px;font-size:230px;line-height:.9;letter-spacing:.01em;background:linear-gradient(#FFF6C8,#FFD23C 45%,#E08A00);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -995,16 +990,13 @@
   .tz-when b{padding:8px 26px;border-radius:12px;background:rgba(30,8,0,.8);box-shadow:inset 0 0 0 2px rgba(255,201,60,.6);font-size:44px;letter-spacing:.06em;color:#FFE0B0;font-variant-numeric:tabular-nums}
   .tz-when b+b{color:#FFC93C}
   .tz-pots{position:absolute;bottom:-190px;left:50%;width:620px;height:276px;margin-left:-310px;background:url(bb3/pots.webp) center/contain no-repeat}
-  @keyframes tzshake{0%,100%{transform:none}15%{transform:translate(-14px,9px)}30%{transform:translate(12px,-8px)}45%{transform:translate(-9px,-6px)}60%{transform:translate(7px,6px)}80%{transform:translate(-3px,2px)}}
-  @keyframes tzshake2{0%,100%{transform:none}20%{transform:translate(10px,7px)}40%{transform:translate(-9px,-6px)}60%{transform:translate(6px,-4px)}80%{transform:translate(-3px,2px)}}
+  @keyframes tzshake{0%,100%{transform:none}25%{transform:translate(-6px,4px)}50%{transform:translate(5px,-3px)}75%{transform:translate(-2px,1px)}}
   @keyframes tzedge{0%{opacity:0}4%{opacity:1}18%{opacity:.75}50%{opacity:1}86%{opacity:.8}96%,100%{opacity:0}}
   @keyframes tzflash{0%{opacity:0}15%{opacity:1}100%{opacity:0}}
   @keyframes tzflash2{0%{opacity:0}15%{opacity:.9}100%{opacity:0}}
-  @keyframes tzdust{0%{opacity:0;transform:translate(0,120px)}5%{opacity:1;transform:translate(-40px,0)}88%{opacity:.9;transform:translate(-200px,20px)}97%,100%{opacity:0;transform:translate(-230px,100px)}}
-  @keyframes tzcharge{0%{transform:translate(var(--x0),640px) scale(.14);opacity:0}12%{opacity:1}78%{opacity:1}100%{transform:translate(var(--x1),1580px) scale(var(--s1));opacity:0}}
   @keyframes tzslam{0%{transform:scale(1.9);opacity:0}60%{opacity:1}100%{transform:none;opacity:1}}
   @keyframes tzgone{to{transform:translate(0,260px) scale(.55);opacity:0}}
-  @keyframes tzspin{0%{opacity:0;transform:rotate(0)}22%{opacity:0}30%{opacity:.85}85%{opacity:.85}92%,100%{opacity:0;transform:rotate(120deg)}}
+  @keyframes tzspin{0%{opacity:0;transform:rotate(0)}5%{opacity:0}12%{opacity:.85}80%{opacity:.85}88%,100%{opacity:0;transform:rotate(120deg)}}
   /* the reel: the game's blue reel in a gold frame, three names showing, the pick line in the middle */
   .bd-reel{position:absolute;left:50%;top:300px;z-index:1200;width:720px;height:390px;margin-left:-360px;border-radius:22px;overflow:hidden;
     background:linear-gradient(180deg,#1C4FC4 0%,#0D2A7A 55%,#081C55 100%);
@@ -6314,14 +6306,12 @@ function bdDrawFrame(){
 }
 requestAnimationFrame(bdDrawFrame);
 
-/* ---- The stream teaser: for the hours before the giveaway (bd.tz.at), a stampede charges over the whole canvas,
-   the prize card slams in with the time and a countdown, two more buffalo sweep it away, and the screen is empty
-   again. On (bd.tz.on), it plays every bd.tz.every minutes from when it was switched on, until the giveaway starts;
+/* ---- The stream teaser: for the hours before the giveaway (bd.tz.at), the canvas edges glow, the prize card slams
+   in with the time and a countdown, holds, and drops away; then the screen is empty again. (A herd charging at the
+   camera was tried first: too chaotic, it looked scuffed.) On (bd.tz.on), it plays every bd.tz.every minutes from when it was switched on, until the giveaway starts;
    Play it now (bd.tz.once) plays it once. Every window works out from the server clock whether one is playing, so
-   OBS and the panel play the same one, whatever format is up. Art: the BB3 pack (run.webp etc), nothing new. */
-const TZ_MS=10500;
-// [delay s, start x, end x, end scale]: six out of the dust, then two that sweep the card away
-const TZ_HERD=[[.3,-250,-1150,3.1],[.5,290,1180,3.3],[.75,-40,-480,3.6],[.95,540,1560,2.9],[1.1,-560,-1560,2.9],[1.3,150,720,3.5],[8.85,-180,-950,3.8],[9,230,1020,3.8]];
+   OBS and the panel play the same one, whatever format is up. Art: the BB3 pack, nothing new. */
+const TZ_MS=9500;
 const tzFresh=()=>({on:false, at:Date.parse("2026-10-09T15:00:00+02:00"), every:20, start:0, once:0});
 function tzPlaying(now){
   const z=bd.tz; if(!z) return 0;
@@ -6339,13 +6329,12 @@ function bdTzFrame(){
   if(!ov){
     ov=document.createElement("div"); ov.id="bdTz"; ov.className="tz"+(fixed?" fixed":""); ov.dataset.at=s; ov.setAttribute("aria-hidden","true");
     ov.style.setProperty("--el", -(now-s)/1000+"s");
-    const herd=TZ_HERD.map(([d,x0,x1,s1])=>`<i class="tz-bf" style="--d:${d}s;--x0:${x0}px;--x1:${x1}px;--s1:${s1}"></i>`).join("");
-    ov.innerHTML=`<div class="tz-stage" style="width:1920px;height:1080px"><div class="tz-shake"><div class="tz-edge"></div><div class="tz-dust"></div>
+    ov.innerHTML=`<div class="tz-stage" style="width:1920px;height:1080px"><div class="tz-shake"><div class="tz-edge"></div>
       <div class="tz-card${bd.any?" any":""}"><i class="tz-burst"></i><i class="tz-logo"></i><div class="tz-eur">${bdEur(bdPool())}</div><div class="tz-gv">Giveaway</div>
         <div class="tz-when"><b class="tz-at"></b><b class="tz-left"></b></div><i class="tz-pots"></i></div>
-      ${herd}<div class="tz-dust front"></div><div class="tz-flash"></div></div></div>`;
+      <div class="tz-flash"></div></div></div>`;
     if(fixed) document.body.appendChild(ov); else $("#display").appendChild(ov);
-    if(now-s<600){ sfx("zap"); setTimeout(()=>sfx("boom"), 1900-(now-s)); }   // only a window that saw it start
+    if(now-s<600){ sfx("zap"); setTimeout(()=>sfx("boom"), 500-(now-s)); }   // only a window that saw it start
   }
   drawFit(ov);
   const at=ov.querySelector(".tz-at"), left=ov.querySelector(".tz-left"), a=gzWhen(bd.tz.at), l=tzLeft(bd.tz.at);
