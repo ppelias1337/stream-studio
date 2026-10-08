@@ -128,6 +128,7 @@ no prize names: the prize stays secret until the stream wheel lands (`pwHidden`)
   Competitions are on disk and survive.
 - YouTube chat goes through the server's `/yt/*` passthrough (youtubei only answers a `file://`
   page from a browser, and the page is served over http now).
+- Kick's **Degen_B0t** (with a zero) is a human viewer named after our bot: never add him to `CHAT_BOTS`.
 - No Test draw / test entries buttons any more (Elias, 2026-10-08: clutter). The `e.test` guards on sheet rows stay for old saved entries.
 - **Profile pictures** (`avHtml`, `comp_avatars_v1`, synced): the duel cards, winner screen, LMS/Showdown rows, leaderboard
   top 3 and the raffle winner show the viewer's picture, else a letter. Chat parsers note who's who (`avSeen`: Twitch login,
