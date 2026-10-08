@@ -970,32 +970,10 @@
   .bd-dhead i.any{background-image:url(bb3/logo-line-any.webp)}
   .bd-dhead b{padding:6px 22px;border-radius:10px;background:rgba(30,8,20,.78);box-shadow:inset 0 0 0 1px rgba(255,190,90,.45);font-size:36px;letter-spacing:.08em;color:#FFE0B0;font-variant-numeric:tabular-nums}
   .bd-dhead b em{font-style:normal;color:#FFC93C}
-  /* the stream teaser (bdTzFrame): ~9 s over the whole canvas, then nothing. Every delay is off --el, the server clock */
+  /* the stream teaser (bdTzFrame): a rendered clip (tools/motion → public/comp/promo/) over the whole canvas, then nothing */
   .tz{position:absolute;inset:0;z-index:60;pointer-events:none;overflow:hidden;visibility:visible}
   .tz.fixed{position:fixed;z-index:10000}
-  .tz-stage{position:absolute;left:0;top:0;transform-origin:0 0;font-family:var(--cond);font-weight:700;color:#fff;text-transform:uppercase}
-  .tz-shake{position:absolute;inset:0;animation:tzshake .45s linear calc(1.66s + var(--el))}
-  .tz-coin{position:absolute;left:0;top:0;width:96px;height:96px;margin:-48px 0 0 -48px;will-change:transform;background:url(bb3/coin.webp) center/contain no-repeat;
-    animation:tzrain var(--t) cubic-bezier(.4,0,1,.75) calc(var(--d) + var(--el)) both}
-  .tz-card{position:absolute;left:50%;top:50%;width:1060px;height:560px;margin:-300px 0 0 -530px;border-radius:30px;background:url(bb3/bg-draw.webp) center 30%/cover;
-    box-shadow:0 0 0 6px #FFC93C,0 0 0 12px rgba(80,30,0,.85),0 40px 90px rgba(0,0,0,.65);display:flex;flex-direction:column;align-items:center;justify-content:center;
-    animation:tzland 1.1s linear calc(1s + var(--el)) both,tzdrop .7s cubic-bezier(.55,0,1,.45) calc(8s + var(--el)) forwards}
-  .tz-card::before{content:"";position:absolute;inset:0;border-radius:inherit;background:radial-gradient(ellipse at 50% 55%,rgba(30,8,0,.15),rgba(30,8,0,.72))}
-  .tz-burst{position:absolute;left:50%;top:50%;width:1500px;height:1500px;margin:-750px 0 0 -750px;z-index:-1;background:url(bb3/burst.webp) center/contain no-repeat;animation:tzspin 8s linear calc(1s + var(--el)) both}
-  .tz-logo{position:absolute;top:-170px;left:50%;width:560px;height:320px;margin-left:-280px;background:url(bb3/logo.webp) center/contain no-repeat}
-  .tz-card.any .tz-logo{top:-60px;height:150px;background-image:url(bb3/logo-line-any.webp)}
-  .tz-eur{position:relative;margin-top:70px;font-size:230px;line-height:.9;letter-spacing:.01em;background:linear-gradient(#FFF6C8,#FFD23C 45%,#E08A00);-webkit-background-clip:text;background-clip:text;color:transparent}
-  .tz-gv{position:relative;font-size:76px;letter-spacing:.18em;margin:-4px 0 22px;text-shadow:0 4px 0 #5a2200}
-  .tz-when{position:relative;display:flex;gap:16px}
-  .tz-when b{padding:8px 26px;border-radius:12px;background:rgba(30,8,0,.8);box-shadow:inset 0 0 0 2px rgba(255,201,60,.6);font-size:44px;letter-spacing:.06em;color:#FFE0B0;font-variant-numeric:tabular-nums}
-  .tz-when b+b{color:#FFC93C}
-  .tz-pots{position:absolute;bottom:-190px;left:50%;width:620px;height:276px;margin-left:-310px;background:url(bb3/pots.webp) center/contain no-repeat}
-  @keyframes tzrain{0%{transform:translate(var(--x),-140px) rotate(0) scale(var(--s))}100%{transform:translate(calc(var(--x) + var(--dx)),1240px) rotate(var(--r)) scale(var(--s))}}
-  @keyframes tzland{0%{transform:translateY(-1200px);animation-timing-function:cubic-bezier(.5,0,1,.6)}60%{transform:none;animation-timing-function:cubic-bezier(0,.4,.5,1)}
-    74%{transform:translateY(-36px);animation-timing-function:cubic-bezier(.5,0,1,.6)}86%{transform:none;animation-timing-function:ease-out}93%{transform:translateY(-9px);animation-timing-function:ease-in}100%{transform:none}}
-  @keyframes tzdrop{to{transform:translateY(1250px)}}
-  @keyframes tzshake{0%,100%{transform:none}25%{transform:translate(-6px,5px)}50%{transform:translate(5px,-3px)}75%{transform:translate(-2px,1px)}}
-  @keyframes tzspin{0%{opacity:0;transform:rotate(0)}10%{opacity:.85}82%{opacity:.85}90%,100%{opacity:0;transform:rotate(100deg)}}
+  .tz video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
   /* the box before the giveaway (bd.tz.box): "teaser" is this card with a ticking countdown; "hide" shows nothing until the takeover */
   .bd-tzbox{position:absolute;inset:0;border-radius:16px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
     text-transform:uppercase;font-family:var(--cond);font-weight:700;color:#fff;background:url(bb3/bg.webp) center/cover}
@@ -6321,16 +6299,16 @@ function bdDrawFrame(){
 }
 requestAnimationFrame(bdDrawFrame);
 
-/* ---- The stream teaser: for the hours before the giveaway (bd.tz.at), coins rain down the whole canvas, the prize card
-   falls in with the time and a countdown, lands in the middle, holds, and falls away; then the screen is empty again.
-   (A herd charging at the camera was tried first: too chaotic, it looked scuffed.) On (bd.tz.on), it plays every
-   bd.tz.every minutes from when it was switched on, until the giveaway starts; Play it now (bd.tz.once) plays it once.
-   Every window works out from the server clock whether one is playing, so OBS and the panel play the same one,
-   whatever format is up. Art: the BB3 pack, nothing new. */
-const TZ_MS=9000;
-// the rain: [x, delay, fall time, scale, spin, drift], spread with the golden ratio so every window draws the same
-const TZ_COINS=Array.from({length:48},(_,i)=>{ const f=k=>(i*k)%1;
-  return [Math.round(f(.618034)*1960-20), (i/48*2.3+f(.37)*.3).toFixed(2), (1.2+f(.53)*.7).toFixed(2), (.55+f(.71)*.75).toFixed(2), (i%2?1:-1)*(300+Math.round(f(.43)*360)), Math.round(f(.29)*140-70)]; });
+/* ---- The stream teaser: for the hours before the giveaway (bd.tz.at), a rendered clip plays over the whole canvas
+   (the BB3 €2,000 teaser, made in tools/motion: 3D gold, coins, lightning, framed over the slot window), then the
+   screen is empty again. On (bd.tz.on), it plays every bd.tz.every minutes from when it was switched on, until the
+   giveaway starts; Play it now (bd.tz.once) plays it once. Every window works out from the server clock whether one is
+   playing and seeks the clip to match, so OBS and the panel play the same one, whatever format is up.
+   (Tried first, live in CSS: a herd charging at the camera, an edge glow, a falling card. Elias: scuffed, Paint-like.) */
+const TZ_CLIP="promo/bb3-teaser-3d.webm", TZ_MS=6000;
+let tzVid=null;   // one element, loaded up front, so a takeover starts on time
+const tzVideo=()=>tzVid ||= Object.assign(document.createElement("video"), {src:TZ_CLIP, muted:true, playsInline:true, preload:"auto"});
+tzVideo();
 const tzFresh=()=>({on:false, at:Date.parse("2026-10-09T15:00:00+02:00"), every:20, start:0, once:0, box:"board"});
 function tzPlaying(now){
   const z=bd.tz; if(!z) return 0;
@@ -6347,30 +6325,23 @@ function bdTzBoxView(c){
 const tzHide=()=>{ const h=tzBox()==="hide"; if(document.body.classList.contains("tz-hide")!==h) document.body.classList.toggle("tz-hide", h); };
 let tzWas="";
 setInterval(()=>{ tzHide(); if(appMode!=="BOARD" || !bd.tz) return; const k=tzBox()+gzWhen(bd.tz.at); if(k!==tzWas){ tzWas=k; bdRenderDisplay(); } },1000);
-const tzLeft=at=>{ const m=Math.ceil((at-netNow())/60000); return m<=0 ? "" : m<60 ? `in ${m} min` : `in ${Math.floor(m/60)}h ${m%60}m`; };
-function bdTzFrame(){
-  requestAnimationFrame(bdTzFrame);
+function bdTzFrame(){   // on a timer, not animation frames: the clip plays itself, this only starts, syncs and ends it
   tzHide();
   const now=netNow(), s=tzPlaying(now), fixed=DISPLAY_ONLY && document.body.classList.contains("canvas");
   let ov=document.getElementById("bdTz");
-  if(ov && (!s || +ov.dataset.at!==s || ov.classList.contains("fixed")!==fixed)){ ov.remove(); ov=null; }
+  if(ov && (!s || +ov.dataset.at!==s || ov.classList.contains("fixed")!==fixed)){ tzVideo().pause(); ov.remove(); ov=null; }
   if(!s) return;
+  const v=tzVideo(), want=(now-s)/1000;
   if(!ov){
     ov=document.createElement("div"); ov.id="bdTz"; ov.className="tz"+(fixed?" fixed":""); ov.dataset.at=s; ov.setAttribute("aria-hidden","true");
-    ov.style.setProperty("--el", -(now-s)/1000+"s");
-    const coins=TZ_COINS.map(([x,d,t,k,r,dx])=>`<i class="tz-coin" style="--x:${x}px;--d:${d}s;--t:${t}s;--s:${k};--r:${r}deg;--dx:${dx}px"></i>`).join("");
-    ov.innerHTML=`<div class="tz-stage" style="width:1920px;height:1080px"><div class="tz-shake">${coins}
-      <div class="tz-card${bd.any?" any":""}"><i class="tz-burst"></i><i class="tz-logo"></i><div class="tz-eur">${bdEur(bdPool())}</div><div class="tz-gv">Giveaway</div>
-        <div class="tz-when"><b class="tz-at"></b><b class="tz-left"></b></div><i class="tz-pots"></i></div></div></div>`;
-    if(fixed) document.body.appendChild(ov); else $("#display").appendChild(ov);
-    if(now-s<600) setTimeout(()=>sfx("boom"), 1660-(now-s));   // the landing; only a window that saw it start
+    ov.appendChild(v); if(fixed) document.body.appendChild(ov); else $("#display").appendChild(ov);
+    v.currentTime=want; v.play().catch(()=>{});
+  } else {
+    if(Math.abs(v.currentTime-want)>.3 && !v.seeking) v.currentTime=want;   // a slow start or a stall: back onto the clock
+    if(v.paused) v.play().catch(()=>{});   // a refused or stalled start: try again
   }
-  drawFit(ov);
-  const at=ov.querySelector(".tz-at"), left=ov.querySelector(".tz-left"), a=gzWhen(bd.tz.at), l=tzLeft(bd.tz.at);
-  if(at.textContent!==a) at.textContent=a;
-  if(left.textContent!==l){ left.textContent=l; left.hidden=!l; }
 }
-requestAnimationFrame(bdTzFrame);
+setInterval(bdTzFrame, 100);
 
 /* ================= ROTTEN POTATO CHALLENGES (Print Studios) =================
    The Challenge Board's rules (16 challenges, 3 ticks each, a full one owes a giveaway drawn from the keyword
