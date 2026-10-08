@@ -1087,7 +1087,7 @@ function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("on
    Kick's own Pusher socket (unofficial; if Kick entries stop, that is the part to fix). */
 const chat={twitch:"off", kick:"off", youtube:"off", ws:{}, restart:{}};
 let dirty=false, panelDirty=false;
-const CHAT_BOTS=["botrix","streamelements","degenbot"];   // as the competitions page: bots never enter or claim
+const CHAT_BOTS=["botrix","streamelements","degenbot","degenb0t"];   // as the competitions page (Kick's Degen_B0t has a zero): bots never enter or claim
 function chatMsg(platform,user,name,text){
   if(CHAT_BOTS.includes(String(user).toLowerCase().replace(/[^a-z0-9]/g,""))) return;
   const R=S.rf, sp=R.spin;

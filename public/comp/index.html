@@ -3553,7 +3553,7 @@ const rfWinner=sp=>{ if(rfWinC.w!==sp.winner || rfWinC.a!==rf.entries){ rfWinC={
 function rfSpinPool(sp){ return rf.entries.slice(0,sp.count).filter(e=>!e.st||rfId(e)===sp.winner).reverse(); }
 
 /* Chat bots never enter or claim. Compared without case or punctuation (Kick slugs Degen_Bot as degen-bot). */
-const CHAT_BOTS=["botrix","streamelements","degenbot"];
+const CHAT_BOTS=["botrix","streamelements","degenbot","degenb0t"];   // Kick's is Degen_B0t, with a zero
 const isChatBot=user=>CHAT_BOTS.includes(String(user).toLowerCase().replace(/[^a-z0-9]/g,""));
 function rfChatMsg(platform, user, name, text, color, ts, extra, sub){
   if(rqTake(platform, user, name, text, ts)) return;   // !r requests, while the queue is open
