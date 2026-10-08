@@ -544,7 +544,7 @@ const GAMES={
     cells:["Basegame Bonus","10000x win","Reach Station 20",
       "Bonus ends with every position filled","Wild","100x win from Base",
       "Reach Station 10 from base","1000x win","Arms Dealer converts 4 bonus symbols"]},
-  rr2:{name:"The Racaroon 2", kw:"Racaroon", teaser:"€2,000", prizes:[...Array(8).fill("€150"),"€800"],   // 8 × €150 + €800 = €2,000
+  rr2:{name:"The Racaroon 2", kw:"Playtech", teaser:"€2,000", prizes:[...Array(8).fill("€150"),"€800"],   // 8 × €150 + €800 = €2,000
     cells:["Racaroon Respins","Macaron jackpot","5x heart multiplier",
       "100x win","Wild","Respins with 12+ prizes",
       "500x win","Bonus buy pays 200x","1000x win"]},
@@ -569,6 +569,7 @@ function load(raw){
     Object.assign(s,{game:"rr2", cells:g.cells.map(t=>({t,d:false})), lines:[], prizes:[...g.prizes], winners:{}, winnerLog:[], fx:null, rf:rfFresh(g.kw, s.rf?.claimSecs)});
     s.teaser.prize=g.teaser; }
   if(!s.pot2000){ s.prizes=[...GAMES.rr2.prizes]; s.teaser.prize=GAMES.rr2.teaser; s.pot2000=true; }   // once: the €2,000 split replaces the old €1,500 one; edits after that stay
+  if(!s.kwPlaytech){ if(s.rf){ if(s.rf.keyword==="Racaroon") s.rf.keyword="Playtech"; s.rf.claimSecs=60; } s.kwPlaytech=true; }   // once, for the Playtech visit; edits after that stay
   s.cells[WILD].d=true;
   if(s.chat.youtube===undefined) s.chat.youtube="@casinodaddyofficial";   // a board saved before YouTube
   return s;

@@ -3431,7 +3431,7 @@ const RF_MODES={
   KEYWORD:{icon:"bolt", get title(){ return kw.title||"Giveaway"; }, log:()=>"", setup:()=>true, roster:()=>kw.winners, display:()=>kwRenderDisplay(), save:()=>kwSave(),
     add:()=>{ const p={id:uid(), name:""}; kw.winners.push(p); return p; }},
   // the box shows the board, and the entries only while a full challenge is owed its winner
-  BOARD:{icon:"gift", get title(){ return bdTitle(); }, log:row=>bdRow(row?.cell ? row : bdNext()), spinMs:()=>BD_DRAW_MS, setup:()=>!!rf.spin || bdDue().length>0, roster:()=>[], display:()=>bdRenderDisplay(), save:()=>bdSaveWin(),
+  BOARD:{icon:"gift", kw:"Playtech", get title(){ return bdTitle(); }, log:row=>bdRow(row?.cell ? row : bdNext()), spinMs:()=>BD_DRAW_MS, setup:()=>!!rf.spin || bdDue().length>0, roster:()=>[], display:()=>bdRenderDisplay(), save:()=>bdSaveWin(),
     add:()=>{ const p={id:uid(), name:"", ...bdNext()}; bd.winners.push(p); return p; }},
   ROT:{icon:"gift", kw:"PRINT", get title(){ return RT_TITLE; }, log:row=>rtRow(rtCell(row?.cell||rtDue()[0]?.id)), spinMs:()=>RT_DRAW_MS, setup:()=>!!rf.spin || rtDue().length>0, roster:()=>[], display:()=>rtRenderDisplay(), save:()=>rtSaveWin(),
     prize:()=>rtDue()[0]?.merch||"", add:()=>{ const p={id:uid(), name:"", cell:rtDue()[0]?.id||null}; rt.winners.push(p); return p; }},
@@ -6012,10 +6012,10 @@ function kwRenderControl(){
 const BD_KEY="board_state_v1", bdTitle=()=>bd.any ? "Buffalo Blitz Challenges" : "Buffalo Blitz 3 Challenges";
 const BD_NEED=3, BD_RUN_MS=1800, BD_SCROLL_MS=40000;   // every challenge is done at 3; the buffalo's run; one scroll down and back
 const BD_PRIZE=125;   // every challenge the same: 16 × €125 = €2,000
-const BD_START=["Buffalo Gold","Big Grid","Buffalo Cash","Free Games","100x win","250x win","500x win","1000x win",
-  "Full reel of buffalo","Wild in a win","Retrigger","14,400 ways","Lucky Box buy","Dead bonus","Chat's pick","Playtech's pick"].map(l=>[l,BD_PRIZE]);
+const BD_START=["Trigger Buffalo Gold","Trigger Big Grid","Trigger Buffalo Cash","Trigger Free Games","100x win","250x win","500x win","1000x win",
+  "Full reel of buffalo","Wild in a win","Retrigger","14,400 ways in one spin","Lucky Box buy","Bonus pay under 10x","Two wilds in one win","Hit with 5x wild"].map(l=>[l,BD_PRIZE]);
 // the same board for any Buffalo Blitz: BB3's own features (the pots, 14,400 ways, Lucky Box) swapped for ones every game has
-const BD_ANY={"Buffalo Gold":"4 scatters","Big Grid":"5 scatters","Buffalo Cash":"Wild multiplier","14,400 ways":"5 buffalo in a win","Lucky Box buy":"Base game 100x"};
+const BD_ANY={"Trigger Buffalo Gold":"4 scatters","Trigger Big Grid":"5 scatters","Trigger Buffalo Cash":"Wild multiplier","14,400 ways in one spin":"5 buffalo in a win","Lucky Box buy":"Base game 100x"};
 // switching game swaps the labels still on the other game's default; ones the operator typed stay
 function bdSetAny(on){ const m=on ? BD_ANY : Object.fromEntries(Object.entries(BD_ANY).map(([a,b])=>[b,a]));
   bd.any=on; bd.cells.forEach(c=>{ if(m[c.label]) c.label=m[c.label]; }); bdSave(); bdRender(); }
