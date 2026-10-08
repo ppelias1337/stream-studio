@@ -1,0 +1,122 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>BB3 teaser</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=block" rel="stylesheet">
+<style>
+  html,body{margin:0;background:#20242c}
+  body.render{background:transparent}
+  canvas{display:block;width:100vw;height:auto}
+</style>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script>
+/* The Buffalo Blitz III €2,000 teaser, as a pure function of time: renderAt(t) draws the frame at t seconds on a
+   transparent 1920x1080 canvas, with motion blur (subframes over half a frame). tools/motion/render.js steps it frame
+   by frame into a transparent webm; opened in a browser it just plays on a loop for a look. */
+const W=1920, H=1080, CX=960, DUR=6.2, FPS=60, SUB=8, SHUTTER=.5;
+const TEXT={amount:"€2,000", word:"GIVEAWAY", when:"TODAY · 15:00 CEST"};
+const cv=document.getElementById("c"), out=cv.getContext("2d");
+const buf=Object.assign(document.createElement("canvas"),{width:W,height:H}), ctx=buf.getContext("2d");
+const layer=Object.assign(document.createElement("canvas"),{width:W,height:H}), lx=layer.getContext("2d");
+const img=src=>Object.assign(new Image(),{src});
+const COIN=img("../../public/comp/bb3/coin.webp"), LOGO=img("../../public/comp/bb3/logo.webp");
+
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x)), lerp=(a,b,u)=>a+(b-a)*u;
+const prog=(t,a,d)=>clamp((t-a)/d);
+const eOut=u=>1-Math.pow(1-u,3), eIn=u=>u*u*u, eInOut=u=>u<.5?4*u*u*u:1-Math.pow(-2*u+2,3)/2;
+// a spring's step response: 0 → 1 with overshoot that settles; k = stiffness, z = damping
+const spring=(t,k=16,z=7)=>t<=0?0:1-Math.exp(-z*t)*Math.cos(k*t);
+const rng=s=>()=>((s=Math.imul(s^s>>>15,1|s)+0x6D2B79F5|0)>>>0)/4294967296;
+
+// the burst: coins thrown out of the centre at 0.7 s, under gravity
+const BURST=(()=>{ const r=rng(7); return Array.from({length:70},()=>{ const a=r()*Math.PI*2, v=700+r()*1500;
+  return {vx:Math.cos(a)*v, vy:Math.sin(a)*v-500, s:28+r()*58, spin:6+r()*14, ph:r()*6}; }); })();
+// the bolt: a jagged line from top right to bottom left, midpoint displacement
+const BOLT=(()=>{ const r=rng(11); let pts=[[1560,-60],[420,1140]];
+  for(let k=0;k<6;k++){ const n=[pts[0]]; for(let i=1;i<pts.length;i++){ const [a,b]=[pts[i-1],pts[i]], d=Math.hypot(b[0]-a[0],b[1]-a[1])*.18;
+    n.push([(a[0]+b[0])/2+(r()-.5)*d,(a[1]+b[1])/2+(r()-.5)*d], b); } pts=n; } return pts; })();
+
+const BOLT2=(()=>{ const r=rng(29); let pts=[[380,-60],[1500,1140]];
+  for(let k=0;k<6;k++){ const n=[pts[0]]; for(let i=1;i<pts.length;i++){ const [a,b]=[pts[i-1],pts[i]], d=Math.hypot(b[0]-a[0],b[1]-a[1])*.18;
+    n.push([(a[0]+b[0])/2+(r()-.5)*d,(a[1]+b[1])/2+(r()-.5)*d], b); } pts=n; } return pts; })();
+const FALL=(()=>{ const r=rng(41); return Array.from({length:46},()=>({x:CX+(r()-.5)*900, y:300+r()*640, vx:(r()-.5)*500, vy:-200-r()*500, s:30+r()*50, spin:6+r()*12, ph:r()*6})); })();
+function bolt(c,pts,lt,dur){ const a=(1-lt/dur)*(lt<.05||(lt>.1&&lt<.15)?1:.55), n=Math.floor(pts.length*clamp(lt/.06));
+  c.save(); c.lineJoin="round"; c.lineCap="round";
+  for(const [w,col] of [[46,`rgba(90,190,255,${.18*a})`],[22,`rgba(150,220,255,${.4*a})`],[8,`rgba(255,255,255,${a})`]]){
+    c.strokeStyle=col; c.lineWidth=w; c.beginPath(); pts.slice(0,n).forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y)); c.stroke(); }
+  c.fillStyle=`rgba(200,235,255,${.22*a})`; c.fillRect(0,0,W,H); c.restore(); }
+// the exit: a second strike, everything is gone on the flash, and coins fall out of where it stood
+function exitScene(e){
+  if(e<.34) bolt(ctx,BOLT2,e,.34);
+  if(e<.12){ ctx.fillStyle=`rgba(255,250,235,${.55*(1-e/.12)})`; ctx.fillRect(0,0,W,H); }
+  if(COIN.complete) for(const c of FALL){ const x=c.x+c.vx*e, y=c.y+c.vy*e+1500*e*e, a=1-prog(e,.8,.5); if(y>H+80||a<=0) continue;
+    const f=Math.cos(c.ph+c.spin*e); ctx.save(); ctx.globalAlpha=a; ctx.translate(x,y); ctx.scale(Math.max(.1,Math.abs(f)),1); ctx.drawImage(COIN,-c.s/2,-c.s/2,c.s,c.s); ctx.restore(); }
+}
+const FONT=s=>`${s}px Anton, "Bahnschrift Condensed", Impact, sans-serif`;
+function gold(c,size){ const g=c.createLinearGradient(0,-size*.78,0,0); g.addColorStop(0,"#FFF6CC"); g.addColorStop(.45,"#FFD23C"); g.addColorStop(1,"#E07800"); return g; }
+// one character, transformed about the middle of its baseline, with a dark keyline and a dropped shadow so it holds on any stream
+function glyph(c,ch,x,y,size,{sx=1,sy=1,rot=0,a=1,fill="#fff",keyline=true}={}){
+  if(a<=0) return;
+  c.save(); c.translate(x,y); c.rotate(rot); c.scale(sx,sy); c.globalAlpha=a; c.font=FONT(size); c.textAlign="center"; c.textBaseline="alphabetic";
+  if(keyline){ c.lineJoin="round"; c.fillStyle="rgba(40,8,0,.55)"; c.fillText(ch,0,size*.05); c.strokeStyle="#2a0900"; c.lineWidth=size*.06; c.strokeText(ch,0,0); }
+  c.fillStyle=fill==="gold"?gold(c,size):fill; c.fillText(ch,0,0); c.restore();
+}
+function layout(c,str,size,track=0){ c.font=FONT(size); const w=[...str].map(ch=>c.measureText(ch).width); const total=w.reduce((s,x)=>s+x,0)+track*(w.length-1);
+  let x=-total/2; return w.map(wi=>{ const m=x+wi/2; x+=wi+track; return m; }); }
+
+function scene(t){
+  ctx.clearRect(0,0,W,H);
+  const OUT=4.9;   // the strike that takes it all away
+  if(t>=OUT) return exitScene(t-OUT);
+  const grp=1+.045*eIn(prog(t,OUT-.3,.3))+.012*Math.sin(t*2.6)*prog(t,2.9,.5);   // breathing, then a pull in before the hit
+  ctx.save(); ctx.translate(CX,540); ctx.scale(grp,grp); ctx.translate(-CX,-540);
+
+  // 1. the coin: spins in on a spring, winds up, bursts
+  if(t<.72){ const p=spring(t,14,6), wind=prog(t,.5,.22), s=(1-.35*eIn(wind))*p*1.1, flip=Math.cos(t*16);
+    if(COIN.complete){ ctx.save(); ctx.translate(CX,520); ctx.scale(s*Math.max(.08,Math.abs(flip)),s); ctx.drawImage(COIN,-110,-110,220,220); ctx.restore(); } }
+  // shockwave + coins thrown out
+  const b=t-.72;
+  if(b>=0 && b<.6){ const u=b/.6; ctx.save(); ctx.strokeStyle=`rgba(255,214,90,${(1-u)*.9})`; ctx.lineWidth=18*(1-u)+1; ctx.beginPath(); ctx.arc(CX,520,60+eOut(u)*1100,0,Math.PI*2); ctx.stroke(); ctx.restore(); }
+  if(b>=0 && b<2.6 && COIN.complete) for(const c of BURST){ const x=CX+c.vx*b*Math.exp(-.35*b), y=520+c.vy*b+900*b*b, a=1-prog(b,1.6,1);
+    if(y>H+80||a<=0) continue; const f=Math.cos(c.ph+c.spin*b); ctx.save(); ctx.globalAlpha=a; ctx.translate(x,y); ctx.scale(Math.max(.1,Math.abs(f)),1);
+    ctx.drawImage(COIN,-c.s/2,-c.s/2,c.s,c.s); ctx.restore(); }
+
+  // 2. the amount, digit by digit on springs, drawn on its own layer so the shine stays inside the letters
+  lx.clearRect(0,0,W,H);
+  const AS=330, AY=640, ax=layout(lx,TEXT.amount,AS,6);
+  [...TEXT.amount].forEach((ch,i)=>{ const ts=.86+i*.065, p=spring(t-ts,17,7.5);
+    if(t<ts) return;
+    const y=AY+(1-p)*-300, sq=1+.18*(1-clamp(p))*(p>1?-1:1);
+    glyph(lx,ch,CX+ax[i],y,AS,{sx:1/sq,sy:sq,rot:(1-p)*.25*(i%2?1:-1),a:clamp((t-ts)/.05),fill:"gold"}); });
+  // the shine: a band of light across the number
+  const sh=prog(t,3.2,.65); if(sh>0&&sh<1){ lx.save(); lx.globalCompositeOperation="source-atop"; const x=lerp(300,1650,eInOut(sh)), g=lx.createLinearGradient(x-160,0,x+160,0);
+    g.addColorStop(0,"rgba(255,255,255,0)"); g.addColorStop(.5,"rgba(255,255,240,.85)"); g.addColorStop(1,"rgba(255,255,255,0)"); lx.fillStyle=g; lx.fillRect(0,0,W,H); lx.restore(); }
+  ctx.drawImage(layer,0,0);
+
+  // 3. lightning, and the logo revealed in its flash
+  const lt=t-1.5; if(lt>=0 && lt<.32) bolt(ctx,BOLT,lt,.32);
+  if(t>=1.53 && LOGO.complete){ const p=spring(t-1.53,13,6.5), wipe=eOut(prog(t,1.53,.28)), lw=640, lh=lw*413/720;
+    ctx.save(); ctx.beginPath(); ctx.rect(CX-lw/2-20,0,(lw+40)*wipe,H); ctx.clip();
+    ctx.translate(CX,232); ctx.scale(lerp(.75,1,p),lerp(.75,1,p)); ctx.drawImage(LOGO,-lw/2,-lh/2,lw,lh); ctx.restore(); }
+
+  // 4. GIVEAWAY tracks in; a gold rule draws out; the time clicks in letter by letter
+  if(t>=2.05){ const p=eOut(prog(t,2.05,.7)), size=118, track=lerp(150,26,p), gx=layout(ctx,TEXT.word,size,track);
+    [...TEXT.word].forEach((ch,i)=>glyph(ctx,ch,CX+gx[i],788,size,{a:clamp(prog(t,2.05+i*.03,.25))})); }
+  if(t>=2.55){ const p=eOut(prog(t,2.55,.45)), half=440*p;
+    ctx.save(); const g=ctx.createLinearGradient(CX-half,0,CX+half,0); g.addColorStop(0,"rgba(255,201,60,0)"); g.addColorStop(.5,"#FFC93C"); g.addColorStop(1,"rgba(255,201,60,0)");
+    ctx.fillStyle=g; ctx.fillRect(CX-half,822,half*2,5); ctx.restore(); }
+  if(t>=2.75){ const size=66, wx=layout(ctx,TEXT.when,size,5);
+    [...TEXT.when].forEach((ch,i)=>{ const ts=2.75+i*.028, p=spring(t-ts,20,9); if(t<ts) return;
+      glyph(ctx,ch,CX+wx[i],912+(1-p)*30,size,{a:clamp((t-ts)/.06),fill:i>=8?"#FFC93C":"#FFE6C0",keyline:true}); }); }
+  ctx.restore();
+}
+// motion blur: average SUB subframes over the shutter, additively, so a transparent background stays right
+function renderAt(t){
+  out.clearRect(0,0,W,H); out.globalCompositeOperation="lighter"; out.globalAlpha=1/SUB;
+  for(let k=0;k<SUB;k++){ scene(t+k/SUB*SHUTTER/FPS); out.drawImage(buf,0,0); }
+  out.globalCompositeOperation="source-over"; out.globalAlpha=1;
+}
+window.ready=Promise.all([document.fonts.load(FONT(100)), ...[COIN,LOGO].map(i=>i.decode())]);
+window.renderAt=renderAt; window.DUR=DUR; window.FPS=FPS;
+if(!/render/.test(location.hash)) ready.then(()=>{ const t0=performance.now(); const loop=()=>{ renderAt(((performance.now()-t0)/1000)%(DUR+.8)); requestAnimationFrame(loop); }; loop(); });
+else document.body.classList.add("render");
+</script>
