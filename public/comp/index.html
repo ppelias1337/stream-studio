@@ -1642,15 +1642,74 @@
 
     <div id="helpMenu">
       <h2>Welcome</h2>
-      <div class="help-sub">Pick a format on Home, then follow the steps: Rules, Players, Start.</div>
+      <div class="help-sub">Pick a format on Home. Every format keeps its own progress, so switching back and forth never loses it.</div>
       <ol>
-        <li><span class="help-num">1</span><span><b>Last Man Standing</b>: everyone buys in, and the lowest win each round is eliminated until one player remains.</span></li>
-        <li><span class="help-num">2</span><span><b>Showdown</b>: 2 to 5 named players (streamer vs streamer, streamer vs chat, slot vs slot). The highest win takes the round, and the first to a chosen target score wins.</span></li>
-        <li><span class="help-num">3</span><span><b>Bracket Tournament</b>: 4, 8, or 16 entrants, single elimination. Players mode adds a coin flip for who picks. Slots mode just compares wins.</span></li>
-        <li><span class="help-num">4</span><span><b>Points League</b>: nobody is eliminated, everyone chooses one slot, and the most points after all rounds wins.</span></li>
-        <li><span class="help-num">5</span><span>Inside a format, click <b>Home</b> anytime to come back here. Each format saves its own progress, so switching back and forth never loses it.</span></li>
-        <li><span class="help-num">6</span><span><b>OBS setup (recommended):</b> add a <b>Browser Source</b> pointing at <b>this file with <code>#display</code> on the end</b> and set it to a square, 450×450. That source shows only the stream box and mirrors everything you do here, animations included. Any square size works: the box scales to fill it.</span></li>
-        <li><span class="help-num">7</span><span><b>Two-PC / remote control:</b> if this page is hosted online (with <code>sync.php</code> uploaded next to <code>index.html</code>), the control panel and the OBS source can run on different computers, even on different networks. Anyone who opens the plain URL (no <code>#display</code>) can run the show from anywhere. The <b>sound</b> button mutes sounds per window if you hear doubles.</span></li>
+        <li><span class="help-num">1</span><span><b>Stream Competitions</b> are the streamer formats: Last Man Standing, Showdown, Bracket, Points League, Slot Wheel. <b>Keyword</b> is a plain chat giveaway. <b>Special Giveaways</b> are the partner formats.</span></li>
+        <li><span class="help-num">2</span><span>Inside a format, the <b>?</b> button explains that format.</span></li>
+        <li><span class="help-num">3</span><span><b>OBS:</b> click <b>OBS links</b> in the tab bar and use the competitions link as a Browser Source. Square (450 × 450) shows only the box; 1920 × 1080 is the whole overlay, and full-screen draws play over it.</span></li>
+        <li><span class="help-num">4</span><span><b>Another PC</b> can run the panel at the stream PC's network address (also under <b>OBS links</b>). Only one panel controls at a time; the other shows <b>Use it here</b>.</span></li>
+      </ol>
+    </div>
+
+    <div id="helpKeyword">
+      <h2>Keyword Giveaway</h2>
+      <div class="help-sub">Any keyword, any title. Entries stay open all show.</div>
+      <ol>
+        <li><span class="help-num">1</span><span>Set the <b>Title on stream</b> and the <b>Keyword</b>, then <b>Open keyword entries</b>.</span></li>
+        <li><span class="help-num">2</span><span><b>Draw a player</b>. The winner types anything in their chat before the claim time runs out, or you press <b>Mark claimed</b>. <b>Didn't claim</b> takes them out.</span></li>
+        <li><span class="help-num">3</span><span>Every claim lands in Winners. The <b>×</b> on a name removes them from the draw for good.</span></li>
+        <li><span class="help-num">4</span><span><b>Sub luck 2×</b> gives subscribers two tickets.</span></li>
+      </ol>
+    </div>
+
+    <div id="helpPrag">
+      <h2>Prag-Wheel</h2>
+      <div class="help-sub">Chat types Pragmatic. Each winner spins the stream wheel.</div>
+      <ol>
+        <li><span class="help-num">1</span><span><b>Open keyword entries</b>, then <b>Draw a player</b>. The winner claims in chat.</span></li>
+        <li><span class="help-num">2</span><span>They spin the real wheel. Press the <b>number it landed on</b>. The prize stays hidden on stream until you do.</span></li>
+        <li><span class="help-num">3</span><span><b>Test draw</b> plays the real draw with 1,400 made-up names and keeps nothing.</span></li>
+      </ol>
+    </div>
+
+    <div id="helpBoard">
+      <h2>Challenge Board</h2>
+      <div class="help-sub">16 challenges, each needs 3. A full challenge is a giveaway.</div>
+      <ol>
+        <li><span class="help-num">1</span><span>Press <b>+</b> on a challenge when it happens in the game. At 3 it's full and owes a giveaway; the box then shows the keyword.</span></li>
+        <li><span class="help-num">2</span><span><b>Open keyword entries</b> and <b>Draw a player</b>. The draw is for the first full challenge without a winner.</span></li>
+        <li><span class="help-num">3</span><span>Challenge names and prizes are editable. <b>Make it any Buffalo Blitz</b> swaps the Buffalo Blitz 3-only challenges.</span></li>
+        <li><span class="help-num">4</span><span><b>Give away everything remaining to one person</b> turns every unwon challenge into one draw.</span></li>
+      </ol>
+    </div>
+
+    <div id="helpRot">
+      <h2>Rotten Potato Challenges</h2>
+      <div class="help-sub">The Challenge Board with merch prizes. Keyword PRINT.</div>
+      <ol>
+        <li><span class="help-num">1</span><span>Press <b>+</b> on a challenge when it happens. The merch shows as "Mystery" until 2 of 3.</span></li>
+        <li><span class="help-num">2</span><span>At 3 it's due: <b>Open keyword entries</b>, then <b>Draw a player</b>.</span></li>
+      </ol>
+    </div>
+
+    <div id="helpSquad">
+      <h2>Reel Squads</h2>
+      <div class="help-sub">Chat joins reels with !1 to !6, two reels each.</div>
+      <ol>
+        <li><span class="help-num">1</span><span>Set <b>Joining</b> to Open. Chat types <b>!1</b> to <b>!6</b>.</span></li>
+        <li><span class="help-num">2</span><span>An expanding Wild lands on a reel in the game: press <b>+</b> on that reel. It doesn't have to cover the reel.</span></li>
+        <li><span class="help-num">3</span><span>A full reel shows <b>Draw a winner</b>, from that reel's squad. A claim pays the per-reel prize from the pool and the reel starts over.</span></li>
+        <li><span class="help-num">4</span><span>A miss keeps the reel full for <b>Draw again</b>.</span></li>
+      </ol>
+    </div>
+
+    <div id="helpDraw">
+      <h2>Giveaway draw</h2>
+      <div class="help-sub">Open keyword entries, draw, and the winner claims in chat.</div>
+      <ol>
+        <li><span class="help-num">1</span><span><b>Open keyword entries</b>. Chat types the keyword shown on stream.</span></li>
+        <li><span class="help-num">2</span><span><b>Draw a player</b>. The winner types anything in their chat before the claim time runs out, or press <b>Mark claimed</b>.</span></li>
+        <li><span class="help-num">3</span><span><b>Test draw</b> plays the real draw with made-up names and keeps nothing.</span></li>
       </ol>
     </div>
 
@@ -2605,6 +2664,15 @@ function toast(msg,warn){
   t.classList.toggle("warn",!!warn); t.classList.add("show");
   clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2600);
 }
+/* navigator.clipboard only exists on a secure origin (the stream PC's 127.0.0.1); a playing PC reaching the
+   server by IP has none, so fall back to the old selection copy, which works anywhere */
+function copyText(text){
+  if(navigator.clipboard) return navigator.clipboard.writeText(text);
+  const ta=document.createElement("textarea"); ta.value=text; ta.style.cssText="position:fixed;opacity:0";
+  document.body.appendChild(ta); ta.select();
+  const ok=document.execCommand("copy"); ta.remove();
+  return ok ? Promise.resolve() : Promise.reject(new Error("copy refused"));
+}
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function initials(name){ const n=(name||"").trim(); if(!n) return "?"; const parts=n.split(/\s+/); return (parts[0][0]+(parts[1]?parts[1][0]:"")).toUpperCase(); }
 function rotateFromId(list,id){
@@ -3314,7 +3382,7 @@ function payWire(mode="LMS"){
   const on=(id,fn)=>{ const b=$(id); if(b) b.onclick=fn; };
   const O=PAYOUT[mode];
   document.querySelectorAll("[data-pay-copy]").forEach(btn=>{
-    btn.onclick=()=>navigator.clipboard.writeText(O.rows()[btn.dataset.payCopy].cmd)
+    btn.onclick=()=>copyText(O.rows()[btn.dataset.payCopy].cmd)
       .then(()=>{ btn.textContent="Copied"; btn.classList.add("on"); },()=>toast("Clipboard blocked by the browser",true));
   });
   document.querySelectorAll("[data-pay-pts]").forEach(inp=>{
@@ -3447,12 +3515,13 @@ const RF_MODES={
 /* Slot entries ("!slot Gates of Olympus"): the words after the keyword are the entry.
    Frozen into rf.slots when entries open, so a format switching mid-entries can't mix them. */
 const rfSlotsIn=m=>!!RF_MODES[m]?.slots?.();
-const rfKw=()=>RF_MODES[rf.on ? rf.mode : appMode]?.kw || (rf.on ? (rf.slots ? rf.slotKeyword : rf.keyword) : rfSlotsIn(appMode) ? rf.slotKeyword : rf.keyword);
+const rfKwOf=m=>rf.kws?.[m]||"LMS";   // each format keeps its own keyword; rf.keyword is the running one
+const rfKw=()=>RF_MODES[rf.on ? rf.mode : appMode]?.kw || (rf.on ? (rf.slots ? rf.slotKeyword : rf.keyword) : rfSlotsIn(appMode) ? rf.slotKeyword : rfKwOf(appMode));
 let rf=rfLoad();
 let rfDirty=false;
 const rfChat={twitch:"off", kick:"off", youtube:"off", started:false};
 
-function rfLoad(){ try{ const s=JSON.parse(localStorage.getItem(RF_KEY)); if(s&&Array.isArray(s.entries)){ if(!s.spin) s.spin=null; if(!RF_MODES[s.mode]) s.mode="LMS"; if(!s.claimSecs) s.claimSecs=RF_CLAIM_MS/1000; if(!s.slotKeyword) s.slotKeyword="!slot"; return s; } }catch(e){} return {on:false, open:false, mode:"LMS", keyword:"LMS", slotKeyword:"!slot", claimSecs:RF_CLAIM_MS/1000, entries:[], spin:null}; }
+function rfLoad(){ try{ const s=JSON.parse(localStorage.getItem(RF_KEY)); if(s&&Array.isArray(s.entries)){ if(!s.spin) s.spin=null; if(!RF_MODES[s.mode]) s.mode="LMS"; if(!s.claimSecs) s.claimSecs=RF_CLAIM_MS/1000; if(!s.slotKeyword) s.slotKeyword="!slot"; if(!s.kws){ s.kws={}; if(s.keyword && s.keyword!=="LMS") s.kws.KEYWORD=s.keyword; } return s; } }catch(e){} return {on:false, open:false, mode:"LMS", keyword:"LMS", kws:{}, slotKeyword:"!slot", claimSecs:RF_CLAIM_MS/1000, entries:[], spin:null}; }
 function rfSave(){ if(DISPLAY_ONLY) return; try{ localStorage.setItem(RF_KEY, JSON.stringify(rf)); }catch(e){} bcast({type:"state"}); }
 function rfFlush(){ rfDirty=false; rfSave(); rfRefresh(); }
 /* Only the stream box and the entries panel — a full render() on every chat
@@ -3679,7 +3748,7 @@ async function ytStart(){
 }
 
 function rfOpenEntries(){
-  rf={on:true, open:true, mode:appMode, slots:rfSlotsIn(appMode), keyword:rf.keyword, slotKeyword:rf.slotKeyword, claimSecs:rf.claimSecs, subLuck:rf.subLuck, entries:[], spin:null};
+  rf={on:true, open:true, mode:appMode, slots:rfSlotsIn(appMode), keyword:rfKwOf(appMode), kws:rf.kws, slotKeyword:rf.slotKeyword, claimSecs:rf.claimSecs, subLuck:rf.subLuck, entries:[], spin:null};
   rfStartChat(); rfFlush();
 }
 /* Ticket n (a random uint) of the pool; with sub luck on, a sub holds two tickets. */
@@ -3918,7 +3987,7 @@ function rfNamesHtml(){
 function rfWire(){
   const kw=$("#rfKw");
   const kwProp=rfSlotsIn(appMode)?"slotKeyword":"keyword";   // only shown before entries open, so it's this format's
-  if(kw) kw.onchange=()=>{ const v=kw.value.trim(); if(v && v.length<=40){ rf[kwProp]=v; rfSave(); } else kw.value=rf[kwProp]; };
+  if(kw) kw.onchange=()=>{ const v=kw.value.trim(); if(v && v.length<=40){ if(kwProp==="keyword") (rf.kws||={})[appMode]=v; else rf[kwProp]=v; rfSave(); } else kw.value=rfKw(); };
   const cs=$("#rfClaimSecs");   // applies from the next draw; a running countdown keeps its own
   if(cs) cs.onchange=()=>{ const v=Math.round(+cs.value); if(v>=5 && v<=600){ rf.claimSecs=v; rfSave(); } else cs.value=rf.claimSecs; };
   const yf=$("#ytFold");
@@ -5514,7 +5583,7 @@ function tdRenderControl(){
   on("#tdEndBtn", tdEnd);
   on("#tdNewBtn", tdConfirmReset);
   on("#tdTestBtn", rfTestEntries);
-  on("#tdCopyStats", ()=>navigator.clipboard.writeText(tdStatsText(tdStats())).then(()=>toast("Stats copied"),()=>toast("Clipboard blocked by the browser",true)));
+  on("#tdCopyStats", ()=>copyText(tdStatsText(tdStats())).then(()=>toast("Stats copied"),()=>toast("Clipboard blocked by the browser",true)));
   const ready=()=>{ const n=td.players.filter(p=>p.name.trim()).length; wizReady(n>=2, "Add at least 2 players"); };
   document.querySelectorAll("[data-td-name]").forEach(inp=>{ inp.oninput=()=>{
     const p=td.players.find(x=>x.id===inp.dataset.tdName); if(!p) return;
@@ -6005,8 +6074,8 @@ function kwRenderControl(){
    16 challenges, each with a count ("Bonus" x5) and a prize. The operator ticks them
    as they happen; a full one owes chat its prize. Keyword entries run all show, and the
    box shows the board until a giveaway is due (RF_MODES.BOARD.setup).
-   Dressed as Playtech's Buffalo Blitz 3 (art in bb3/, cut down from Playtech's pack in Playtech/,
-   see Playtech/ASSETS.md); the prize pool on stream is the sum of the cells' prizes.
+   Dressed as Playtech's Buffalo Blitz 3 (art in bb3/, cut down from Playtech's pack in packs/Playtech/,
+   see packs/Playtech/ASSETS.md); the prize pool on stream is the sum of the cells' prizes.
    The draw is full canvas (bdDrawFrame): a stampede with a name on every buffalo.
    bd.any: Buffalo Blitz 3 isn't at every casino, so the board can be any Buffalo Blitz: no III, challenges without BB3's features. */
 const BD_KEY="board_state_v1", bdTitle=()=>bd.any ? "Buffalo Blitz Challenges" : "Buffalo Blitz 3 Challenges";
@@ -6239,7 +6308,7 @@ requestAnimationFrame(bdDrawFrame);
    big count and one spotlight line that cycles (closest to done first, on the server clock so every window agrees).
    A tick is the moment (rtMoment): on a full-canvas source the box grows over the stream, the challenge fills it and
    its vines pull back from the top (rtVines), showing the merch. The draw is the Bishop Awakens (rtDrawFrame).
-   Art in rot/, cut down from the pack in Print Studios/ (see Print Studios/ASSETS.md). */
+   Art in rot/, cut down from the pack in packs/Print Studios/ (see its ASSETS.md). */
 const RT_KEY="rot_state_v1", RT_TITLE="Rotten Potato Challenges";
 const RT_NEED=3, RT_MOMENT_MS=6500, RT_SHRINK_MS=700, RT_VINE_MS=900, RT_SPOT_MS=7000;   // the moment; the vines start pulling at RT_VINE_MS
 const RT_START=[["Hoard lands","Hoodie"],["Bishop hits 100","Beanie"],["Rotopsy win","Tee"],["Her Rotten Highness","Hoodie"],
@@ -6520,7 +6589,7 @@ requestAnimationFrame(rtDrawFrame);
    the squad as the raffle's entries (sqDraw); claiming is the raffle's own (anything the winner writes).
    The draw (sqDrawFrame) plays in the game's own free-spins frame: the reel's names roll down while its Wild climbs
    ×1…×4 eating them from below, and on the stop it hits ×5 on the name at the top. Art in cf/, cut down from the pack in
-   Relax Gaming/ (gitignored). */
+   packs/Relax Gaming/ (gitignored). */
 const SQ_KEY="squads_state_v1", SQ_TITLE="Reel Squads", SQ_REELS=6, SQ_PICKS=2, SQ_MO_MS=4000, SQ_SPOT_MS=5000;
 function sqFresh(o){ return {reels:Array.from({length:SQ_REELS},()=>({n:0, squad:[], cleared:0})), need:o?.need||5, prize:o?.prize??50, pool:o?.pool??300, open:!!o?.open, winners:[], last:null}; }
 function sqLoad(){ try{ const s=JSON.parse(localStorage.getItem(SQ_KEY)); if(s && Array.isArray(s.reels) && s.reels.length===SQ_REELS && Array.isArray(s.winners)){
@@ -6582,7 +6651,7 @@ function sqDraw(i){
   if(!r.squad.length){ toast("Nobody is on that reel", true); return; }
   if(sqLeft()<sq.prize && !sqDrawing(i)){ toast(`The ${sqEur(sq.pool)} pool is used up`, true); return; }
   // a redraw after a miss keeps the entries (the miss is out); a new reel takes its squad as they are now
-  if(!sqDrawing(i)) rf={on:true, open:false, mode:"SQUAD", keyword:rf.keyword, slotKeyword:rf.slotKeyword, claimSecs:rf.claimSecs, subLuck:rf.subLuck,
+  if(!sqDrawing(i)) rf={on:true, open:false, mode:"SQUAD", keyword:rf.keyword, kws:rf.kws, slotKeyword:rf.slotKeyword, claimSecs:rf.claimSecs, subLuck:rf.subLuck,
     entries:r.squad.map(e=>Object.assign({}, e)), spin:null, sqReel:i};
   rfStartChat(); rfDrawOne();
 }
@@ -7541,7 +7610,7 @@ function menuHistoryView(){
 }
 function wireMenu(){
   document.querySelectorAll("[data-hist-copy]").forEach(b=>{ b.onclick=()=>{ const r=loadCompHistory().find(x=>x.id===b.dataset.histCopy);
-    if(r) navigator.clipboard.writeText(tdStatsText(r.stats, r.at)).then(()=>toast("Stats copied"),()=>toast("Clipboard blocked by the browser",true)); }; });
+    if(r) copyText(tdStatsText(r.stats, r.at)).then(()=>toast("Stats copied"),()=>toast("Clipboard blocked by the browser",true)); }; });
   wizWire(null, ()=>{});
   document.querySelectorAll("[data-home-tab]").forEach(b=>{ b.onclick=()=>{ homeTab=b.dataset.homeTab; renderApp(); }; });
   document.querySelectorAll(".menu-card[data-mode]").forEach(btn=>{ btn.onclick=()=>{
@@ -7556,7 +7625,7 @@ function wireMenu(){
   const lst=$("#lbStreamers"); if(lst) lst.onchange=e=>{ lb.streamers=e.target.value.split(",").map(x=>x.trim()).filter(Boolean); lbSave(); renderApp(); };
   const ls=$("#lbShow");   if(ls) ls.onclick=()=>{ lb.show=!lb.show; lbSave(); renderApp(); };
   const lc=$("#lbCopy");
-  if(lc) lc.onclick=()=>navigator.clipboard.writeText(lbTsv())
+  if(lc) lc.onclick=()=>copyText(lbTsv())
     .then(()=>toast("Copied. Paste straight into a sheet"),()=>toast("Clipboard blocked by the browser",true));
   const rb=$("#lbRestoreBtn");
   if(rb) rb.onclick=()=>{
@@ -7569,7 +7638,7 @@ function wireMenu(){
     toast(added ? `Restored ${added} competition${added===1?"":"s"}` : "Already up to date, nothing new");
   };
   const plc=$("#payLogCopy");
-  if(plc) plc.onclick=()=>navigator.clipboard.writeText(payLogText()).then(()=>toast("Log copied"),()=>toast("Clipboard blocked by the browser",true));
+  if(plc) plc.onclick=()=>copyText(payLogText()).then(()=>toast("Log copied"),()=>toast("Clipboard blocked by the browser",true));
   const ch=$("#clearHistBtn");
   if(ch) ch.onclick=()=>showConfirm("Clear all past results? This can't be undone.","Clear",()=>{
     try{ localStorage.removeItem(HISTORY_KEY); }catch(e){}
@@ -7577,14 +7646,11 @@ function wireMenu(){
   });
 }
 
+// a format without its own page gets the general draw one, never an empty dialog
+const HELP={LMS:"LMS", H2H:"H2H", BRACKET:"Bracket", LEAGUE:"League", WHEEL:"Wheel", TADA:"Tada", KEYWORD:"Keyword", PRAG:"Prag", BOARD:"Board", ROT:"Rot", SQUAD:"Squad"};
 function openHelp(){
-  $("#helpMenu").style.display = appMode ? "none" : "";
-  $("#helpLMS").style.display = appMode==="LMS" ? "" : "none";
-  $("#helpH2H").style.display = appMode==="H2H" ? "" : "none";
-  $("#helpBracket").style.display = appMode==="BRACKET" ? "" : "none";
-  $("#helpLeague").style.display = appMode==="LEAGUE" ? "" : "none";
-  $("#helpWheel").style.display = appMode==="WHEEL" ? "" : "none";
-  $("#helpTada").style.display = appMode==="TADA" ? "" : "none";
+  const id="help"+(appMode ? HELP[appMode]||"Draw" : "Menu");
+  document.querySelectorAll(".help-modal > div[id^=help]").forEach(d=>{ d.style.display = d.id===id ? "" : "none"; });
   $("#helpOverlay").classList.add("show");
 }
 function closeHelp(){ $("#helpOverlay").classList.remove("show"); }

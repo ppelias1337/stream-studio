@@ -653,11 +653,13 @@ async function doReload(fromButton) {
   try {
     // The sheet takes ~40s to answer now, and Google sometimes hands back a 404
     // for a perfectly good deployment, so wait long and try twice.
-    let res;
+    let res, err;
     for (let i = 0; i < 2; i++) {
-      res = await fetch(config.feedUrl, { signal: AbortSignal.timeout(90000) });
+      try { res = await fetch(config.feedUrl, { signal: AbortSignal.timeout(90000) }); err = null; }
+      catch (e) { res = null; err = e; continue; }   // a timeout gets its second try too
       if (res.ok) break;
     }
+    if (!res) throw err;
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const feed = JSON.parse(await res.text());
     if (!feed || !Array.isArray(feed.wheels)) throw new Error('unexpected payload shape');
@@ -1036,7 +1038,13 @@ function openStream(url, req, res) {
   if (url.searchParams.has('studio')) refreshOnArrival();
 }
 
-const server = http.createServer(async (req, res) => {
+// One bad request (a malformed %-escape, a typo'd Stream Deck URL) must never take the show down.
+const server = http.createServer((req, res) => handle(req, res).catch(e => {
+  console.log('  ' + req.method + ' ' + req.url + ' failed: ' + (e && e.message || e));
+  if (!res.headersSent) { res.writeHead(400); res.end('bad request'); } else res.destroy();
+}));
+
+async function handle(req, res) {
   const url = new URL(req.url, 'http://localhost');
   const pathname = url.pathname;
 
@@ -1154,7 +1162,7 @@ const server = http.createServer(async (req, res) => {
   }
 
   serveStatic(url, req, res);
-});
+}
 
 
 /* ----------------------------------------------------------------- start --- */

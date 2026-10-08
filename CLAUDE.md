@@ -15,15 +15,18 @@ server/index.js    Wheel Studio server (zero npm deps) + /comp/sync, /yt/*, /api
 server/comp-sync.js  competitions relay: the old 3-line sync contract + the one-controller lock
 public/app.html    the window: 5 tabs over the iframes
 public/connect.html  the playing PC's first screen: the stream PC's address
-moved.html         hand-out page for the old Stream Competitions bookmark
+docs/              WHEEL.md, DESIGN*.md, PRODUCT.md, and moved.html (hand-out page for the old Stream Competitions bookmark)
+tools/             release.js (npm run release) and recorder/ (partner demo videos, see the vault page)
+packs/             partner art packs, gitignored: Playtech, Print Studios, Relax Gaming, TaDa Gaming, Dead Mans Crew
+renders/           demo videos and stills, one folder per partner, gitignored
 public/comp/index.html  Stream Competitions (the old index.html, see its own notes below)
 public/bingo/index.html  The Racaroon 2 Bingo, was Relax Bingo (copied from C:\Users\elias\Relax Bingo), synced via /bingo/sync
 public/bingo/assets/  MT5 art, cut down from the Money Train 5 asset pack in Downloads (not in the repo);
                    the draw is its Extra Graphics\Train with Blank Reels.png, names roll in the reel window
-public/bingo/rr2/  The Racaroon 2 art, cut down from Playtech's pack in Playtech/ (gitignored, ~960 MB)
-public/comp/bb3/   Buffalo Blitz 3 art for the Challenge Board, same pack. Playtech/ASSETS.md says what every
+public/bingo/rr2/  The Racaroon 2 art, cut down from Playtech's pack in packs/Playtech/ (gitignored, ~960 MB)
+public/comp/bb3/   Buffalo Blitz 3 art for the Challenge Board, same pack. packs/Playtech/ASSETS.md says what every
                    image in both packs is (note: the jpticker "-novalue" files are the ones WITH values)
-public/comp/rot/   Rotten Potato art (Print Studios pack in Print Studios/, gitignored) and the two bundled fonts
+public/comp/rot/   Rotten Potato art (Print Studios pack in packs/Print Studios/, gitignored) and the two bundled fonts
 public/*           Wheel Studio pages (index.html = OBS studio, control.html = operator)
 ```
 
@@ -59,26 +62,26 @@ Awakens (`rtDrawFrame`): names stream down a 5-row reel beside the Bishop; the g
 and each mark is a stage: its words pop up under the reel (no number, so his art stays clear), with shake, flash and his next art.
 Keep draws smooth: no `filter`/`mask` on full-screen or moving layers, and nothing that scales big text from far above 1x (Chrome
 rasters at the largest scale). Those were 100-360 ms stalls on every stage here. Entries have their own screen (`rtEntries`:
-the due tile, the keyword huge, names as spore chips). Sounds are Print Studios' own (`Print Studios/Sounds`), cut and levelled to -18 LUFS into `sfx/rot-*.mp3`: vines on every tick, prize reveal on the 2nd, scatter on the 3rd, a draw sound per stage (the 50's is the 20's at full length), a riser ending on the 100, then win2 + the big-win music on the stop, present-raiser on the claim. Keyword `PRINT`. No music. Fonts Rubik Dirt +
-Fredoka are bundled in `public/comp/rot/` (Dirt for numbers only: its letters clump into blobs on stream; every word is Fredoka 700). Merch shows as photos (`rot/merch/`) and the stream calls it "Mystery" until 2 of 3 ticks (`RT_REVEAL`); art cut from `Print Studios/` (gitignored, `ASSETS.md` there; concepts and mockups too).
+the due tile, the keyword huge, names as spore chips). Sounds are Print Studios' own (`packs/Print Studios/Sounds`), cut and levelled to -18 LUFS into `sfx/rot-*.mp3`: vines on every tick, prize reveal on the 2nd, scatter on the 3rd, a draw sound per stage (the 50's is the 20's at full length), a riser ending on the 100, then win2 + the big-win music on the stop, present-raiser on the claim. Keyword `PRINT`. No music. Fonts Rubik Dirt +
+Fredoka are bundled in `public/comp/rot/` (Dirt for numbers only: its letters clump into blobs on stream; every word is Fredoka 700). Merch shows as photos (`rot/merch/`) and the stream calls it "Mystery" until 2 of 3 ticks (`RT_REVEAL`); art cut from `packs/Print Studios/` (gitignored, `ASSETS.md` there; concepts and mockups too).
 **Reel Squads** (`SQUAD`, `squads_state_v1`, Special Giveaways) is Relax Gaming's Cloudforge: six reels; chat joins with `!1`–`!6`
 (`sqTake`, two reels each, joining runs all show while **Joining** is Open). An expanding Wild landing on reel n in the game = a tick on reel n (it needn't cover the reel); full
 (`sq.need`, 5 by default) = a draw from that reel's squad for `sq.prize` (€50) out of a pool (`sq.pool`, €300: six full reels; `sqLeft()`, the box shows what's left and Draw refuses once it's gone) (`sqDraw` makes the squad the raffle's entries, `rf.sqReel`). A claim
 starts that reel over: count and squad to zero, ✓ badge up (`sqSaveWin`). A miss keeps the reel full for **Draw again**. Empty entries left
-open in another format are taken over (`sqBlocked`). Box = the mockup (`Relax Gaming/mockups/`). The draw is the bug hunt (`sqDrawFrame`, all from
+open in another format are taken over (`sqBlocked`). Box = the mockup (`packs/Relax Gaming/mockups/`). The draw is the bug hunt (`sqDrawFrame`, all from
 the clock in `sqBugAt`): over the game's sky the squad comes in as 20 mosquitoes with name tags that flick through the squad and settle, then the
 game's robot sprays them in waves (half each time, the last wave is the stop) and the one left flies to the middle onto a gold plate. (A first draw
 in the game's reel frame, names rolling down a reel the Wild climbed, was dropped: Elias wasn't sold.) Art in `public/comp/cf/`, cut from the pack in
-`Relax Gaming/` (gitignored). Fonts: Fredoka (bundled in rot/). `coin.mp3` is deleted and must never come back (Elias: a screech).
+`packs/Relax Gaming/` (gitignored). Fonts: Fredoka (bundled in rot/). `coin.mp3` is deleted and must never come back (Elias: a screech).
 **Retired from Home:** Dead Man's Crew (4.7.0), Gates of Olympus 2500 (after 4.9.0). Rotten Potato is built but kept off Home (shipped hidden in 4.12.0) until it's tested in OBS. The bingo came back after 4.10.1 as The Racaroon 2 Bingo. Their code stays; each comes back with its `card(...)`
 line in `menuControlView()` and its name in `loadMode()`'s list.
 **Dead Man's Crew** (`CREW`, `crew_state_v1`, Special Giveaways) is the Slotmill visit raffle: keyword `Slotmill`,
-five fixed €100 seats; its draw is a full-canvas slot spin (`crDrawFrame`, like Prag's) with a captain win tier per seat; art in `public/comp/crew/` (cut down from the pack in `Dead_Mans_Crew/`, which is gitignored).
+five fixed €100 seats; its draw is a full-canvas slot spin (`crDrawFrame`, like Prag's) with a captain win tier per seat; art in `public/comp/crew/` (cut down from the pack in `packs/Dead Mans Crew/`, which is gitignored).
 **TaDa Gaming Giveaway** (`TADA`, `tada_state_v1`, Special Giveaways) wears Gold Mine Express: keyword `TaDa`, ten seats drawn
 one at a time (each claims), one bonus buy each, top 2 take €50. While entries run the box swaps entries/seats every 12s (`tdEntriesNow`).
 Its draw (`tdDrawFrame`) is the game's train feature: a locomotive pulls in coupled ore carts with a name on each, off the track until it starts, and and stop one in the frame, dynamite blows its
 gold out, and the Express at the top holds the ten seats. Branded TaDa, not the game (they want many of their games played): the box and the draw carry TaDa's logo. Art in `public/comp/tada/`: nugget and the gold locomotive icon from the pack in
-`TaDa Gaming/` (gitignored). The pack has no train art, so the train (`engine`, `cart`, `wheel`, `heap`, `rail`, seat icons) is cut
+`packs/TaDa Gaming/` (gitignored). The pack has no train art, so the train (`engine`, `cart`, `wheel`, `heap`, `rail`, seat icons) is cut
 from ChatGPT images at 2x (the cart wheel is cut out so it turns over the painted one; the engine's rods are painted out, its driving wheels are its clean front wheel scaled up, and `tdRods()` draws the rods on the crank pins); the canyon (`bg.webp`) is ChatGPT too, and so is the trestle (`trestle.webp`, one seamless bay); the dynamite is our SVG.
 **Gates of Olympus 2500** (`GATES`, `gates_state_v2`, Special Giveaways) is the Pragmatic release raffle: keyword `Pragmatic`,
 four in-game challenges at € each (labels editable, to make them easier). **Hit** makes a row due (`gzDue()`); Draw only works
@@ -145,7 +148,7 @@ npm start                          # the Electron app (uses %APPDATA% data, port
 node server/test-comp-sync.js      # relay + lock check
 node server/test-requests.js       # request banking: which spellings count as the same game
 npm run dist                       # installer into dist/, no upload
-npm run release                    # bump + commit package.json version first; needs gh logged in; builds, pushes, publishes one GitHub release (release.js)
+npm run release                    # bump + commit package.json version first; needs gh logged in; builds, pushes, publishes one GitHub release (tools/release.js), and clears older installers out of dist/
 ```
 
 Clients check GitHub Releases on start and hourly, download in the background, and install when
@@ -154,8 +157,8 @@ The installer isn't code-signed, so SmartScreen shows "unknown publisher" once. 
 
 ## The two apps' own notes
 
-`WHEEL.md` is Wheel Studio's README (art drop-in, sheet feed, Stream Deck, OBS layout).
-`DESIGN.md` / `PRODUCT.md` are the competitions' visual system and brief; `DESIGN-wheel.md` the wheel's.
+`docs/WHEEL.md` is Wheel Studio's README (art drop-in, sheet feed, Stream Deck, OBS layout).
+`docs/DESIGN.md` / `docs/PRODUCT.md` are the competitions' visual system and brief; `docs/DESIGN-wheel.md` the wheel's.
 The competitions page's format-by-format rules (LMS, Showdown, raffles, payouts, TaDa, Prag-Wheel)
 are in `C:\Users\elias\Stream_competitions\CLAUDE.md`, and still hold here, except its PeerJS
 two-PC section (removed) and "no build step" (still true for the pages; Electron only wraps them).

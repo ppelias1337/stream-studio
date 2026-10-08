@@ -37,9 +37,10 @@
   <p class="hint">Asked once. This window opens straight onto the show from now on.</p>
 </div>
 <script>
-  const why = new URLSearchParams(location.search).get("why");
+  const q = new URLSearchParams(location.search), why = q.get("why");
   if(why) document.getElementById("why").textContent = "Couldn't reach the stream PC: " + why + ". Check it is on and Stream Studio is open.";
   const host = document.getElementById("host");
+  host.value = q.get("host") || "";   // the address that just failed: usually only Connect needs pressing again
   // paste the whole address if that is what they have: http://192.168.1.254:8787/app -> 192.168.1.254
   const go = () => { const v = host.value.trim().replace(/^\w+:\/\//,"").replace(/[:/].*$/,""); if(v) window.studio.connectTo(v); };
   document.getElementById("go").onclick = go;

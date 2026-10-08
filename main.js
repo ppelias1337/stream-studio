@@ -15,7 +15,7 @@
  * Releases (electron-updater), download in the background and install when the
  * app is closed or Update is pressed — never by themselves in the middle of a show.
  */
-const { app, BrowserWindow, dialog, shell, ipcMain } = require('electron');
+const { app, BrowserWindow, dialog, shell, ipcMain, screen } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const os = require('os');
@@ -77,7 +77,8 @@ function role() {
   return r;
 }
 // no address yet, or the stream PC isn't answering: ask for it in the window itself
-const askHost = why => win.loadFile(path.join(__dirname, 'public', 'connect.html'), { search: why ? 'why=' + encodeURIComponent(why) : '' });
+const askHost = (why, host) => win.loadFile(path.join(__dirname, 'public', 'connect.html'),
+  { search: new URLSearchParams({ why: why || '', host: host || '' }).toString() });
 function connectTo(host) {
   fs.writeFileSync(REMOTE, JSON.stringify({ host }));
   if (host) win.loadURL('http://' + host + ':8787/app');
@@ -129,16 +130,25 @@ function checkUpdates() {
 app.whenReady().then(async () => {
   const r = role();
   if (r.host === null) { importOldWheel(); srv = await startServer(); }
+  // opens where it was last closed; a monitor that's gone since falls back to the default spot
+  const BOUNDS = path.join(DATA, 'window.json');
+  let saved = {};
+  try { saved = JSON.parse(fs.readFileSync(BOUNDS, 'utf8')); } catch (e) {}
+  const onScreen = b => b && screen.getAllDisplays().some(d => b.x < d.workArea.x + d.workArea.width - 100 && b.x + b.width > d.workArea.x + 100
+    && b.y >= d.workArea.y - 10 && b.y < d.workArea.y + d.workArea.height - 100);
   win = new BrowserWindow({
-    width: 1400, height: 900, minWidth: 900, minHeight: 600, backgroundColor: '#070E1A',
+    width: 1400, height: 900, ...(onScreen(saved.bounds) ? saved.bounds : {}),
+    minWidth: 900, minHeight: 600, backgroundColor: '#0C0D10',
     title: 'Stream Studio', autoHideMenuBar: true, icon: path.join(__dirname, 'build', 'icon.ico'),
     webPreferences: { preload: path.join(__dirname, 'preload.js') }
   });
+  if (saved.max) win.maximize();
+  win.on('close', () => { try { fs.writeFileSync(BOUNDS, JSON.stringify({ bounds: win.getNormalBounds(), max: win.isMaximized() })); } catch (e) {} });
   if (srv) win.loadURL(`http://127.0.0.1:${srv.port}/app`);
   else {
     ipcMain.on('connect-to', (_e, host) => connectTo(String(host || '').trim()));
     // the stream PC is off, asleep or on another address: back to the address screen, with the reason
-    win.webContents.on('did-fail-load', (_e, code, desc, url) => { if (url.startsWith('http')) askHost(desc || 'Could not reach it'); });
+    win.webContents.on('did-fail-load', (_e, code, desc, url) => { if (url.startsWith('http')) askHost(desc || 'Could not reach it', new URL(url).hostname); });
     connectTo(r.host);
   }
   // Twitch/Kick sign-in pages and any other link open in the normal browser

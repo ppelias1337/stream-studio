@@ -2,9 +2,7 @@ node_modules/
 dist/
 data/
 *.log
-Dead_Mans_Crew/
-TaDa Gaming/
-Playtech/
+# partner art packs (hundreds of MB each); what ships is cut down into public/
+packs/
+# demo videos and stills, made by tools/recorder
 renders/
-Print Studios/
-Relax Gaming/
