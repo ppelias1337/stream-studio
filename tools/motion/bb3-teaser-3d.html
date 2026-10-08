@@ -1,0 +1,147 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>BB3 teaser 3D</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&display=block" rel="stylesheet">
+<style>
+  html,body{margin:0;background:#15181e}
+  body.render{background:transparent}
+  canvas#c{display:block;width:100vw;height:auto}
+</style>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.169.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.169.0/examples/jsm/"}}</script>
+<script type="module">
+/* The Buffalo Blitz III €2,000 teaser in real 3D (three.js): extruded gold digits that tumble in on springs and
+   reflect an environment, lit coins raining with depth under a slow camera push, a lightning strike that lights the
+   gold, a light sweeping across the metal, then a second strike blasts the digits at the camera. The words under it
+   are crisp 2D type. renderAt(t) is a pure function of time; motion blur from subframes, bloom from a blurred copy.
+   Render: node tools/motion/render.js bb3-teaser-3d */
+import * as THREE from "three";
+import { TTFLoader } from "three/addons/loaders/TTFLoader.js";
+import { Font } from "three/addons/loaders/FontLoader.js";
+import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+const W=1920, H=1080, DUR=6.0, FPS=60, SUB=6, SHUTTER=.5, OUT=4.75;
+// framing: the piece sits over the slot window of the overlay, not the middle of the canvas: its centre goes to (FX, FY)
+// at K scale. The 3D view is shifted (setViewOffset), not the picture, so the rain still fills the whole screen.
+const FX=684, FY=470, K=.85;
+const TEXT={amount:"€2,000", word:"GIVEAWAY", when:"TODAY · 15:00 CEST"};
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x)), lerp=(a,b,u)=>a+(b-a)*u, prog=(t,a,d)=>clamp((t-a)/d);
+const eOut=u=>1-Math.pow(1-u,3), eIn=u=>u*u*u, eInOut=u=>u<.5?4*u*u*u:1-Math.pow(-2*u+2,3)/2;
+const spring=(t,k=16,z=7)=>t<=0?0:1-Math.exp(-z*t)*Math.cos(k*t);
+const rng=s=>()=>((s=Math.imul(s^s>>>15,1|s)+0x6D2B79F5|0)>>>0)/4294967296;
+
+// ---- 3D
+const gl=new THREE.WebGLRenderer({alpha:true, antialias:true, preserveDrawingBuffer:true});
+gl.setPixelRatio(1); gl.setSize(W,H,false); gl.setClearColor(0x000000,0);
+gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=.78; gl.outputColorSpace=THREE.SRGBColorSpace;
+const scene=new THREE.Scene();
+scene.environment=new THREE.PMREMGenerator(gl).fromScene(new RoomEnvironment(),.04).texture;
+const cam=new THREE.PerspectiveCamera(32,W/H,.1,200); cam.setViewOffset(W,H,960-FX,540-FY,W,H);
+scene.add(new THREE.AmbientLight(0xffffff,.05));
+const key=new THREE.DirectionalLight(0xffd6a0,3.4); key.position.set(-7,5,6); scene.add(key);
+const rim=new THREE.DirectionalLight(0x6fb8ff,2.2); rim.position.set(7,3,-6); scene.add(rim);
+const sweep=new THREE.PointLight(0xfff2d0,0,30,2); scene.add(sweep);       // the light that runs across the metal
+const strike=new THREE.PointLight(0xbfe4ff,0,40,1.6); scene.add(strike);   // the lightning's light
+
+const GOLD=new THREE.MeshPhysicalMaterial({color:0xe8a22a, metalness:1, roughness:.26, clearcoat:.5, clearcoatRoughness:.1, envMapIntensity:.85});
+const tex=new THREE.TextureLoader();
+const coinTex=tex.load("../../public/comp/bb3/coin.webp"); coinTex.colorSpace=THREE.SRGBColorSpace;
+const logoTex=tex.load("../../public/comp/bb3/logo.webp"); logoTex.colorSpace=THREE.SRGBColorSpace;
+const COIN_GEO=new THREE.CylinderGeometry(.34,.34,.07,40);
+const COIN_MATS=[new THREE.MeshPhysicalMaterial({color:0xd99a20, metalness:1, roughness:.3}),
+  new THREE.MeshStandardMaterial({map:coinTex, metalness:.6, roughness:.35}), new THREE.MeshStandardMaterial({map:coinTex, metalness:.6, roughness:.35})];
+
+// coins: a rain from the top with depth at the start, and a spray towards the camera on the exit
+function coins(n, seed, make){ const r=rng(seed); return Array.from({length:n},()=>{ const m=new THREE.Mesh(COIN_GEO,COIN_MATS); scene.add(m);
+  return Object.assign(make(r), {m, ax:new THREE.Vector3(r()-.5,r()-.5,r()-.5).normalize(), spin:4+r()*9, ph:r()*6}); }); }
+const RAIN=coins(70, 5, r=>({x:(r()-.5)*20, y:6+r()*7, z:-7+r()*9, d:r()*1.6, v:2+r()*3}));
+const SPRAY=coins(30, 9, r=>({x:(r()-.5)*5, y:-.4+r()*2, z:r()*.6, vx:(r()-.5)*9, vy:2+r()*5, vz:4+r()*9}));
+
+const logo=new THREE.Mesh(new THREE.PlaneGeometry(4.3,4.3*413/720), new THREE.MeshBasicMaterial({map:logoTex, transparent:true, toneMapped:false}));
+logo.position.set(0,3.05,0); scene.add(logo);
+let DIGITS=[];
+async function build(){
+  const font=new Font(await new TTFLoader().loadAsync("fonts/Anton-Regular.ttf"));
+  const zero=new TextGeometry("0",{font, size:1.75, depth:.42}); zero.computeBoundingBox(); const mid=(zero.boundingBox.min.y+zero.boundingBox.max.y)/2;
+  const parts=[...TEXT.amount].map(ch=>{ const g=new TextGeometry(ch,{font, size:1.75, depth:.42, curveSegments:10, bevelEnabled:true, bevelThickness:.07, bevelSize:.045, bevelSegments:5});
+    g.computeBoundingBox(); const b=g.boundingBox, w=b.max.x-b.min.x; g.translate(-(b.min.x+w/2), -mid, -.21); return {g,w}; });
+  const gap=.1, total=parts.reduce((s,p)=>s+p.w,0)+gap*(parts.length-1); let x=-total/2;
+  DIGITS=parts.map(({g,w},i)=>{ const m=new THREE.Mesh(g,GOLD); m.userData.x=x+w/2; x+=w+gap; scene.add(m); return m; });
+}
+
+function scene3d(t){
+  // camera: a slow push in with a little drift, a kick on the exit
+  const push=eInOut(prog(t,0,OUT)), kick=t>=OUT ? Math.exp(-8*(t-OUT))*Math.sin((t-OUT)*70)*.06 : 0;
+  cam.position.set(lerp(-.9,.35,push)+kick, lerp(.9,.35,push), (lerp(15.5,12.2,push)+(t>=OUT?eIn(prog(t,OUT,.6))*1.2:0))/K); cam.lookAt(0,.75,0);
+  // the digits: each drops in tumbling on a spring; a pull back before the hit; then they blast at the camera
+  DIGITS.forEach((m,i)=>{ const ts=.95+i*.07, p=spring(t-ts,14,6.2), pre=eIn(prog(t,OUT-.3,.3)), e=Math.max(0,t-OUT), side=(i-(DIGITS.length-1)/2);
+    m.visible=t>=ts && !(e>0 && m.position.z>11);
+    m.position.set(m.userData.x+side*e*e*9, .75+(1-p)*7+Math.sin(t*2.4+i)*.04*prog(t,2.6,.5), -pre*.7+(e>0?e*e*34+e*6:0));
+    m.rotation.set((1-p)*1.6+e*(i%2?5:-5), (1-p)*.4*(i%2?1:-1)+Math.sin(t*1.3+i*.7)*.05*prog(t,2.6,.5), (1-p)*.2+e*side*1.2); });
+  // the logo comes in on the strike's flash and leaves upwards on the exit
+  const lp=spring(t-1.55,12,6), le=prog(t,OUT,.4);
+  logo.visible=t>=1.55 && le<1; logo.scale.setScalar(lerp(.6,1,lp)); logo.position.set(0,3.05+eIn(le)*5,-.3); logo.material.opacity=clamp((t-1.55)/.12)*(1-le);
+  // lights: the strike flares the gold twice; a warm light sweeps across the front
+  const fl=x=>x<0?0:Math.exp(-14*x)*(1+.6*Math.sin(x*90));
+  strike.position.set(2.5,3.5,5); strike.intensity=900*(fl(t-1.5)+fl(t-OUT));
+  const sw=prog(t,2.7,1.1); sweep.position.set(lerp(-9,9,eInOut(sw)),1.2,3.2); sweep.intensity=sw>0&&sw<1 ? 260*Math.sin(Math.PI*sw) : 0;
+  // coins
+  for(const c of RAIN){ const u=t-c.d; c.m.visible=u>0 && t<OUT+.1; if(!c.m.visible) continue;
+    c.m.position.set(c.x, c.y-c.v*u-4.5*u*u, c.z); c.m.quaternion.setFromAxisAngle(c.ax, c.ph+c.spin*u); }
+  for(const c of SPRAY){ const e=t-OUT; c.m.visible=e>0 && e<1.3; if(!c.m.visible) continue;
+    c.m.position.set(c.x+c.vx*e, c.y+c.vy*e-9*e*e, c.z+c.vz*e); c.m.quaternion.setFromAxisAngle(c.ax, c.ph+c.spin*e*1.5); }
+  gl.render(scene,cam);
+}
+
+// ---- 2D on top: the bolts, the flash, the words
+const out=document.getElementById("c").getContext("2d");
+const mk=()=>{ const c=Object.assign(document.createElement("canvas"),{width:W,height:H}); return [c,c.getContext("2d")]; };
+const [buf,bx]=mk(), [acc,ax]=mk();
+const FONT=s=>`${s}px Anton, "Bahnschrift Condensed", Impact, sans-serif`, CX=960;
+function boltPath(seed,a,b){ const r=rng(seed); let pts=[a,b];
+  for(let k=0;k<6;k++){ const n=[pts[0]]; for(let i=1;i<pts.length;i++){ const [p,q]=[pts[i-1],pts[i]], d=Math.hypot(q[0]-p[0],q[1]-p[1])*.18;
+    n.push([(p[0]+q[0])/2+(r()-.5)*d,(p[1]+q[1])/2+(r()-.5)*d], q); } pts=n; } return pts; }
+const B1=boltPath(11,[1560,-60],[420,1140]), B2=boltPath(29,[380,-60],[1500,1140]);
+function bolt(c,pts,lt,dur){ const a=(1-lt/dur)*(lt<.05||(lt>.1&&lt<.15)?1:.55), n=Math.floor(pts.length*clamp(lt/.06));
+  c.save(); c.lineJoin="round"; c.lineCap="round";
+  for(const [w,col] of [[50,`rgba(90,190,255,${.16*a})`],[22,`rgba(150,220,255,${.38*a})`],[7,`rgba(255,255,255,${a})`]]){
+    c.strokeStyle=col; c.lineWidth=w; c.beginPath(); pts.slice(0,n).forEach(([x,y],i)=>i?c.lineTo(x,y):c.moveTo(x,y)); c.stroke(); } c.restore(); }
+function layout(c,str,size,track){ c.font=FONT(size); const w=[...str].map(ch=>c.measureText(ch).width), tot=w.reduce((s,x)=>s+x,0)+track*(w.length-1);
+  let x=-tot/2; return w.map(wi=>{ const m=x+wi/2; x+=wi+track; return m; }); }
+function glyph(c,ch,x,y,size,a,fill){ if(a<=0) return; c.save(); c.globalAlpha=a; c.font=FONT(size); c.textAlign="center";
+  c.lineJoin="round"; c.fillStyle="rgba(20,4,0,.6)"; c.fillText(ch,x,y+size*.06); c.strokeStyle="#1d0700"; c.lineWidth=size*.07; c.strokeText(ch,x,y); c.fillStyle=fill; c.fillText(ch,x,y); c.restore(); }
+function overlay(c,t){
+  if(t<OUT){ c.save(); c.translate(FX,FY); c.scale(K,K); c.translate(-960,-540);
+    if(t>=2.05){ const p=eOut(prog(t,2.05,.7)), size=112, gx=layout(c,TEXT.word,size,lerp(140,24,p));
+      [...TEXT.word].forEach((ch,i)=>glyph(c,ch,CX+gx[i],880,size,clamp(prog(t,2.05+i*.03,.25)),"#fff")); }
+    if(t>=2.55){ const half=430*eOut(prog(t,2.55,.45)), g=c.createLinearGradient(CX-half,0,CX+half,0);
+      g.addColorStop(0,"rgba(255,201,60,0)"); g.addColorStop(.5,"#FFC93C"); g.addColorStop(1,"rgba(255,201,60,0)"); c.fillStyle=g; c.fillRect(CX-half,912,half*2,5); }
+    if(t>=2.75){ const size=62, wx=layout(c,TEXT.when,size,5);
+      [...TEXT.when].forEach((ch,i)=>{ const ts=2.75+i*.028; if(t<ts) return; const p=spring(t-ts,20,9);
+        glyph(c,ch,CX+wx[i],992+(1-p)*28,size,clamp((t-ts)/.06),i>=8?"#FFC93C":"#FFE6C0"); }); }
+    c.restore();
+  }
+  if(t-1.5>=0 && t-1.5<.32) bolt(c,B1,t-1.5,.32);
+  if(t-OUT>=0 && t-OUT<.34) bolt(c,B2,t-OUT,.34);
+  const f=Math.max(t>=1.5&&t<1.62?.2*(1-(t-1.5)/.12):0, t>=OUT&&t<OUT+.14?.5*(1-(t-OUT)/.14):0);
+  if(f>0){ c.fillStyle=`rgba(225,242,255,${f})`; c.fillRect(0,0,W,H); }
+}
+function renderAt(t){
+  ax.clearRect(0,0,W,H); ax.globalCompositeOperation="lighter"; ax.globalAlpha=1/SUB;
+  for(let k=0;k<SUB;k++){ const tt=t+k/SUB*SHUTTER/FPS; scene3d(tt); bx.clearRect(0,0,W,H); bx.drawImage(gl.domElement,0,0); overlay(bx,tt); ax.drawImage(buf,0,0); }
+  ax.globalCompositeOperation="source-over"; ax.globalAlpha=1;
+  // bloom: the frame, then a wide and a tight blurred copy added on top
+  out.clearRect(0,0,W,H);
+  const sa=.84*eOut(prog(t,.15,.6))*(1-eInOut(prog(t,OUT+.15,.7)));
+  if(sa>0){ out.save(); out.translate(FX,FY); out.scale(1,.68); const g=out.createRadialGradient(0,0,0,0,0,900);
+    g.addColorStop(0,`rgba(6,3,2,${sa})`); g.addColorStop(.6,`rgba(6,3,2,${sa*.85})`); g.addColorStop(1,"rgba(6,3,2,0)"); out.fillStyle=g; out.fillRect(-1000,-1000,2000,2000); out.restore(); }
+  out.drawImage(acc,0,0); out.globalCompositeOperation="lighter";
+  out.filter="blur(28px)"; out.globalAlpha=.22; out.drawImage(acc,0,0); out.filter="blur(7px)"; out.globalAlpha=.16; out.drawImage(acc,0,0);
+  out.filter="none"; out.globalAlpha=1; out.globalCompositeOperation="source-over";
+}
+window.ready=(async()=>{ await Promise.all([document.fonts.load(FONT(100)), build(), new Promise(r=>THREE.DefaultLoadingManager.onLoad=r)]); })();
+Object.assign(window,{renderAt, DUR, FPS});
+if(!/render/.test(location.hash)) ready.then(()=>{ const t0=performance.now(); const loop=()=>{ renderAt(((performance.now()-t0)/1000)%(DUR+.6)); requestAnimationFrame(loop); }; loop(); });
+else document.body.classList.add("render");
+</script>
