@@ -565,7 +565,8 @@ function load(raw){
   try{ const v=JSON.parse(raw===undefined?localStorage.getItem(KEY):raw); if(v&&Array.isArray(v.cells)) s=Object.assign(s,v); }catch(e){}
   // Money Train 5 is retired: only The Racaroon 2 can be played. A board saved on MT5 comes back as a fresh Racaroon one.
   // Its code and art stay; its <option> in #game brings it back.
-  if(s.game!=="rr2"){ const g=GAMES.rr2;
+  // A board saved before the game picker had no game, so it came back as "rr2" with Money Train 5's challenges: those too.
+  if(s.game!=="rr2" || s.cells.some(c=>GAMES.mt5.cells.includes(c.t))){ const g=GAMES.rr2;
     Object.assign(s,{game:"rr2", cells:g.cells.map(t=>({t,d:false})), lines:[], prizes:[...g.prizes], winners:{}, winnerLog:[], fx:null, rf:rfFresh(g.kw, s.rf?.claimSecs)});
     s.teaser.prize=g.teaser; }
   if(!s.pot2000){ s.prizes=[...GAMES.rr2.prizes]; s.teaser.prize=GAMES.rr2.teaser; s.pot2000=true; }   // once: the €2,000 split replaces the old €1,500 one; edits after that stay
@@ -881,7 +882,7 @@ function rdHtml(sp, W){
   const float=[[.08,.22],[.86,.3],[.14,.62],[.9,.7]].map(([x,y],i)=>`<img class="rd-mac" src="rr2/mac-${RD_MACS[i]}.webp" alt="" style="left:${Math.round(x*W-75)}px;top:${Math.round(y*1080)}px;animation-delay:${-i*1.3}s">`).join("");
   const rain=Array.from({length:16},(_,i)=>`<img src="rr2/mac-${RD_MACS[i%4]}.webp" alt="" style="--x:${Math.round(rnd(i,1)*(W-120))}px;--d:${(i*.12+rnd(i,2)*.3).toFixed(2)}s;--r:${Math.round(rnd(i,3)*720-360)}deg">`).join("");
   return `<div class="rdd" data-at="${sp.startedAt}" style="width:${W}px"><div class="rd-bg"></div>${float}
-    <div class="rd-head"><img src="rr2/logo.webp" alt="The Racaroon 2"><b>${R.test?"Test draw":esc(raffleTitle(R.stage))+(prize?" · "+esc(prize):"")} · ${n.toLocaleString("en-US")} in the draw</b></div>
+    <div class="rd-head"><img src="rr2/logo.webp" alt="The Racaroon 2"><b>${esc(raffleTitle(R.stage))+(prize?" · "+esc(prize):"")} · ${n.toLocaleString("en-US")} in the draw</b></div>
     <img class="rd-he" src="rr2/raccoon-collect.webp" alt=""><img class="rd-she" src="rr2/girl.webp" alt="">
     <div class="rd-reel"></div><div class="rd-sel"></div><img class="rd-heart" src="rr2/heart.webp" alt="">
     <div class="rd-win"><small>Grand winner</small><div class="rd-claim"></div></div><div class="rd-rain">${rain}</div></div>`;
@@ -974,7 +975,7 @@ function raffleHtml(){
         <label class="lab">Keyword <input class="in" id="kw" maxlength="30" spellcheck="false" style="width:140px" value="${esc(R.keyword)}"></label>
         <label class="lab">Claim time <input class="in" id="claim" type="number" min="5" max="600" step="5" style="width:84px" value="${R.claimSecs}"> s</label>
       </div>
-      <div class="row"><button class="btn primary" id="openBtn">Open entries</button><button class="btn" id="testDrawBtn">Test draw</button></div>
+      <div class="row"><button class="btn primary" id="openBtn">Open entries</button></div>
       <p class="hint">Entries open by themselves when the first line is done. Draws go in the order the lines were completed.</p>${restBtn()}`;
   }
   const sp=R.spin;
@@ -996,7 +997,6 @@ function raffleHtml(){
     <div class="row">
       <button class="btn primary" id="drawBtn"${sp||R.won||!poolOf().length||!owed.length?" disabled":""}>Draw ${owed.length?stageName(owed[0]).toLowerCase()+" winner":"a winner"}</button>
       <button class="btn" id="toggleBtn">${R.open?"Close entries":"Reopen entries"}</button>
-      <button class="btn" id="testBtn">Test entries</button>
       <button class="btn danger" id="finishBtn">End raffle</button>
     </div>${restBtn()}`;
 }
@@ -1029,40 +1029,15 @@ function wireRaffle(el){
     if(!S.rf.spin&&!S.rf.won) S.rf.stage=nextStage();
     save(); renderAll();
   }));
-  on("#testDrawBtn",testDraw);
   on("#claimBtn",()=>{ const sp=S.rf.spin; if(sp&&!sp.claimed){ sp.claimed=true; sp.claimedAt=netNow(); save(); renderAll(); } });
   on("#missBtn",()=>commit(false));
   on("#toggleBtn",()=>{ R.open=!R.open; save(); renderAll(); });
-  on("#testBtn",testEntries);
   on("#finishBtn",()=>{
     if(R.spin) return toast("Finish the draw first");
     ask("End the raffle? The entry list is cleared and the stream goes back to the board.","End raffle",()=>{
       S.rf=rfFresh(R.keyword,R.claimSecs); S.rf.stage=nextStage(); save(); renderAll();
     });
   });
-}
-/* 1,400 made-up entrants, to show the draw off without a live chat, same as the
-   competitions page's Prag-Wheel and Dead Man's Crew. Ordinary entries: Back to
-   board or End raffle clears them, a test winner is closed with Mark claimed. */
-function testEntries(){
-  const A=["lucky","nordic","reel","slot","bonus","max","wild","ice","gold","dark","big","mega","fast","sly","epic","royal","crazy","silent","neon","iron"];
-  const B=["wolf","king","queen","hunter","spin","fox","viking","bear","tiger","raven","shark","ninja","gambler","joker","ace","storm","dragon","falcon","rider","ghost"];
-  const pick=a=>a[Math.floor(Math.random()*a.length)], cap=w=>w[0].toUpperCase()+w.slice(1);
-  const have=new Set(S.rf.entries.map(eid));
-  for(let i=0;i<1400;i++){
-    const a=pick(A), b=pick(B), n=Math.floor(Math.random()*1000), f=i%4;
-    const e={platform:["twitch","kick","youtube"][i%3], user:"test"+i, test:true,
-      name:f===0?cap(a)+cap(b):f===1?a+"_"+b:f===2?cap(a)+cap(b)+n:a+b+(n%100)};
-    if(!have.has(eid(e))) S.rf.entries.push(e);
-  }
-  save(); renderAll(); toast("1,400 test entries in the draw");
-}
-/* Rehearse the draw on stream: 1,400 made-up names, the full draw, then the raffle closes and nothing is kept
-   (no stage winner, nothing in the sheet). Only before chat is entering. */
-function testDraw(){
-  if(S.rf.on) return toast("End the raffle first");
-  S.rf={...rfFresh(S.rf.keyword,S.rf.claimSecs,nextStage()), on:true, test:true};
-  testEntries(); draw(); S.rf.spin.claimMs=15000; save(); renderAll();
 }
 function draw(){
   const R=S.rf, pool=poolOf();
@@ -1080,7 +1055,6 @@ function commit(claimed){
   if(!sp) return;
   const e=winnerOf(sp), pz=R.stage==10 ? " · "+stagePrize(10) : "";   // before the claim marks them won
   R.spin=null;
-  if(R.test){ S.rf=rfFresh(R.keyword,R.claimSecs,R.stage); save(); renderAll(); return toast("Test draw done. Nothing was kept"); }
   if(e){
     e.st=claimed?"won":"missed";
     if(claimed){

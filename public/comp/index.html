@@ -1668,7 +1668,6 @@
       <ol>
         <li><span class="help-num">1</span><span><b>Open keyword entries</b>, then <b>Draw a player</b>. The winner claims in chat.</span></li>
         <li><span class="help-num">2</span><span>They spin the real wheel. Press the <b>number it landed on</b>. The prize stays hidden on stream until you do.</span></li>
-        <li><span class="help-num">3</span><span><b>Test draw</b> plays the real draw with 1,400 made-up names and keeps nothing.</span></li>
       </ol>
     </div>
 
@@ -1709,7 +1708,6 @@
       <ol>
         <li><span class="help-num">1</span><span><b>Open keyword entries</b>. Chat types the keyword shown on stream.</span></li>
         <li><span class="help-num">2</span><span><b>Draw a player</b>. The winner types anything in their chat before the claim time runs out, or press <b>Mark claimed</b>.</span></li>
-        <li><span class="help-num">3</span><span><b>Test draw</b> plays the real draw with made-up names and keeps nothing.</span></li>
       </ol>
     </div>
 
@@ -3757,27 +3755,18 @@ function rfPick(pool, n){
   let t=n%pool.reduce((s,e)=>s+w(e),0);
   return pool.find(e=>(t-=w(e))<0);
 }
-/* A test draw (rfTestDraw) is the real thing on stream with made-up names: nothing is kept. */
-function rfDrawOne(test){
-  test=test===true;   // the Draw button passes its click event
+function rfDrawOne(){
   if(rf.spin) return;
   const G=RF_MODES[rf.mode];
-  if(!test && G.canDraw && !G.canDraw()){ toast(G.noDraw, true); return; }
+  if(G.canDraw && !G.canDraw()){ toast(G.noDraw, true); return; }
   const pool=rfPool();
   if(!pool.length){ toast("Nobody left to draw", true); return; }
   const r=crypto.getRandomValues(new Uint32Array(3));
   const ms=RF_MODES[rf.mode].spinMs?.()||RF_SPIN_MS;   // a format can run its own, longer draw
   rf.spin={ startedAt:netNow(), duration:ms[0]+r[1]%(ms[1]-ms[0]), seed:r[2],
-            winner:rfId(rfPick(pool, r[0])), count:rf.entries.length, claimed:false, claimMs:test ? 15000 : rf.claimSecs*1000, subLuck:!!rf.subLuck };
-  if(test) rf.spin.test=true;
+            winner:rfId(rfPick(pool, r[0])), count:rf.entries.length, claimed:false, claimMs:rf.claimSecs*1000, subLuck:!!rf.subLuck };
   if(rf.slots){ rf.spin.claimed=true; rf.spin.claimedAt=rf.spin.startedAt; }   // a slot has nobody to claim it
   rfFlush();
-}
-/* Rehearse a format's draw on stream: 1,400 made-up names and the full draw, then it all goes away: no winner
-   row, nothing in the sheet (test entries never are), and the entries close. Not while chat is entering. */
-function rfTestDraw(){
-  if(rf.on && rf.entries.some(e=>!e.test)){ toast("Chat is entering. Stop the entries to test", true); return; }
-  rfTestEntries(); rf.open=false; rfDrawOne(true);
 }
 function rfClaim(){
   const sp=rf.spin; if(!sp || sp.claimed) return;
@@ -3792,7 +3781,6 @@ function rfCommit(claimed){
     e.st = claimed ? "won" : "missed";
     const M=RF_MODES[rf.mode], label=e.slot||e.name;
     let full=false, row=null;
-    if(sp.test){ rfStop(rf.mode); renderApp(); toast("Test draw done. Nothing was kept"); return; }
     if(claimed){
       if(M.take) M.take(e);
       else {
@@ -3945,7 +3933,6 @@ function rfPanelHtml(){
     <div class="crow plain"><span class="clab sm">Sub luck</span>${segHtml([["1","2×"],["0","Off"]], rf.subLuck?"1":"0", "data-rf-sub")}</div>`;
   if(!rf.on) return `
     <button class="primary sm big-btn" id="rfOpen">${ic("bolt")}Open ${slots?"slot":"keyword"} entries</button>
-    ${RF_MODES[appMode]?.spinMs ? `<button class="btn" id="rfTest">${ic("reel")}Test draw</button>` : ""}
     <div class="crow plain"><span class="clab sm">Keyword</span><input class="tier-in" id="rfKw" style="width:150px" spellcheck="false" value="${escapeHtml(rfKw())}" aria-label="Keyword"${RF_MODES[appMode]?.kw?" disabled":""}></div>
     ${slots?`<div class="chint">Chat types <b>${escapeHtml(rfKw())} Gates of Olympus</b>. One slot per viewer, and a slot already in isn't added twice.</div>`:""}
     ${claimIn}${yt.video?ytLinkHtml():""}`;
@@ -3996,7 +3983,6 @@ function rfWire(){
   if(yv) yv.onchange=()=>{ yt.video=yv.value.trim(); ytSave(); if(rfChat.started) ytStart(); rfRefresh(); };
   const on=(id,fn)=>{ const b=$(id); if(b) b.onclick=fn; };
   on("#rfOpen", rfOpenEntries);
-  on("#rfTest", rfTestDraw);
   on("#rfDraw", rfDrawOne);
   on("#rfClaim", rfClaim);
   on("#rfMiss", ()=>rfCommit(false));
@@ -5582,7 +5568,6 @@ function tdRenderControl(){
   on("#tdStartBtn", tdStart);
   on("#tdEndBtn", tdEnd);
   on("#tdNewBtn", tdConfirmReset);
-  on("#tdTestBtn", rfTestEntries);
   on("#tdCopyStats", ()=>copyText(tdStatsText(tdStats())).then(()=>toast("Stats copied"),()=>toast("Clipboard blocked by the browser",true)));
   const ready=()=>{ const n=td.players.filter(p=>p.name.trim()).length; wizReady(n>=2, "Add at least 2 players"); };
   document.querySelectorAll("[data-td-name]").forEach(inp=>{ inp.oninput=()=>{
@@ -5602,7 +5587,7 @@ function tdSetupControls(){
   if(at===1) body=`<div class="page-h">The rules</div>
     ${summaryHtml([["Keyword","TaDa"], ["Players",`${TD_N} drawn from chat`], ["Each gets","1 bonus buy"], ["Prize pool","€100 · the top 2 wins get €50 each"]])}
     `;
-  else if(at===2) body=`<div class="livehead"><div class="page-h">Draw ${TD_N} players</div><button class="btn" id="tdTestBtn">${ic("bolt")}Load 1,400 test entries</button></div>
+  else if(at===2) body=`<div class="livehead"><div class="page-h">Draw ${TD_N} players</div></div>
     <div class="two-col">${rfSection()}
     <div class="section"><div class="section-h">Players · ${named} of ${TD_N}</div><div class="crows">${nameRowsHtml(td.players, "data-td-name", "", "Drawn player")}</div></div></div>`;
   else body=`<div class="page-h">Check and start</div>
@@ -5961,23 +5946,6 @@ function pwPickPrize(i){
     winner:w.chat ? `${w.name} (${w.chat.platform})` : w.name, total:PW_PRIZES[i][1], detail:`${i+1}. ${PW_PRIZES[i][0]}`}); }, PW_SPIN_MS);
 }
 let pwLogT=0;
-/* 1,400 made-up entrants, to show a draw off without a live chat (Prag-Wheel, Dead Man's Crew). They're
-   ordinary entries: the format's New clears them, and a test winner is claimed with Mark claimed. */
-function rfTestEntries(){
-  if(!(rf.on && rf.mode===appMode)) rfOpenEntries();
-  const rnd=pwRng(1400), pick=a=>a[Math.floor(rnd()*a.length)], cap=w=>w[0].toUpperCase()+w.slice(1);
-  const A=["lucky","nordic","reel","slot","bonus","max","wild","ice","gold","dark","big","mega","fast","sly","epic","royal","crazy","silent","neon","iron"];
-  const B=["wolf","king","queen","hunter","spin","fox","viking","bear","tiger","raven","shark","ninja","gambler","joker","ace","storm","dragon","falcon","rider","ghost"];
-  const pfs=["twitch","twitch","twitch","twitch","kick","kick","kick","kick","youtube","youtube"];
-  const have=new Set(rf.entries.map(rfId));
-  for(let i=0;i<1400;i++){
-    const a=pick(A), b=pick(B), n=Math.floor(rnd()*1000), f=Math.floor(rnd()*4);
-    const name = f===0 ? cap(a)+cap(b) : f===1 ? a+"_"+b : f===2 ? cap(a)+cap(b)+n : a+b+(n%100);
-    const e={platform:pick(pfs), user:"test"+i, name, test:true};   // test:true keeps a test draw out of the sheet
-    if(!have.has(rfId(e))) rf.entries.push(e);
-  }
-  rfFlush(); renderApp(); toast("1,400 test entries in the draw");
-}
 function pwConfirmReset(){
   const go=()=>{ rfStop("PRAG"); pw=pwFresh(); pwSave(); pwRender(); };
   if(!pwLive() && !pw.winners.length) return go();
@@ -6023,9 +5991,8 @@ function pwRenderControl(){
     <div class="two-col">${rfSection()}
     <div class="section"><div class="section-h">Winners · ${pw.winners.length}</div>${rows ? `<div class="crows">${rows}</div>` : `<div class="chint">Nobody drawn yet.</div>`}</div></div>
     ${nums}
-    <div class="actionbar"><button class="btn" id="pwNewBtn">${ic("new")}New Prag-Wheel</button><button class="btn" id="pwTestBtn">${ic("bolt")}Load 1,400 test entries</button></div>`;
+    <div class="actionbar"><button class="btn" id="pwNewBtn">${ic("new")}New Prag-Wheel</button></div>`;
   const b=$("#pwNewBtn"); if(b) b.onclick=pwConfirmReset;
-  const tb=$("#pwTestBtn"); if(tb) tb.onclick=rfTestEntries;
   document.querySelectorAll("[data-pw-prize]").forEach(x=>{ x.onclick=()=>pwPickPrize(+x.dataset.pwPrize); });
   rfWire();
 }
@@ -6082,16 +6049,20 @@ const BD_KEY="board_state_v1", bdTitle=()=>bd.any ? "Buffalo Blitz Challenges" :
 const BD_NEED=3, BD_RUN_MS=1800, BD_SCROLL_MS=40000;   // every challenge is done at 3; the buffalo's run; one scroll down and back
 const BD_PRIZE=125;   // every challenge the same: 16 × €125 = €2,000
 const BD_START=["Trigger Buffalo Gold","Trigger Big Grid","Trigger Buffalo Cash","Trigger Free Games","100x win","250x win","500x win","1000x win",
-  "Full reel of buffalo","Wild in a win","Retrigger","14,400 ways in one spin","Lucky Box buy","Bonus pay under 10x","Two wilds in one win","Hit with 5x wild"].map(l=>[l,BD_PRIZE]);
-// the same board for any Buffalo Blitz: BB3's own features (the pots, 14,400 ways, Lucky Box) swapped for ones every game has
-const BD_ANY={"Trigger Buffalo Gold":"4 scatters","Trigger Big Grid":"5 scatters","Trigger Buffalo Cash":"Wild multiplier","14,400 ways in one spin":"5 buffalo in a win","Lucky Box buy":"Base game 100x"};
+  "Full reel of buffalo","Wild in a win","Retrigger","Trigger all 3 pots","Lucky Box buy","Bonus pay under 10x","Two wilds in one win","Hit with 5x wild"].map(l=>[l,BD_PRIZE]);
+// the same board for any Buffalo Blitz: BB3's own features (the pots, Lucky Box) swapped for ones every game has
+const BD_ANY={"Trigger Buffalo Gold":"4 scatters","Trigger Big Grid":"5 scatters","Trigger Buffalo Cash":"Wild multiplier","Trigger all 3 pots":"5 buffalo in a win","Lucky Box buy":"Base game 100x"};
 // switching game swaps the labels still on the other game's default; ones the operator typed stay
 function bdSetAny(on){ const m=on ? BD_ANY : Object.fromEntries(Object.entries(BD_ANY).map(([a,b])=>[b,a]));
   bd.any=on; bd.cells.forEach(c=>{ if(m[c.label]) c.label=m[c.label]; }); bdSave(); bdRender(); }
-function bdFresh(){ return {cells:BD_START.map(([label,prize])=>({id:uid(), label, prize, n:0})), winners:[], even:true}; }
+function bdFresh(){ return {cells:BD_START.map(([label,prize])=>({id:uid(), label, prize, n:0})), winners:[], even:true, pots3:true}; }
 // a board from before prizes is the old generic one: start the Buffalo Blitz board instead
 function bdLoad(){ try{ const s=JSON.parse(localStorage.getItem(BD_KEY)); if(s && Array.isArray(s.cells) && Array.isArray(s.winners) && s.cells.some(c=>c.prize)){
   if(!s.even){ s.cells.forEach(c=>{ c.prize=BD_PRIZE; }); s.even=true; }   // once: a board from before the even split gets €125 each; edits after that stay
+  // once: a saved board keeps its labels across updates, so one saved on an older list showed old challenges. Every board
+  // takes today's 16 (cells keep their ids, so winners stay; a count stays only where the challenge didn't change)
+  if(!s.pots3){ s.cells=BD_START.map(([l],i)=>{ const o=s.cells[i], label=s.any&&BD_ANY[l]||l;
+    return {...o, id:o?.id||uid(), label, prize:BD_PRIZE, n:o?.label===label ? o.n : 0}; }); s.pots3=true; }
   return s; } }catch(e){} return null; }
 const bdPool=()=>bd.cells.reduce((t,c)=>t+(c.prize||0),0);
 const bdEur=n=>"€"+n.toLocaleString("en-US");
@@ -6108,7 +6079,7 @@ const bdRow=w=>{ const cs=w?.cells ? w.cells.map(bdCell).filter(Boolean) : [bdCe
 const bdNext=()=>{ const d=bdDue(); return bd.rest ? {cell:d[0]?.id||null, cells:d.map(c=>c.id)} : {cell:d[0]?.id||null}; };
 const bdCell=id=>bd.cells.find(c=>c.id===id);
 // the game's symbol for a challenge, by its words; the labels are the operator's, so anything else gets the buffalo
-const bdIcon=l=>[[/scatter/,"coin"],[/gold/,"pot-gold"],[/grid|ways/,"pot-grid"],[/cash/,"pot-cash"],[/free|retrig/,"free"],[/wild/,"wild"],[/lucky|box/,"box"],[/\dx\b/,"coin"]]
+const bdIcon=l=>[[/all 3 pots/,"pots"],[/scatter/,"coin"],[/gold/,"pot-gold"],[/grid|ways/,"pot-grid"],[/cash/,"pot-cash"],[/free|retrig/,"free"],[/wild/,"wild"],[/lucky|box/,"box"],[/\dx\b/,"coin"]]
   .find(([r])=>r.test(l.toLowerCase()))?.[1]||"head";
 function bdPlay(m){ sfx("winner"); takeover("tk-gold", m.icon, m.label, m.name, m.sub, 3400); }
 function bdFx(icon, label, name, sub){ const m={type:"fx", fx:"board", icon, label, name, sub}; bcast(m); bdPlay(m); }
@@ -6176,7 +6147,6 @@ function bdRenderControl(){
   const cells=bd.cells.map(x=>`<div class="cb-ed${bdFull(x)?" done":""}">
       <input class="tier-in" data-bd-lab="${x.id}" maxlength="30" spellcheck="false" value="${escapeHtml(x.label)}" aria-label="Challenge">
       <div class="cb-ct"><button class="btn" data-bd-tick="${x.id}" data-d="-1" aria-label="One less">−</button><b>${x.n}</b><span>of ${BD_NEED}</span><button class="btn" data-bd-tick="${x.id}" data-d="1" aria-label="One more">${ic("plus")}</button></div>
-      <label class="cb-ct">Prize €<input class="tier-in" type="number" min="0" max="10000" step="5" data-bd-eur="${x.id}" style="width:70px" value="${x.prize||0}" aria-label="Prize in euro"></label>
     </div>`).join("");
   const due=bdDue().length;
   const rows=bd.winners.map((p,i)=>`<div class="crow"><div class="idx">${i+1}</div>${rfLogo(p.chat?.platform)}<span class="clab">${escapeHtml(p.name)}</span><span class="chint">${escapeHtml(bdRow(p))}</span></div>`).join("");
@@ -6185,8 +6155,6 @@ function bdRenderControl(){
     <div class="two-col">${rfSection()}
     <div class="section"><div class="section-h">Winners · ${bd.winners.length}${due?` · ${due} due`:""}</div>${rows ? `<div class="crows">${rows}</div>` : `<div class="chint">Nobody drawn yet.</div>`}</div></div>
     <div class="actionbar"><button class="btn" id="bdAnyBtn">${bd.any ? "Make it Buffalo Blitz 3" : "Make it any Buffalo Blitz"}</button>${bd.rest || bd.cells.every(x=>bdWon(x)) ? "" : `<button class="btn" id="bdRestBtn">${ic("gift")}Give away everything remaining to one person</button>`}<button class="btn" id="bdNewBtn">${ic("new")}New board</button></div>`;
-  document.querySelectorAll("[data-bd-eur]").forEach(i=>{ i.onchange=()=>{ const v=Math.round(+i.value);
-    if(v>=0 && v<=10000) bdCell(i.dataset.bdEur).prize=v; bdSave(); bdRender(); }; });
   document.querySelectorAll("[data-bd-tick]").forEach(b=>{ b.onclick=()=>bdTick(b.dataset.bdTick, +b.dataset.d); });
   document.querySelectorAll("[data-bd-lab]").forEach(i=>{ i.onchange=()=>{ const x=bdCell(i.dataset.bdLab); x.label=i.value.trim()||x.label; bdSave(); bdRender(); }; });
   $("#bdNewBtn").onclick=bdConfirmReset;
@@ -6220,8 +6188,8 @@ function bdDrawPlan(sp, W){
   // the winner shows once, on the row that stops on the line; any other gets the next name in the shuffle
   const name=k=>{ if(k===BD_END) return winner; let e=S[rfMod(k,N)]; if(e===winner && N>1) e=S[rfMod(k+1,N)]; return e; };
   const flashes=[1.6+rnd(), move*.38+rnd(), move*.62+rnd()*1.5];
-  const n=sp.test ? null : bdNext(), c=bdCell(n?.cell), [coin,px]=BD_POT[(bdIcon(c?.label||"").match(/pot-(\w+)/)||[])[1]]||BD_POT.cash;
-  return {at:sp.startedAt, W, move, name, N, flashes, coin, px, row:sp.test ? "Test draw" : bdRow(n), redraw:rf.entries.some(e=>e.st==="missed")};
+  const n=bdNext(), c=bdCell(n?.cell), [coin,px]=BD_POT[(bdIcon(c?.label||"").match(/pot-(\w+)/)||[])[1]]||BD_POT.cash;
+  return {at:sp.startedAt, W, move, name, N, flashes, coin, px, row:bdRow(n), redraw:rf.entries.some(e=>e.st==="missed")};
 }
 function bdDrawFrame(){
   requestAnimationFrame(bdDrawFrame);
@@ -6503,12 +6471,12 @@ function rtDrawPlan(sp, W){
   const S=pool.slice(), rnd=pwRng(sp.seed);
   for(let i=N-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [S[i],S[j]]=[S[j],S[i]]; }
   const name=k=>{ if(k===RT_END) return winner; let e=S[rfMod(k,N)]; if(e===winner && N>1) e=S[rfMod(k+1,N)]; return e; };
-  const c=sp.test ? null : rtCell(rtDue()[0]?.id);
+  const c=rtCell(rtDue()[0]?.id);
   ["rot-stage1","rot-stage2","rot-stage3","rot-stage4","rot-rise","rot-win"].forEach(sfxLoad);
   // the Bishop on the left, the reel on the right
   const bh=880, bw=Math.round(bh*.4222), bx=Math.round(W*.24), rx=Math.round(W*.46), rw=Math.round(W*.95)-rx;
   return {at:sp.startedAt, W, move:(sp.duration-RT_FADE_MS)/1000, name, N, rnd, bh, bw, bx, rx, rw, bt:150, rt:300,
-    label:sp.test ? "Test draw" : c?.label||"", merch:sp.test ? "Test draw" : c?.merch||"", redraw:rf.entries.some(e=>e.st==="missed")};
+    label:c?.label||"", merch:c?.merch||"", redraw:rf.entries.some(e=>e.st==="missed")};
 }
 function rtDrawFrame(){
   requestAnimationFrame(rtDrawFrame);
@@ -6532,9 +6500,9 @@ function rtDrawFrame(){
       ${[-1,1].map(s=>`<i class="rt-eye" style="left:${p.bx+s*.145*p.bw}px;top:${p.bt+.475*p.bh}px"></i>`).join("")}
       <div class="rt-meter" style="left:${p.rx+40}px;width:${p.rw-80}px;top:${p.rt-82}px"><div class="rt-mtrack"><i class="rt-mfill"></i></div><i class="rt-mhead"></i><b class="s" style="left:0"></b>${RT_STAGES.map(([n],i)=>`<b style="left:${(i+1)*20}%">${n}</b>`).join("")}</div>
       <div class="rt-reel" style="left:${p.rx}px;width:${p.rw}px;top:${p.rt}px"><div class="rt-rows"></div><i class="rt-line"></i></div>
-      <div class="rt-dhead"><b><span>The Bishop awakens</span>${p.redraw?"<em>Redraw</em> · ":""}<em>${escapeHtml(p.label)}</em>${p.merch&&!sp.test?` · ${escapeHtml(p.merch)}`:""} · ${p.N.toLocaleString("en-US")} in the draw</b></div>
+      <div class="rt-dhead"><b><span>The Bishop awakens</span>${p.redraw?"<em>Redraw</em> · ":""}<em>${escapeHtml(p.label)}</em>${p.merch?` · ${escapeHtml(p.merch)}`:""} · ${p.N.toLocaleString("en-US")} in the draw</b></div>
       <div class="rt-win"><h2>The Bishop has chosen</h2></div>
-      <div class="rt-wside" style="left:${p.rx}px;width:${p.rw}px;top:${p.rt+5*RT_ROWH+30}px"><p>${sp.test?"Test draw":`wins the <em>${escapeHtml(p.merch)}</em>`}</p><div class="rt-wclaim"></div></div>
+      <div class="rt-wside" style="left:${p.rx}px;width:${p.rw}px;top:${p.rt+5*RT_ROWH+30}px"><p>wins the <em>${escapeHtml(p.merch)}</em></p><div class="rt-wclaim"></div></div>
       <div class="rt-call" style="left:${p.rx}px;width:${p.rw}px;top:${p.rt+5*RT_ROWH+40}px"></div><div class="rt-flash"></div></div>`;
     stage.rows=new Map();
     Object.assign(p, {rowsEl:stage.querySelector(".rt-rows"), imgs:[...stage.querySelectorAll(".rt-bish img")],
@@ -6655,12 +6623,6 @@ function sqDraw(i){
     entries:r.squad.map(e=>Object.assign({}, e)), spin:null, sqReel:i};
   rfStartChat(); rfDrawOne();
 }
-function sqTest(){
-  if(sqBlocked()){ toast(`Keyword entries are running in ${MODE_NAME[rf.mode]}. Stop them first`, true); return; }
-  if(rf.on && rf.mode==="SQUAD"){ toast("Finish the draw first", true); return; }
-  if(rf.on) rf.on=false;   // empty leftovers from another format
-  rfTestDraw(); rf.sqReel=sqDue()[0] ?? 0; rfSave();
-}
 function sqUndo(){
   const w=sq.winners.pop();
   if(!w){ toast("Nothing to undo"); return; }
@@ -6751,7 +6713,6 @@ function sqRenderControl(){
       <span class="clab sm">Pool €</span><input class="tier-in" id="sqPool" type="number" min="0" max="100000" step="50" style="width:90px" value="${sq.pool}" aria-label="Prize pool in euro">
       <span class="clab sm">Per reel €</span><input class="tier-in" id="sqPrize" type="number" min="0" max="10000" step="5" style="width:80px" value="${sq.prize}" aria-label="Prize in euro">
       <span class="clab sm">Ticks to fill</span><input class="tier-in" id="sqNeed" type="number" min="1" max="20" step="1" style="width:60px" value="${sq.need}" aria-label="Ticks to fill a reel">
-      ${busy ? "" : `<button class="btn" id="sqTestBtn">${ic("reel")}Test draw</button>`}
     </div>
     <div class="cb-edit sq-edit">${cards}</div>
     <div class="two-col">${busy || other ? rfSection() : `<div class="section"><div class="section-h">How it runs</div><div class="chint">Chat types !1–!6 (2 reels each). A Wild lands on a reel in the game (it doesn't have to fill it): + on that reel. Full: draw a winner from its squad. The reel then starts over.</div></div>`}
@@ -6763,7 +6724,6 @@ function sqRenderControl(){
   const pl=$("#sqPool"); pl.onchange=()=>{ const v=Math.round(+pl.value); if(v>=0 && v<=100000) sq.pool=v; sqSave(); sqRender(); };
   const pz=$("#sqPrize"); pz.onchange=()=>{ const v=Math.round(+pz.value); if(v>=0 && v<=10000) sq.prize=v; sqSave(); sqRender(); };
   const nd=$("#sqNeed"); nd.onchange=()=>{ const v=Math.round(+nd.value); if(v>=1 && v<=20){ sq.need=v; sq.reels.forEach(r=>{ r.n=Math.min(r.n, v); }); } sqSave(); sqRender(); };
-  const tb=$("#sqTestBtn"); if(tb) tb.onclick=sqTest;
   const sb=$("#sqStopBtn"); if(sb) sb.onclick=()=>showConfirm("Cancel this draw? The reel stays full, and you can draw it again.","Cancel draw",rfClose,"Keep");
   $("#sqNewBtn").onclick=sqConfirmReset;
   if(busy || other) rfWire();
@@ -6800,7 +6760,7 @@ function sqDrawPlan(sp, W){
   const bugs=tags.map((e,j)=>({e, hx:ax+(j%cols+.5+(rnd()-.5)*.5)*aw/cols, hy:top+(Math.floor(j/cols)+.5+(rnd()-.5)*.4)*tall/rows,
     a:rnd()*6.3, b:rnd()*6.3, w1:.7+rnd()*.6, w2:.9+rnd()*.7, img:1+Math.floor(rnd()*2), spin:(rnd()<.5?-1:1)*(300+rnd()*300), kt:kill[j]}));
   return {at:sp.startedAt, W, N, M, wi, bugs, waves, wt, move, rx, ry, rh, rw, mx:rx+SQ_MUZZLE[0]*rh/SQ_ROBOT[1], my:ry+SQ_MUZZLE[1]*rh/SQ_ROBOT[1],
-    cx:W/2-65, cy:wide ? 330 : 300, wide, S, prize:sp.test ? "Test draw" : sqEur(sq.prize), i:rf.sqReel ?? 0, redraw:rf.entries.some(e=>e.st==="missed")};
+    cx:W/2-65, cy:wide ? 330 : 300, wide, S, prize:sqEur(sq.prize), i:rf.sqReel ?? 0, redraw:rf.entries.some(e=>e.st==="missed")};
 }
 // where bug j is at t seconds (from the end of the fade-in): flying in, buzzing round its spot, falling once hit
 function sqBugAt(p, b, t){
@@ -6832,7 +6792,7 @@ function sqDrawFrame(){
       <img class="sq-robot" src="cf/robot.webp" alt="" style="left:${p.rx.toFixed(0)}px;top:${p.ry}px;height:${p.rh}px">
       <div class="sq-dhead"><b><span>Reel ${p.i+1} cleared</span>${p.redraw?"<em>Redraw</em> · ":""}<em>${p.N.toLocaleString("en-US")}</em> in the squad · <em>${escapeHtml(p.prize)}</em></b></div>
       <div class="sq-plate" style="left:${p.cx+65}px;top:${p.cy+250}px"><span class="sq-wname"></span></div>
-      <div class="sq-wins" style="left:${p.cx+65}px;top:${p.cy+(p.wide ? 400 : 440)}px">${sp.test ? "Test draw" : `wins <em>${escapeHtml(p.prize)}</em>`}</div>
+      <div class="sq-wins" style="left:${p.cx+65}px;top:${p.cy+(p.wide ? 400 : 440)}px">wins <em>${escapeHtml(p.prize)}</em></div>
       <div class="sq-dfoot" style="left:${p.cx+65}px;top:990px"></div>`;
     Object.assign(p, {els:[...stage.querySelectorAll(".sq-bug")], shots:stage.querySelector(".sq-shots"), robot:stage.querySelector(".sq-robot"), foot:stage.querySelector(".sq-dfoot")});
     p.tagAt=p.els.map(()=>-1);
@@ -6876,7 +6836,7 @@ function sqDrawFrame(){
   if(landed){
     const e=rfWinner(sp), pf=(e&&e.platform||"").toUpperCase(), nm=stage.querySelector(".sq-wname");
     if(e && nm.textContent!==e.name){ nm.textContent=e.name; nm.style.fontSize=Math.round((p.wide ? 1 : 1.4)*(e.name.length<=12?72:e.name.length<=18?56:42))+"px"; }
-    foot = sp.claimed ? `<span class="ok">Claimed on ${pf}</span>${sp.test?"":` · reel ${p.i+1} starts again`}` : `Type anything in <b>${pf}</b> chat to claim <em>${rfSecs(rfClaimEnd(sp))}</em>`;
+    foot = sp.claimed ? `<span class="ok">Claimed on ${pf}</span> · reel ${p.i+1} starts again` : `Type anything in <b>${pf}</b> chat to claim <em>${rfSecs(rfClaimEnd(sp))}</em>`;
   }
   if(p.foot.innerHTML!==foot) p.foot.innerHTML=foot;
 }
@@ -6955,12 +6915,11 @@ function crRenderControl(){
       <div class="seg"><button class="${cr.teaser.on?"on":""}" data-crtz="1">On stream</button><button class="${cr.teaser.on?"":"on"}" data-crtz="0">Off</button></div>
       <span class="clab sm">Prize</span><input class="tier-in" id="crTzPrize" maxlength="12" spellcheck="false" style="width:110px" value="${escapeHtml(cr.teaser.prize)}">
       <span class="clab sm">Starts</span><input class="tier-in" id="crTzAt" type="datetime-local" style="width:210px" value="${new Date(cr.teaser.at-new Date(cr.teaser.at).getTimezoneOffset()*60000).toISOString().slice(0,16)}"></div></div>
-    <div class="actionbar"><button class="btn" id="crNewBtn">${ic("new")}New crew</button><button class="btn" id="crTestBtn">${ic("bolt")}Load 1,400 test entries</button></div>`;
+    <div class="actionbar"><button class="btn" id="crNewBtn">${ic("new")}New crew</button></div>`;
   $("#crNewBtn").onclick=crConfirmReset;
   document.querySelectorAll("[data-crtz]").forEach(b=>b.onclick=()=>{ cr.teaser.on=b.dataset.crtz==="1"; crSave(); crRender(); });
   $("#crTzPrize").oninput=e=>{ cr.teaser.prize=e.target.value; crSave(); crRenderDisplay(); };
   $("#crTzAt").onchange=e=>{ const v=new Date(e.target.value).getTime(); if(v) cr.teaser.at=v; crSave(); crRenderDisplay(); };   // datetime-local is this PC's time
-  $("#crTestBtn").onclick=rfTestEntries;
   rfWire();
 }
 /* ---- The draw is a spin of the game: the whole screen (like the Prag-Wheel draw) becomes the free spins
@@ -7165,14 +7124,13 @@ function gzRenderControl(){
       <span class="clab sm">Starts</span><input class="tier-in" id="gzAt" type="datetime-local" style="width:210px" value="${new Date(gz.at-new Date(gz.at).getTimezoneOffset()*60000).toISOString().slice(0,16)}" aria-label="Start date and time">
       <span class="clab sm">Teaser</span><div class="seg"><button class="${gz.teaser?"on":""}" data-gztz="1">On stream</button><button class="${gz.teaser?"":"on"}" data-gztz="0">Off</button></div></div></div>
     ${rfSection()}
-    <div class="actionbar"><button class="btn" id="gzNewBtn">${ic("new")}New giveaway</button><button class="btn" id="gzTestBtn">${ic("bolt")}Load 1,400 test entries</button></div>`;
+    <div class="actionbar"><button class="btn" id="gzNewBtn">${ic("new")}New giveaway</button></div>`;
   $("#gzNewBtn").onclick=gzConfirmReset;
   document.querySelectorAll("[data-gz-hit]").forEach(b=>b.onclick=()=>gzHit(b.dataset.gzHit));
   document.querySelectorAll("[data-gz-lab]").forEach(i=>i.onchange=()=>{ const r=gz.rows.find(x=>x.id===i.dataset.gzLab); r.label=i.value.trim()||r.label; gzSave(); gzRender(); });
   document.querySelectorAll("[data-gztz]").forEach(b=>b.onclick=()=>{ gz.teaser=b.dataset.gztz==="1"; gzSave(); gzRender(); });
   $("#gzPrize").onchange=e=>{ const v=Math.round(+e.target.value); if(v>=1){ gz.prize=v; gzSave(); } gzRender(); };
   $("#gzAt").onchange=e=>{ const v=new Date(e.target.value).getTime(); if(v) gz.at=v; gzSave(); gzRender(); };   // datetime-local is this PC's time
-  $("#gzTestBtn").onclick=rfTestEntries;
   rfWire();
 }
 /* ---- The draw, both windows, straight from rf.spin (a 1080 stage in the box, no Zeus; left of the chat on a full canvas).
