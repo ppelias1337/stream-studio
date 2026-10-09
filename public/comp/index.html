@@ -1497,8 +1497,8 @@
 
   /* chat entries panel */
   .rf-top{justify-content:space-between;flex-wrap:wrap}
-  #rq{position:fixed;inset:0;z-index:40;overflow:auto;background:var(--bg);padding:28px 32px;display:flex;flex-direction:column;gap:18px}
-  #rq[hidden]{display:none}
+  #rq,#tzp{position:fixed;inset:0;z-index:40;overflow:auto;background:var(--bg);padding:28px 32px;display:flex;flex-direction:column;gap:18px}
+  #rq[hidden],#tzp[hidden]{display:none}
   .rq-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
   .rq-top .page-h{margin-right:auto}
   .rq-list{display:flex;flex-direction:column;gap:6px}
@@ -1512,6 +1512,7 @@
   .rq-row .at{color:var(--fg-3);font-size:13px;font-variant-numeric:tabular-nums}
   .rq-row .acts{display:flex;gap:6px}
   .rq-row .rq-x{color:var(--accent-fg)}
+  .rq-row.tz-row{grid-template-columns:32px 1fr auto}
   .rq-row.played{opacity:.45}
   .rq-row.played .what{text-decoration:line-through}
   .rf-status{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--fg-2)}
@@ -2006,7 +2007,7 @@ async function netProbe(){
 function netPush(fx){
   if(!NET.on || DISPLAY_ONLY) return;
   const keys={};
-  [KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,RT_KEY,SQ_KEY,CR_KEY,GZ_KEY,SHEET_Q_KEY,RQ_KEY,AV_KEY].forEach(k=>{ keys[k]=localStorage.getItem(k); });
+  [KEY,H2H_KEY,BK_KEY,LG_KEY,MODE_KEY,LB_KEY,RF_KEY,WH_KEY,TD_KEY,PW_KEY,KW_KEY,BD_KEY,RT_KEY,SQ_KEY,CR_KEY,GZ_KEY,SHEET_Q_KEY,RQ_KEY,AV_KEY,TZS_KEY].forEach(k=>{ keys[k]=localStorage.getItem(k); });
   if(NET.synced) keys[HISTORY_KEY]=localStorage.getItem(HISTORY_KEY);
   fetch(NET.url,{method:"POST",headers:{"Content-Type":"application/json"},
     body:JSON.stringify({keys, fx: fx?[fx]:[], ctl:CTL_ID})}).then(r=>{ if(r.status===409) location.reload(); }).catch(()=>{});
@@ -6174,20 +6175,15 @@ function bdRenderControl(){
     <div class="cb-edit">${cells}</div>
     <div class="two-col">${rfSection()}
     <div class="section"><div class="section-h">Winners · ${bd.winners.length}${due?` · ${due} due`:""}</div>${rows ? `<div class="crows">${rows}</div>` : `<div class="chint">Nobody drawn yet.</div>`}</div></div>
-    <div class="section"><div class="section-h">Stream teaser</div><div class="crow plain">
-      <span class="clab sm">Giveaway at</span><input class="tier-in" id="tzAt" type="datetime-local" style="width:210px" value="${new Date(tz.at-new Date(tz.at).getTimezoneOffset()*60000).toISOString().slice(0,16)}" aria-label="Giveaway date and time">
-      <span class="clab sm">Every</span><input class="tier-in" id="tzEvery" type="number" min="5" max="180" step="5" style="width:70px" value="${tz.every}" aria-label="Minutes between teasers"><span class="tier-sep">min</span>
-      ${segHtml([["1","On"],["0","Off"]], tz.on?"1":"0", "data-tz-on")}<button class="btn" id="tzPlay">${ic("bolt")}Play it now</button></div>
+    <div class="section"><div class="section-h">Giveaway countdown</div><div class="crow plain">
+      <span class="clab sm">Giveaway at</span><input class="tier-in" id="tzAt" type="datetime-local" style="width:210px" value="${new Date(tz.at-new Date(tz.at).getTimezoneOffset()*60000).toISOString().slice(0,16)}" aria-label="Giveaway date and time"></div>
       <div class="crow plain"><span class="clab sm">Box until then</span>${segHtml([["board","Board"],["teaser","Teaser"],["hide","Hidden"]], tz.box||"board", "data-tz-box")}</div></div>
     <div class="actionbar"><button class="btn" id="bdAnyBtn">${bd.any ? "Make it Buffalo Blitz 3" : "Make it any Buffalo Blitz"}</button>${bd.rest || bd.cells.every(x=>bdWon(x)) ? "" : `<button class="btn" id="bdRestBtn">${ic("gift")}Give away everything remaining to one person</button>`}<button class="btn" id="bdNewBtn">${ic("new")}New board</button></div>`;
   document.querySelectorAll("[data-bd-tick]").forEach(b=>{ b.onclick=()=>bdTick(b.dataset.bdTick, +b.dataset.d); });
   document.querySelectorAll("[data-bd-lab]").forEach(i=>{ i.onchange=()=>{ const x=bdCell(i.dataset.bdLab); x.label=i.value.trim()||x.label; bdSave(); bdRender(); }; });
   $("#bdNewBtn").onclick=bdConfirmReset;
-  // datetime-local is this PC's time; switching on starts the cycle now, so the first one plays straight away
+  // datetime-local is this PC's time
   $("#tzAt").onchange=e=>{ const v=new Date(e.target.value).getTime(); if(v) tz.at=v; bdSave(); bdRender(); };
-  $("#tzEvery").onchange=e=>{ const v=Math.round(+e.target.value); if(v>=5 && v<=180) tz.every=v; bdSave(); bdRender(); };
-  document.querySelectorAll("[data-tz-on]").forEach(b=>{ b.onclick=()=>{ tz.on=b.dataset.tzOn==="1"; if(tz.on) tz.start=netNow(); bdSave(); bdRender(); }; });
-  $("#tzPlay").onclick=()=>{ tz.once=netNow(); bdSave(); };
   document.querySelectorAll("[data-tz-box]").forEach(b=>{ b.onclick=()=>{ tz.box=b.dataset.tzBox; bdSave(); bdRender(); }; });
   $("#bdAnyBtn").onclick=()=>bdSetAny(!bd.any);
   if($("#bdRestBtn")) $("#bdRestBtn").onclick=()=>{ const left=bd.cells.filter(x=>!bdWon(x));
@@ -6300,23 +6296,78 @@ function bdDrawFrame(){
 }
 requestAnimationFrame(bdDrawFrame);
 
-/* ---- The stream teaser: for the hours before the giveaway (bd.tz.at), a rendered clip plays over the whole canvas
-   (the BB3 €2,000 teaser, made in tools/motion: 3D gold, coins, lightning, framed over the slot window), then the
-   screen is empty again. On (bd.tz.on), it plays every bd.tz.every minutes from when it was switched on, until the
-   giveaway starts; Play it now (bd.tz.once) plays it once. Every window works out from the server clock whether one is
-   playing and seeks the clip to match, so OBS and the panel play the same one, whatever format is up.
+/* ---- Stream teasers: rendered clips (tools/motion → promo/) that play over the whole canvas, then the screen is
+   empty again, whatever format is up. The Teasers tab (#tzp, tzs in teasers_v1) is a rotation: On, every tzs.every
+   minutes from when it was switched on, the next teaser in the list plays (top, second, …, then the top again);
+   Play now plays one once. Every window works out from the server clock what is playing and seeks the clip to match,
+   so OBS and the panel play the same one. The BB3 one counts down to the board's giveaway (bd.tz.at) and leaves the
+   rotation once that has passed; the box before that giveaway (bd.tz.box) stays with the Challenge Board.
    (Tried first, live in CSS: a herd charging at the camera, an edge glow, a falling card. Elias: scuffed, Paint-like.) */
-const TZ_CLIP="promo/bb3-teaser-3d.webm", TZ_MS=6000;
-let tzVid=null;   // one element, loaded up front, so a takeover starts on time
-const tzVideo=()=>tzVid ||= Object.assign(document.createElement("video"), {src:TZ_CLIP, muted:true, playsInline:true, preload:"auto"});
-tzVideo();
-const tzFresh=()=>({on:false, at:Date.parse("2026-10-09T15:00:00+02:00"), every:20, start:0, once:0, box:"board"});
-function tzPlaying(now){
-  const z=bd.tz; if(!z) return 0;
-  let s=z.once||0;
-  if(z.on && z.start && now<z.at){ const P=Math.max(5, z.every)*60000; s=Math.max(s, z.start+Math.floor((now-z.start)/P)*P); }
-  return now>=s && now-s<TZ_MS ? s : 0;
+const TZ_CLIPS={zb:{src:"promo/zb-teaser.webm", ms:7600, name:"Zombie Bros", note:"Playtech × CasinoDaddy sneak peek"},
+  bb3:{src:"promo/bb3-teaser-3d.webm", ms:6000, name:"Buffalo Blitz 3 €2,000", note:"Counts down to the Challenge Board giveaway"}};
+const tzVids={};   // one element per clip, loaded up front, so a takeover starts on time
+const tzVideo=k=>tzVids[k] ||= Object.assign(document.createElement("video"), {src:TZ_CLIPS[k].src, muted:true, playsInline:true, preload:"auto"});
+Object.keys(TZ_CLIPS).forEach(tzVideo);
+const tzFresh=()=>({at:Date.parse("2026-10-09T15:00:00+02:00"), box:"board"});   // the board's giveaway countdown (bd.tz)
+const TZS_KEY="teasers_v1";
+function tzsLoad(){
+  let z=null; try{ z=JSON.parse(localStorage.getItem(TZS_KEY)); }catch(e){}
+  if(!z){ const o=bd.tz||{};   // first start: the board's old timer carries over
+    z={on:!!o.on, every:o.every||20, start:o.start||0, once:null, order:["zb","bb3"], off:{}}; }
+  z.order=[...z.order.filter(k=>TZ_CLIPS[k]), ...Object.keys(TZ_CLIPS).filter(k=>!z.order.includes(k))];   // new clips join at the bottom
+  return z;
 }
+let tzs=tzsLoad();
+const tzsSave=()=>{ try{ localStorage.setItem(TZS_KEY, JSON.stringify(tzs)); }catch(e){} bcast({type:"state"}); tzpRender(); };
+const tzOver=(k,now)=>k==="bb3" && now>=(bd.tz?.at||0);   // the BB3 teaser is for before its giveaway only
+const tzRotation=now=>tzs.order.filter(k=>!tzs.off[k] && !tzOver(k,now));
+const tzEvery=()=>Math.max(5, tzs.every)*60000;
+// what is playing now: {s: when it started, k: which clip}, or null
+function tzPlaying(now){
+  let best=null;
+  const o=tzs.once; if(o && TZ_CLIPS[o.k] && now>=o.at && now-o.at<TZ_CLIPS[o.k].ms) best={s:o.at, k:o.k};
+  const L=tzRotation(now);
+  if(tzs.on && tzs.start && L.length){ const n=Math.floor((now-tzs.start)/tzEvery()), s=tzs.start+n*tzEvery(), k=L[n%L.length];
+    if(now-s<TZ_CLIPS[k].ms && (!best || s>best.s)) best={s,k}; }
+  return best;
+}
+// the next one the rotation plays, for the panel
+function tzNext(now){
+  if(!tzs.on || !tzs.start) return null;
+  const n=Math.floor((now-tzs.start)/tzEvery())+1, s=tzs.start+n*tzEvery(), L=tzRotation(s);
+  return L.length ? {s, k:L[n%L.length]} : null;
+}
+function tzpRender(){
+  const el=$("#tzp"); if(!el || el.hidden) return;
+  const now=netNow(), p=tzPlaying(now), nx=tzNext(now), hm=t=>new Date(t).toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
+  const status = p ? `Playing <b>${TZ_CLIPS[p.k].name}</b>` : !tzs.on ? "Off" : !nx ? "Nothing switched on in the list" : `Next: <b>${TZ_CLIPS[nx.k].name}</b> at ${hm(nx.s)}`;
+  el.innerHTML=`<div class="rq-top"><div class="page-h">Teasers</div>
+      ${segHtml([["1","On"],["0","Off"]], tzs.on?"1":"0", "data-tzs-on")}
+      <span class="clab sm">Every</span><input class="tier-in" id="tzsEvery" type="number" min="5" max="180" step="5" style="width:70px" value="${tzs.every}" aria-label="Minutes between teasers"><span class="tier-sep">min</span></div>
+    <div class="rf-status"><span>${status}</span></div>
+    <div class="rq-list">${tzs.order.map((k,i)=>{ const c=TZ_CLIPS[k], over=tzOver(k,now);
+      return `<div class="rq-row tz-row${tzs.off[k]||over?" played":""}"><span class="n">${i+1}</span><span class="what"><span><b>${c.name}</b><small>${over?"Giveaway time has passed, skipped":escapeHtml(c.note)}</small></span></span>
+        <span class="acts">${segHtml([["1","On"],["0","Off"]], tzs.off[k]?"0":"1", `data-tzs-use="${k}" data-v`)}
+        <button class="btn" data-tzs="up" data-k="${k}" aria-label="Move up"${i?"":" disabled"}>↑</button><button class="btn" data-tzs="down" data-k="${k}" aria-label="Move down"${i<tzs.order.length-1?"":" disabled"}>↓</button>
+        <button class="btn" data-tzs="play" data-k="${k}">${ic("play")}Play now</button></span></div>`; }).join("")}</div>`;
+  $("#tzsEvery").onchange=e=>{ const v=Math.round(+e.target.value); if(v>=5 && v<=180) tzs.every=v; tzsSave(); };
+}
+if(!DISPLAY_ONLY){
+  document.body.insertAdjacentHTML("beforeend", `<section id="tzp" hidden></section>`);
+  $("#tzp").onclick=e=>{
+    const on=e.target.closest("[data-tzs-on]"), use=e.target.closest("[data-tzs-use]"), b=e.target.closest("[data-tzs]");
+    // switching on starts the cycle now, so the top one plays straight away
+    if(on){ tzs.on=on.dataset.tzsOn==="1"; if(tzs.on) tzs.start=netNow(); }
+    else if(use) tzs.off[use.dataset.tzsUse]=use.dataset.v==="0";
+    else if(b){ const k=b.dataset.k, i=tzs.order.indexOf(k), j=i+(b.dataset.tzs==="up"?-1:1);
+      if(b.dataset.tzs==="play") tzs.once={k, at:netNow()};
+      else if(j>=0 && j<tzs.order.length) [tzs.order[i],tzs.order[j]]=[tzs.order[j],tzs.order[i]]; }
+    else return;
+    tzsSave();
+  };
+  setInterval(tzpRender, 1000);   // the status line follows the clock
+}
+function tzpShow(on){ const el=$("#tzp"); if(!el || el.hidden===!on) return; el.hidden=!on; tzpRender(); }
 // what the box shows: the teaser or nothing only before the giveaway, and never while the board's entries run
 const tzBox=()=>{ const z=bd.tz; return z && appMode==="BOARD" && netNow()<z.at && !(rf.on && rf.mode==="BOARD") ? z.box||"board" : "board"; };
 function bdTzBoxView(c){
@@ -6328,13 +6379,13 @@ let tzWas="";
 setInterval(()=>{ tzHide(); if(appMode!=="BOARD" || !bd.tz) return; const k=tzBox()+gzWhen(bd.tz.at); if(k!==tzWas){ tzWas=k; bdRenderDisplay(); } },1000);
 function bdTzFrame(){   // on a timer, not animation frames: the clip plays itself, this only starts, syncs and ends it
   tzHide();
-  const now=netNow(), s=tzPlaying(now), fixed=DISPLAY_ONLY && document.body.classList.contains("canvas");
+  const now=netNow(), p=tzPlaying(now), fixed=DISPLAY_ONLY && document.body.classList.contains("canvas");
   let ov=document.getElementById("bdTz");
-  if(ov && (!s || +ov.dataset.at!==s || ov.classList.contains("fixed")!==fixed)){ tzVideo().pause(); ov.remove(); ov=null; }
-  if(!s) return;
-  const v=tzVideo(), want=(now-s)/1000;
+  if(ov && (!p || ov.dataset.at!==p.s+p.k || ov.classList.contains("fixed")!==fixed)){ ov.querySelector("video")?.pause(); ov.remove(); ov=null; }
+  if(!p) return;
+  const v=tzVideo(p.k), want=(now-p.s)/1000;
   if(!ov){
-    ov=document.createElement("div"); ov.id="bdTz"; ov.className="tz"+(fixed?" fixed":""); ov.dataset.at=s; ov.setAttribute("aria-hidden","true");
+    ov=document.createElement("div"); ov.id="bdTz"; ov.className="tz"+(fixed?" fixed":""); ov.dataset.at=p.s+p.k; ov.setAttribute("aria-hidden","true");
     ov.appendChild(v); if(fixed) document.body.appendChild(ov); else $("#display").appendChild(ov);
     v.currentTime=want; v.play().catch(()=>{});
   } else {
@@ -7323,7 +7374,7 @@ let homeSection=null;   // null in a plain browser tab: everything
 const lastIn={};        // tab -> the format it was last on
 window.addEventListener("message", e=>{
   const sec=e.data && e.data.studioTab;
-  if(sec && !DISPLAY_ONLY) rqShow(sec==="requests");
+  if(sec && !DISPLAY_ONLY){ rqShow(sec==="requests"); tzpShow(sec==="teasers"); }
   if(!["comp","keyword","special"].includes(sec) || DISPLAY_ONLY) return;
   const go=()=>{
     homeSection=sec;
@@ -7760,7 +7811,7 @@ if(DISPLAY_ONLY){
   const refreshFromStorage=()=>{
     state=load()||fresh(); h2h=h2hLoad()||h2hFresh();
     bk=bkLoad()||bkFresh(); lg=lgLoad()||lgFresh(); wh=whLoad()||whFresh(); td=tdLoad()||tdFresh(); pw=pwLoad()||pwFresh(); kw=kwLoad()||kwFresh(); bd=bdLoad()||bdFresh(); rt=rtLoad()||rtFresh(); sq=sqLoad()||sqFresh(); cr=crLoad()||crFresh(); gz=gzLoad()||gzFresh();
-    appMode=loadMode(); lb=lbLoad(); rf=rfLoad(); rq=rqLoad(); av=avLoad();
+    appMode=loadMode(); lb=lbLoad(); rf=rfLoad(); rq=rqLoad(); av=avLoad(); tzs=tzsLoad();
     renderApp();
   };
   const playFxMsg=(m)=>{

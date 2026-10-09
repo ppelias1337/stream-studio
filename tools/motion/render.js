@@ -13,7 +13,8 @@ const server = http.createServer((q, r) => { const f = path.join(REPO, decodeURI
 (async () => {
   await new Promise(r => server.listen(PORT, '127.0.0.1', r));
   fs.rmSync(FR, { recursive: true, force: true }); fs.mkdirSync(FR, { recursive: true });
-  const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe' });
+  // over SSH on the gaming PC the GPU isn't always there: let WebGL fall back to software (SwiftShader) rather than fail
+  const browser = await chromium.launch({ executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe', args: ['--ignore-gpu-blocklist', '--enable-unsafe-swiftshader'] });
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
   page.on('pageerror', e => console.log('pageerror:', e.message));
   await page.goto(`http://127.0.0.1:${PORT}/tools/motion/${NAME}.html#render`);

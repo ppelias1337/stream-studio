@@ -1,0 +1,170 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Zombie Bros teaser</title>
+<style>
+  @font-face{font-family:Anton;src:url(fonts/Anton-Regular.ttf)}
+  html,body{margin:0;background:#20242c}
+  body.render{background:transparent}
+  canvas#c{display:block;width:100vw;height:auto}
+</style>
+<canvas id="c" width="1920" height="1080"></canvas>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.169.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.169.0/examples/jsm/"}}</script>
+<script type="module">
+/* Zombie Bros sneak peek (Playtech × CasinoDaddy, the three bros as zombies): the first the stream sees of it.
+   The bros rise out of the ground one by one and turn wild with their glow flaring on, three shots put the logo up, MORE INFO COMING SOON... climbs out of the
+   ground in 3D (three.js, glossy toxic green, lit like the BB3 €2,000), the Playtech and CasinoDaddy logos come in,
+   then it all sinks back. renderAt(t) is a pure function of time; framed over the slot window (centre FX,FY at K).
+   2D layers are in pixels around that centre (y down); the 3D camera is set so one unit is one pixel at z=0. */
+import * as THREE from "three";
+import { TTFLoader } from "three/addons/loaders/TTFLoader.js";
+import { Font } from "three/addons/loaders/FontLoader.js";
+import { TextGeometry } from "three/addons/geometries/TextGeometry.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+const W=1920, H=1080, DUR=7.6, FPS=60, SUB=6, SHUTTER=.5, OUT=6.3;
+const FX=684, FY=470, K=.85, GROUND=150;
+const LINES=[{text:"MORE INFO", base:232, cap:70, at:3.1, step:.04}, {text:"COMING SOON...", base:362, cap:118, at:3.35, step:.05}];
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x)), lerp=(a,b,u)=>a+(b-a)*u, prog=(t,a,d)=>clamp((t-a)/d);
+const eOut=u=>1-Math.pow(1-u,3), eIn=u=>u*u*u, eInOut=u=>u<.5?4*u*u*u:1-Math.pow(-2*u+2,3)/2;
+const spring=(t,k=16,z=7)=>t<=0?0:1-Math.exp(-z*t)*Math.cos(k*t);
+const rng=s=>()=>((s=Math.imul(s^s>>>15,1|s)+0x6D2B79F5|0)>>>0)/4294967296;
+const hit=(t,a,amp,f=38,z=9)=>t<a?0:amp*Math.exp(-z*(t-a))*Math.sin(f*(t-a));   // a decaying shake after a hit
+
+const img=src=>Object.assign(new Image(),{src});
+const LOGO=img("../../public/comp/zb/logo.webp"), PT=img("../../public/comp/zb/playtech.webp"), CD=img("../../public/comp/zb/cd.webp");
+// left to right: purple, green, blue, as in the game
+// each rises plain, then turns into his wild version (sw) with the glow flaring on behind. Both tiles are 480 px
+// canvases with the gold frame (305 px) centred, so the swap happens in place
+const BROS=[["ante","#B04CFF",-380,.30,1.45],["erik","#5CFF3A",0,.62,1.75],["masse","#3AAEFF",380,.94,2.05]]
+  .map(([n,glow,x,at,sw])=>({im:img(`../../public/comp/zb/${n}.webp`),wild:img(`../../public/comp/zb/${n}-wild.webp`),glow,x,at,sw}));
+const SHOTS=[2.5,2.67,2.84];
+const DIRT=BROS.map((b,i)=>{ const r=rng(13+i); return Array.from({length:34},()=>({x:b.x+(r()-.5)*300, vx:(r()-.5)*700, vy:-500-r()*900, s:5+r()*13, ph:r()*6})); });
+const FOG=(()=>{ const r=rng(3); return Array.from({length:16},()=>{ const f={x:-650+r()*1300, y:GROUND-30+r()*80, rx:150+r()*170, v:(r()-.5)*30}; f.col=BROS.reduce((a,b)=>Math.abs(b.x-f.x)<Math.abs(a.x-f.x)?b:a).glow; return f; }); })();   // each blob in the colour of the bro above it
+const shake=t=>BROS.reduce((s,b)=>s+hit(t,b.at+.16,9),0)+SHOTS.reduce((s,a)=>s+hit(t,a,14,55,14),0);
+
+// ---- 3D: the words
+const gl=new THREE.WebGLRenderer({alpha:true, antialias:true, preserveDrawingBuffer:true});
+gl.setPixelRatio(1); gl.setSize(W,H,false); gl.setClearColor(0x000000,0); gl.localClippingEnabled=true;
+gl.toneMapping=THREE.ACESFilmicToneMapping; gl.toneMappingExposure=.75; gl.outputColorSpace=THREE.SRGBColorSpace;
+const scene=new THREE.Scene();
+scene.environment=new THREE.PMREMGenerator(gl).fromScene(new RoomEnvironment(),.04).texture;
+const D=540/Math.tan(15*Math.PI/180);   // fov 30: one unit = one pixel at z=0
+const cam=new THREE.PerspectiveCamera(30,W/H,10,D*3); cam.position.set(0,0,D); cam.lookAt(0,0,0);
+scene.add(new THREE.AmbientLight(0xffffff,.04));
+const key=new THREE.DirectionalLight(0xfff0d8,1.7); key.position.set(-.6,1,.8); scene.add(key);
+const rim=new THREE.DirectionalLight(0xb04cff,3.2); rim.position.set(.8,.3,-.6); scene.add(rim);
+const rim2=new THREE.DirectionalLight(0x3aaeff,2); rim2.position.set(-.8,-.2,-.6); scene.add(rim2);
+const sweep=new THREE.PointLight(0xe9ffb0,0,0,0); scene.add(sweep);    // a light that runs across the words
+const flash=new THREE.PointLight(0xffd890,0,0,0); scene.add(flash);    // the gunshots
+// the group sits on the 2D frame: local (x, y-down px) → world
+const grp=new THREE.Group(); grp.scale.setScalar(K); scene.add(grp);
+const toWorldY=ly=>540-FY-K*ly, TILT=-.42;   // the words lean back so their tops and depth show
+let LETTERS=[];
+async function build(){
+  const font=new Font(await new TTFLoader().loadAsync("fonts/Anton-Regular.ttf"));
+  const capG=new TextGeometry("M",{font,size:100,depth:1}); capG.computeBoundingBox(); const CAP=capG.boundingBox.max.y;
+  for(const L of LINES){
+    // each line climbs out of its own floor (a clipping plane just under its baseline)
+    // faces glossy toxic green, the extrusion a dark rotten green, so the depth reads on a small player
+    const plane=new THREE.Plane(new THREE.Vector3(0,1,0),0);
+    const mat=[new THREE.MeshPhysicalMaterial({color:0x3fd012, emissive:0x0a2a02, metalness:.15, roughness:.24, clearcoat:.6, clearcoatRoughness:.08, envMapIntensity:.3, clippingPlanes:[plane]}),
+      new THREE.MeshPhysicalMaterial({color:0x174a08, metalness:.5, roughness:.35, clearcoat:.6, envMapIntensity:.7, clippingPlanes:[plane]})];
+    L.plane=plane; const s=L.cap/CAP, gap=L.cap*.07;
+    const parts=[...L.text].map(ch=>{ if(ch===" ") return {ch, w:L.cap*.32};
+      const g=new TextGeometry(ch,{font, size:100, depth:26, curveSegments:8, bevelEnabled:true, bevelThickness:5, bevelSize:3.2, bevelSegments:4});
+      g.computeBoundingBox(); const b=g.boundingBox, w=b.max.x-b.min.x; g.translate(-(b.min.x+w/2),0,-13); g.scale(s,s,s); return {ch,g,w:w*s}; });
+    // centred on the words without the trailing dots, so the small dots don't pull the line off to the left
+    const core=parts.slice(0, parts.length-(L.text.match(/\.*$/)[0].length)), tot=core.reduce((a,p)=>a+p.w,0)+gap*(core.length-1); let x=-tot/2;
+    parts.forEach((p,i)=>{ const cx=x+p.w/2; x+=p.w+gap; if(!p.g) return;
+      const m=new THREE.Mesh(p.g,mat); m.userData={x:cx, L, i, dot:p.ch==="."}; grp.add(m); LETTERS.push(m); });
+  }
+}
+function scene3d(t){
+  const sh=shake(t); grp.position.set(FX-960+sh*.6, 540-FY-sh, 0);
+  const sink=e=>eIn(prog(t,OUT+e,.45));
+  for(const L of LINES) L.plane.constant=-toWorldY(L.base+12)+sh;   // keeps y above the floor
+  let dots=0;
+  for(const m of LETTERS){ const {x,L,i,dot}=m.userData;
+    // the dots don't climb: they pop in one by one after the words, like someone's still typing
+    const ts=dot ? 4.0+(dots++)*.16 : L.at+i*L.step, p=spring(t-ts,dot?22:15,dot?8:6.5), down=sink(i*.015)*L.cap*1.6;
+    m.visible=t>=ts;
+    const rise=dot ? 0 : (1-p)*L.cap*1.25, sway=Math.sin(t*2.6+i*.9)*prog(t,ts+.5,.5);
+    m.position.set(x, -L.base-rise-down+sway*2, 0);
+    m.rotation.set(TILT+(dot?0:(1-p)*-1.1+sway*.04), Math.sin(t*1.4+i*.6)*.12*prog(t,ts+.4,.6), dot?0:(1-p)*.25*(i%2?1:-1));
+    m.scale.setScalar(dot?Math.max(.001,p):1); }
+  // the light sweep across the words, and the shots' flash on whatever is up
+  const sw=prog(t,4.7,1.1); sweep.position.set(FX-960+lerp(-700,700,eInOut(sw))*K, toWorldY(300), 260); sweep.intensity=sw>0&&sw<1 ? 2.5*Math.sin(Math.PI*sw) : 0;
+  flash.position.set(FX-960, toWorldY(-330), 400); flash.intensity=SHOTS.reduce((s,a)=>s+(t>=a?6*Math.exp(-22*(t-a)):0),0);
+  gl.render(scene,cam);
+}
+
+// ---- 2D: the bros, the shots, the logo (under the words); the partner logos (over)
+const mk=()=>{ const c=Object.assign(document.createElement("canvas"),{width:W,height:H}); return [c,c.getContext("2d")]; };
+const out=document.getElementById("c").getContext("2d"), [buf,ctx]=mk(), [acc,acx]=mk();
+const FONT=s=>`${s}px Anton, "Bahnschrift Condensed", Impact, sans-serif`;
+function under(t){
+  const sink=eIn(prog(t,OUT,.6)), gone=prog(t,OUT+.15,.55), sh=shake(t);
+  ctx.save(); ctx.translate(FX+sh*.6, FY+sh); ctx.scale(K,K);
+  const fa=eOut(prog(t,.05,.6))*(1-gone);
+  if(fa>0) for(const f of FOG){ const x=f.x+f.v*t; ctx.save(); ctx.translate(x,f.y); ctx.scale(1,.32);
+    const g=ctx.createRadialGradient(0,0,0,0,0,f.rx); g.addColorStop(0,f.col+"38"); g.addColorStop(1,f.col+"00");
+    ctx.globalAlpha=fa; ctx.fillStyle=g; ctx.fillRect(-f.rx,-f.rx,f.rx*2,f.rx*2); ctx.restore(); }
+  const TS=300;
+  for(const pass of [0,1]) BROS.forEach((b,i)=>{ if(t<b.at) return;   // pass 0: every glow and ring, pass 1: the tiles over them
+    const p=spring(t-b.at,15,6.5), y=lerp(TS+40,-20,p)+sink*(TS+60)*(1+i*.15), sway=Math.sin((t-b.at)*2.2+i*1.7)*.035*prog(t,b.at+.5,.6);
+    // the swap: a wind-up squeeze, the glow flares and the wild one punches in; after it the glow stays on, bigger
+    const w=t-b.sw, on=w>=0, fl=on?Math.exp(-6*w):0, wind=eIn(prog(t,b.sw-.18,.18))*(on?0:1), punch=1-.06*wind+hit(t,b.sw,.13,26,7);
+    const pulse=on ? .8+.15*Math.sin(t*6+i*2)+.6*fl : .35+.15*Math.sin(t*5+i*2), R=TS*(on?.9+.25*fl:.75);   // tight to the tile, so each glow stays with its own bro
+    ctx.save(); if(pass){ ctx.beginPath(); ctx.rect(-1200,-900,2400,900+GROUND); ctx.clip(); }   // only the tiles are cut at the ground, not the glow
+    ctx.translate(b.x,y); ctx.rotate(sway);
+    const g=ctx.createRadialGradient(0,0,TS*.4,0,0,R); g.addColorStop(0,b.glow+"ee"); g.addColorStop(.55,b.glow+"77"); g.addColorStop(1,b.glow+"00");
+    if(!pass){ ctx.globalAlpha=clamp(pulse)*clamp(p); ctx.fillStyle=g; ctx.fillRect(-R,-R,R*2,R*2); ctx.globalAlpha=1;
+    if(on && w<.5){ const u=w/.5; ctx.save(); ctx.strokeStyle=b.glow; ctx.globalAlpha=1-u; ctx.lineWidth=26*(1-u)+2; ctx.beginPath(); ctx.arc(0,0,TS*.55+eOut(u)*TS*.45,0,Math.PI*2); ctx.stroke(); ctx.restore(); }
+      ctx.restore(); return; }
+    const s=TS/305*punch, im=on?b.wild:b.im, sz=480*s; ctx.drawImage(im,-sz/2,-sz/2,sz,sz);
+    if(on && w<.25){ ctx.save(); ctx.globalCompositeOperation="lighter"; ctx.globalAlpha=.7*(1-w/.25); ctx.drawImage(im,-sz/2,-sz/2,sz,sz); ctx.restore(); }   // a hot flash on the new tile
+    ctx.restore();
+    const d=t-b.at-.12; if(pass && d>0 && d<1.4) for(const q of DIRT[i]){ const x=q.x+q.vx*d, yy=GROUND+q.vy*d+1700*d*d; if(yy>GROUND+40) continue;
+      ctx.save(); ctx.globalAlpha=1-prog(d,.8,.6); ctx.translate(x,yy); ctx.rotate(q.ph+d*8); ctx.fillStyle=i%2?"#3a2a1c":"#4a3424"; ctx.fillRect(-q.s/2,-q.s/2,q.s,q.s*.7); ctx.restore(); }
+  });
+  SHOTS.forEach((a,i)=>{ const u=prog(t,a,.12); if(u>0 && u<1){ const x=[-520,520,0][i], y=-330;
+    ctx.save(); const g=ctx.createRadialGradient(x,y,0,x,y,260*(1-u*.4)); g.addColorStop(0,`rgba(255,250,220,${1-u})`); g.addColorStop(.3,`rgba(255,190,80,${.7*(1-u)})`); g.addColorStop(1,"rgba(255,120,0,0)");
+    ctx.fillStyle=g; ctx.fillRect(x-300,y-300,600,600); ctx.restore(); } });
+  const lt=t-SHOTS[2];
+  if(lt>=0){ const p=spring(lt,14,6), lw=600, lh=lw*LOGO.naturalHeight/LOGO.naturalWidth, s=lerp(1.9,1,p)*(1-.25*eIn(prog(t,OUT+.1,.5)));
+    ctx.save(); ctx.translate(0,-330+Math.sin(t*1.8)*6); ctx.rotate(lerp(-.12,0,p)+Math.sin(t*1.3)*.012); ctx.scale(s,s); ctx.globalAlpha=clamp(lt/.06)*(1-gone);
+    ctx.drawImage(LOGO,-lw/2,-lh/2,lw,lh); ctx.restore(); }
+  ctx.restore();
+}
+// Playtech slides in from the left, the × pops, the CasinoDaddy coin spins in from the right; all three drop on the exit
+function over(t){
+  const sh=shake(t), Y=428, e=prog(t,OUT,.45), drop=eIn(e)*50, a=1-e;
+  if(t<4.25 || a<=0) return;
+  ctx.save(); ctx.translate(FX+sh*.6, FY+sh+drop); ctx.scale(K,K); ctx.globalAlpha=a;
+  ctx.shadowColor="rgba(8,0,14,.85)"; ctx.shadowBlur=14; ctx.shadowOffsetY=4;
+  const pp=spring(t-4.25,15,7), ph=72, pw=ph*PT.naturalWidth/PT.naturalHeight;
+  ctx.translate((pw-132)/2,0);   // centre the row as a whole (Playtech is much wider than the coin), not on the ×
+  ctx.save(); ctx.globalAlpha=a*clamp((t-4.25)/.1); ctx.drawImage(PT,-40-pw+lerp(-160,0,pp),Y-ph/2-4,pw,ph); ctx.restore();
+  if(t>=4.43){ const p=spring(t-4.43,20,7); ctx.save(); ctx.translate(0,Y); ctx.scale(p,p); ctx.font=FONT(64); ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.lineWidth=6; ctx.strokeStyle="#12041c"; ctx.strokeText("×",0,0); ctx.fillStyle="#8CFF3C"; ctx.fillText("×",0,0); ctx.restore(); }
+  if(t>=4.5){ const p=spring(t-4.5,14,6.5), cs=132, flip=Math.cos(Math.max(0,1-(t-4.5)/.55)*Math.PI*3);
+    ctx.save(); ctx.translate(40+cs/2+lerp(180,0,p),Y); ctx.scale(Math.max(.06,Math.abs(flip))*clamp(p*1.2),clamp(p*1.2)); ctx.drawImage(CD,-cs/2,-cs/2,cs,cs); ctx.restore(); }
+  ctx.restore();
+}
+function renderAt(t){
+  // a dark purple vignette over the slot window so it all reads on any game, in first and out last
+  const va=.92*eOut(prog(t,0,.5))*(1-eInOut(prog(t,OUT+.2,.8)));
+  out.clearRect(0,0,W,H);
+  if(va>0){ out.save(); out.translate(FX,FY); out.scale(1,.7); const g=out.createRadialGradient(0,0,0,0,0,950);
+    g.addColorStop(0,`rgba(10,3,16,${va})`); g.addColorStop(.62,`rgba(10,3,16,${va*.9})`); g.addColorStop(1,"rgba(10,3,16,0)"); out.fillStyle=g; out.fillRect(-1000,-1000,2000,2000); out.restore(); }
+  // motion blur: SUB subframes over the shutter, averaged on their own layer, then over the vignette
+  acx.clearRect(0,0,W,H); acx.globalCompositeOperation="lighter"; acx.globalAlpha=1/SUB;
+  for(let k=0;k<SUB;k++){ const tt=t+k/SUB*SHUTTER/FPS; ctx.clearRect(0,0,W,H); under(tt); scene3d(tt); ctx.drawImage(gl.domElement,0,0); over(tt); acx.drawImage(buf,0,0); }
+  acx.globalCompositeOperation="source-over"; acx.globalAlpha=1;
+  out.drawImage(acc,0,0);
+}
+window.ready=Promise.all([document.fonts.load(FONT(100)), build(), ...[LOGO,PT,CD,...BROS.flatMap(b=>[b.im,b.wild])].map(i=>i.decode())]);
+Object.assign(window,{renderAt, DUR, FPS});
+if(!/render/.test(location.hash)) ready.then(()=>{ const t0=performance.now(); const loop=()=>{ renderAt(((performance.now()-t0)/1000)%(DUR+.6)); requestAnimationFrame(loop); }; loop(); });
+else document.body.classList.add("render");
+</script>

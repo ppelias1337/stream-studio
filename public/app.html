@@ -71,6 +71,7 @@
     <button role="tab" data-tab="wheel"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5v17M3.5 12h17M6 6l12 12M18 6 6 18"/></svg><span>Wheel Studio</span></button>
     <button role="tab" data-tab="special"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="8" width="17" height="4"/><path d="M5 12v8.5h14V12M12 8v12.5M12 8C10.5 4 6.5 4 7 6.5S12 8 12 8zM12 8c1.5-4 5.5-4 5-1.5S12 8 12 8z"/></svg><span>Special Giveaways</span></button>
     <button role="tab" data-tab="requests"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"/></svg><span>Requests</span></button>
+    <button role="tab" data-tab="teasers"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="M10.5 9.5v5l4-2.5z"/></svg><span>Teasers</span></button>
   </div>
   <span class="spacer"></span>
   <span id="note"></span>
@@ -114,7 +115,7 @@ function mark(t){
 }
 const tabBtns=[...document.querySelectorAll("[data-tab]")];
 tabBtns.forEach((b,i)=>{ b.onclick=()=>show(b.dataset.tab); b.title="Ctrl+"+(i+1); });
-// Ctrl+1…5 switches tabs, wherever the focus is (the pages are same-origin iframes, so they get the listener too)
+// Ctrl+1…6 switches tabs, wherever the focus is (the pages are same-origin iframes, so they get the listener too)
 const tabKeys=e=>{ const n=+e.key; if(e.ctrlKey && !e.altKey && !e.shiftKey && n>=1 && n<=tabBtns.length){ e.preventDefault(); show(tabBtns[n-1].dataset.tab); } };
 addEventListener("keydown", tabKeys);
 for(const f of [comp, wheel, bingo]){
@@ -128,7 +129,7 @@ addEventListener("message", e=>{
   if(e.source===bingo.contentWindow && e.data && e.data.studioBack==="bingo") return show("special");
   if(e.source!==comp.contentWindow || !e.data || !("studioSection" in e.data)) return;
   const sec=e.data.studioSection;
-  if(tab==="requests") return comp.contentWindow.postMessage({studioTab:"requests"}, "*");   // the queue sits over the page
+  if(tab==="requests" || tab==="teasers") return comp.contentWindow.postMessage({studioTab:tab}, "*");   // these sit over the page
   if(sec){ if(tab!=="wheel") show(sec, true); }
   else comp.contentWindow.postMessage({studioTab: tab && tab!=="wheel" ? tab : "comp"}, "*");
 });
