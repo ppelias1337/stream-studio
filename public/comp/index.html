@@ -6171,7 +6171,7 @@ function bdRenderControl(){
     </div>`).join("");
   const due=bdDue().length;
   const rows=bd.winners.map((p,i)=>`<div class="crow"><div class="idx">${i+1}</div>${rfLogo(p.chat?.platform)}<span class="clab">${escapeHtml(p.name)}</span><span class="chint">${escapeHtml(bdRow(p))}</span></div>`).join("");
-  $("#controlBody").innerHTML=`<div class="page-h">${bdTitle()} · ${bdEur(bdPool())} prize pool</div>
+  $("#controlBody").innerHTML=`<div class="page-h" id="bdTitle">${bdTitle()} · ${bdEur(bdPool())} prize pool</div>
     <div class="cb-edit">${cells}</div>
     <div class="two-col">${rfSection()}
     <div class="section"><div class="section-h">Winners · ${bd.winners.length}${due?` · ${due} due`:""}</div>${rows ? `<div class="crows">${rows}</div>` : `<div class="chint">Nobody drawn yet.</div>`}</div></div>
@@ -6182,6 +6182,7 @@ function bdRenderControl(){
   document.querySelectorAll("[data-bd-tick]").forEach(b=>{ b.onclick=()=>bdTick(b.dataset.bdTick, +b.dataset.d); });
   document.querySelectorAll("[data-bd-lab]").forEach(i=>{ i.onchange=()=>{ const x=bdCell(i.dataset.bdLab); x.label=i.value.trim()||x.label; bdSave(); bdRender(); }; });
   $("#bdNewBtn").onclick=bdConfirmReset;
+  $("#bdTitle").ondblclick=()=>{ getSelection().removeAllRanges(); tzs.once={k:"zb", at:netNow()}; tzsSave(); };   // the secret Zombie Bros teaser (TZ_CLIPS.zb)
   // datetime-local is this PC's time
   $("#tzAt").onchange=e=>{ const v=new Date(e.target.value).getTime(); if(v) tz.at=v; bdSave(); bdRender(); };
   document.querySelectorAll("[data-tz-box]").forEach(b=>{ b.onclick=()=>{ tz.box=b.dataset.tzBox; bdSave(); bdRender(); }; });
@@ -6303,7 +6304,9 @@ requestAnimationFrame(bdDrawFrame);
    so OBS and the panel play the same one. The BB3 one counts down to the board's giveaway (bd.tz.at) and leaves the
    rotation once that has passed; the box before that giveaway (bd.tz.box) stays with the Challenge Board.
    (Tried first, live in CSS: a herd charging at the camera, an edge glow, a falling card. Elias: scuffed, Paint-like.) */
-const TZ_CLIPS={zb:{src:"promo/zb-teaser.webm", ms:7600, name:"Zombie Bros", note:"Playtech × CasinoDaddy sneak peek"},
+// secret: kept out of the Teasers tab and the rotation; only double-clicking the Challenge Board's title plays it (a surprise
+// for the Buffalo Blitz stream that only Elias knows about)
+const TZ_CLIPS={zb:{src:"promo/zb-teaser.webm", ms:7600, name:"Zombie Bros", note:"Playtech × CasinoDaddy sneak peek", secret:true},
   bb3:{src:"promo/bb3-teaser-3d.webm", ms:6000, name:"Buffalo Blitz 3 €2,000", note:"Counts down to the Challenge Board giveaway"}};
 const tzVids={};   // one element per clip, loaded up front, so a takeover starts on time
 const tzVideo=k=>tzVids[k] ||= Object.assign(document.createElement("video"), {src:TZ_CLIPS[k].src, muted:true, playsInline:true, preload:"auto"});
@@ -6313,8 +6316,9 @@ const TZS_KEY="teasers_v1";
 function tzsLoad(){
   let z=null; try{ z=JSON.parse(localStorage.getItem(TZS_KEY)); }catch(e){}
   if(!z){ const o=bd.tz||{};   // first start: the board's old timer carries over
-    z={on:!!o.on, every:o.every||20, start:o.start||0, once:null, order:["zb","bb3"], off:{}}; }
-  z.order=[...z.order.filter(k=>TZ_CLIPS[k]), ...Object.keys(TZ_CLIPS).filter(k=>!z.order.includes(k))];   // new clips join at the bottom
+    z={on:!!o.on, every:o.every||20, start:o.start||0, once:null, order:["bb3"], off:{}}; }
+  const ok=k=>TZ_CLIPS[k] && !TZ_CLIPS[k].secret;
+  z.order=[...z.order.filter(ok), ...Object.keys(TZ_CLIPS).filter(k=>ok(k) && !z.order.includes(k))];   // new clips join at the bottom
   return z;
 }
 let tzs=tzsLoad();
